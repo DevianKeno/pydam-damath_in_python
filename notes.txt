@@ -1,0 +1,28 @@
+Libraries:
+math
+random
+pygame
+pygamegui
+# others
+
+To-do:
+1. checkered_board
+	+ arithmetic symbols
+2. pieces
+	+ values
+3. scoreboard
+
+Classes:
+	Board
+	Tile
+	Piece
+	Scoreboard
+
+Pseudocode:
+# Initialize board
+# Initialize pieces
+# Start game logic
+GameIsRunning = true;
+while GameIsRunning:
+	// Game logic
+
