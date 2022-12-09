@@ -19,10 +19,19 @@ Classes:
 	Scoreboard
 
 Pseudocode:
-# Initialize board
-# Initialize pieces
-# Start game logic
-GameIsRunning = true;
-while GameIsRunning:
-	// Game logic
+main()
+	// Menu UI
+		// Start Game
+			start_game()
+
+start_game()
+	# Initialize board
+	# Initialize pieces
+	GameIsRunning = true
+	while GameIsRunning:
+		turn = 1 // White = 1, Black = 2
+		while turn <= 2:
+			// Game logic
+			// Someone loses
+				GameIsRunning = false
 
