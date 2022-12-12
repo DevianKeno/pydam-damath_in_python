@@ -1,0 +1,24 @@
+import pygame
+
+BOARD_WIDTH = 700
+BOARD_HEIGHT = 700  
+
+SCOREBOARD_WIDTH = 225
+SCOREBOARD_HEIGHT = 550
+
+ROWS, COLS = 8, 8
+SQUARE_SIZE = BOARD_WIDTH//COLS
+
+#RGB
+RED = '#F93535'
+DARKER_RED = '#6D1919'
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+GRAY = (128, 128, 128)
+BROWN = '#A05B08'
+LIGHT_BLUE = '#3B6DFE'
+DARKER_BLUE = '#182D69'
+YELLOW = '#FFE804'
+
+CROWN = pygame.transform.scale(pygame.image.load('assets\crown.png'), (25, 14))
