@@ -94,7 +94,7 @@ class Button:
         self.top_rect.update((self.x-(HOVER_SIZE/2), self.y-(HOVER_SIZE/2)), 
                                 (self.width+HOVER_SIZE, self.height+HOVER_SIZE))
         self.radius = self.init_radius+1
-        self.top_color = '#CF9314'
+        self.top_color = '#51A938'
         self.text_fontsize = self.fontsize+(int(self.fontsize*0.2))
         self.play+=1
         self.play_audio()

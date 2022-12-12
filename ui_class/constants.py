@@ -2,7 +2,7 @@ import pygame
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 # --------- initial / original values ---------
-BTN_COLOR = '#EBA717'   
+BTN_COLOR = '#6FB95A'   
 TXT_COLOR = 'white'
 FONTSIZE = 36
 
