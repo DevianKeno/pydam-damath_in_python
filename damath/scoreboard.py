@@ -66,3 +66,7 @@ class Scoreboard:
 
         print(f'Player 1: {self.player1_score}\n' \
                 f'Player 2: {self.player2_score}')       
+
+    def reset(self):
+        self.player1_score = 0 #red
+        self.player2_score = 0 #blue

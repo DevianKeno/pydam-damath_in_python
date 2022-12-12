@@ -29,6 +29,7 @@ class Game:
         return self.board.winner()
 
     def reset(self):
+        self.scoreboard.reset()
         self._init()
 
     def select(self, row, col):
