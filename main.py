@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, random
 
 from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
@@ -15,6 +15,9 @@ def get_row_col_from_mouse(pos):
     col = (x-300) // SQUARE_SIZE
     return row, col
 
+def anim_dim():
+    return random.randrange(0, SCREEN_WIDTH, 10), 0
+
 # --------- initialization ---------
 pygame.init()
 pygame.font.init()
@@ -25,14 +28,94 @@ reso = pygame.display.Info() # gets the video display information object
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 720
 FPS = 60
-BG_COLOR = '#FFE3C3'
+BG_COLOR = BLACK
+#BG_COLOR = '#FFE3C3'
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Damath') # window caption
 pygame.display.set_icon(LOGO_png)
 clock = pygame.time.Clock()
 
-# --------- blitting Start button ---------
+# --------- animation assets ---------
+frames_blue = []
 
+for i in range(1, 462):
+    if i < 10:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/000{i}.png'), (240, 180))
+    elif i < 100:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/00{i}.png'), (240, 180))  
+    else:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/0{i}.png'), (240, 180))  
+
+    frames_blue.append(frame)
+
+frames_red = []
+
+for i in range(1, 462):
+    if i < 10:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/000{i}.png'), (240, 180))
+    elif i < 100:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/00{i}.png'), (240, 180))  
+    else:
+        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/0{i}.png'), (240, 180))  
+
+    frames_red.append(frame)
+
+class SpinningChip:
+
+    SPEED = 5
+    ALPHA = 255 # opacity (0 - transparent, 255 - opaque)
+
+    def __init__(self, screen, color):
+        self.screen = screen
+        self.color = color
+        self._init()
+        self.frame = 0
+        self.delay = 0
+        self.delayed = False
+
+    def _init(self):
+        self.width, self.height = anim_dim()
+
+    def next_frame(self):
+        if self.height == 0 and not self.delayed:
+            self.delay = random.randint(1, 100)
+            self.height = self.height - self.delay
+            self.delayed = True
+        
+        if self.height > SCREEN_HEIGHT:
+            self.reset()
+
+        if self.delay:
+            self.height += 1
+            self.delay -= 1
+        else:
+            self.height += self.SPEED
+
+            if self.frame == len(frames_blue)-1:
+                self.frame =  0
+            else:
+                self.frame += 1
+
+            if self.color == 'blue':
+                frames_blue[self.frame].set_alpha(self.ALPHA)
+                self.screen.blit(frames_blue[self.frame], (self.width, self.height))
+            else:
+                frames_red[self.frame].set_alpha(self.ALPHA)
+                self.screen.blit(frames_red[self.frame], (self.width, self.height))
+        
+    def reset(self):
+        self._init()
+
+# --------- blitting icon ---------
+
+blue_chips = []
+red_chips = []
+
+for i in range(6):
+    if (i%2 == 0):
+        blue_chips.append(SpinningChip(screen, 'blue'))
+    else:
+        red_chips.append(SpinningChip(screen, 'red'))
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start') # w, h, (x, y), radius, image=None, text
@@ -70,8 +153,14 @@ quit_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 285), 5, None,
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
+    
     while True:
         screen.fill(BG_COLOR) # window color
+
+        for i in range(len(red_chips)):
+            red_chips[i].next_frame()
+            blue_chips[i].next_frame()
+
         #screen.blit(LOGO_png, (SCREEN_WIDTH//2-(LOGO_png.get_width()//2), SCREEN_HEIGHT//2-(LOGO_png.get_height()//2)-100))
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
         # button hover effect
@@ -90,7 +179,6 @@ def main_menu() :
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()   
-
         start_btn.draw()
         option_btn.display_image()
         pygame.display.update()
