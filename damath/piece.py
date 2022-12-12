@@ -1,5 +1,5 @@
 import pygame
-from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN
+from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN, BLUE_PIECE, RED_PIECE
 
 class Piece:
 
@@ -25,14 +25,19 @@ class Piece:
     def make_king(self):
         self.king = True
 
-    def draw(self, surface, number):
+    def draw(self, surface, number, color):
         radius = SQUARE_SIZE//2 - self.PADDING
-        pygame.draw.circle(surface, BLACK, (self.x, self.y), radius+ self.OUTLINE)
-        pygame.draw.circle(surface, self.color, (self.x, self.y), radius)
+        #pygame.draw.circle(surface, BLACK, (self.x, self.y), radius+ self.OUTLINE)
+        #pygame.draw.circle(surface, self.color, (self.x, self.y), radius)
 
         font = pygame.font.Font("font/GlacialIndifference-Bold.ttf", 24) #18 = fontsize
         text_surface = font.render(str(number), True, BLACK) #FFFFFF
         text_rect = text_surface.get_rect(center=(self.x, self.y))
+
+        if color == RED:
+            surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x-33, self.y-33))
+        else:
+            surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x-33, self.y-33))           
         surface.blit(text_surface, text_rect)
 
         if self.king:

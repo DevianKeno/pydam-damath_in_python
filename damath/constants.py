@@ -1,10 +1,11 @@
 import pygame
-
+from ui_class.constants import BTN_COLOR
 BOARD_WIDTH = 700
 BOARD_HEIGHT = 700  
 
 SCOREBOARD_WIDTH = 225
 SCOREBOARD_HEIGHT = 550
+SCOREBOARD_COLOR = BTN_COLOR
 
 ROWS, COLS = 8, 8
 SQUARE_SIZE = BOARD_WIDTH//COLS
@@ -20,5 +21,10 @@ BROWN = '#A05B08'
 LIGHT_BLUE = '#3B6DFE'
 DARKER_BLUE = '#182D69'
 YELLOW = '#FFE804'
+
+BLUE_PIECE = pygame.image.load('assets\piece_blue.png')
+RED_PIECE = pygame.image.load('assets\piece_red.png')
+
+BOARD = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-10))
 
 CROWN = pygame.transform.scale(pygame.image.load('assets\crown.png'), (25, 14))

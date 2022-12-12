@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import RED, LIGHT_BLUE, YELLOW, SQUARE_SIZE
+from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE
 #from .scoreboard import Scoreboard
 
 pygame.mixer.init()
@@ -73,12 +73,17 @@ class Game:
             return False
 
         return True
-
+    
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
-            #pygame.draw.circle(self.surface, BLUE, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), 8)
-            pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+            self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+            alpha_circle.set_alpha(50)
+            alpha_circle.fill(WHITE)
+            pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
+            pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), 16)
+            #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def change_turn(self):
         self.valid_moves = {}

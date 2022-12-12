@@ -1,6 +1,6 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR
+from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE
 from ui_class.button import Button
@@ -178,8 +178,6 @@ game = Game(board_surface, scoreboard)
 # --------- instantiating Pause objects ---------
 paused_rect = pygame.Rect((SCREEN_WIDTH//2-175, SCREEN_HEIGHT//2-200, 350, 400))
 paused_surface = pygame.Surface((paused_rect.w, paused_rect.h))
-paused_surface.fill((0, 0, 0))
-paused_surface.set_colorkey((0, 0, 0))
 
 # pause menu options
 resume_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 60), 5, None, text='Resume', fontsize=24)
@@ -215,7 +213,6 @@ def main_menu() :
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()   
-                
         start_btn.draw()
         option_btn.display_image()
         screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
@@ -223,19 +220,16 @@ def main_menu() :
         clock.tick(FPS)
 
 # --------- pause function ---------
-
-
 def pause():
 
-    paused = True
     board_surface.set_alpha(50)
     scoreboard_surface.set_alpha(50)   
-    screen.blits(((scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)), (board_surface, (board_rect.x, board_rect.y))))
+    screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
+    screen.blit(board_surface, (board_rect.x, board_rect.y))
+    paused = True
 
-    while paused:
-
-        screen.blit(paused_surface, (paused_rect.x, paused_rect.y))
-        paused_surface.fill(WHITE)
+    while paused:   
+        paused_surface.set_colorkey((255, 255, 255))
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
         #print(current_mouse_x, current_mouse_y)
       
@@ -273,15 +267,16 @@ def pause():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     paused = not paused   
-                    break
 
-        #pygame.draw.rect(paused_surface, WHITE, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
+        screen.blit(paused_surface, (paused_rect.x, paused_rect.y))
+        paused_surface.set_colorkey((0, 0, 0))
+        pygame.draw.rect(paused_surface, WHITE, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
         resume_btn.draw()
         restart_btn.draw()
         pause_options_btn.draw()
         quit_btn.draw()     
-
         pygame.display.update()
+
         clock.tick(60)
 
 # --------- start game function ---------

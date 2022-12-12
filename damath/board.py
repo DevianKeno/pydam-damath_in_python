@@ -1,6 +1,6 @@
 import pygame
 from .piece import Piece
-from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK
+from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD
 import operator
 
 class Board:
@@ -11,20 +11,23 @@ class Board:
         self.create_board()
 
     def draw_squares(self, surface):
-        surface.fill(WHITE)
+        surface.fill(BLACK)
         SYMBOLS = ["x", "÷", "-", "+"]
         symbol_counter = 0
         global symbol_map
         symbol_map = {}
         for row in range(ROWS):
 
-            for col in range(row % 2, ROWS, 2):
+            """for col in range(row % 2, ROWS, 2):
                 pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
-                                 SQUARE_SIZE, SQUARE_SIZE))
-                         
+                                 SQUARE_SIZE, SQUARE_SIZE))"""
+            
+            surface.blit(BOARD, (0, 2))
+
+        for row in range(ROWS):
             for col in range((row+1) % 2, ROWS, 2):
                 font = pygame.font.Font(None, 48) 
-                text_surface = font.render(SYMBOLS[symbol_counter], True, BLACK) #FFFFFF
+                text_surface = font.render(SYMBOLS[symbol_counter], True, WHITE) #FFFFFF
                 text_rect = text_surface.get_rect(center=(col*SQUARE_SIZE+(SQUARE_SIZE//2), row * SQUARE_SIZE+(SQUARE_SIZE//2)+2))
                 surface.blit(text_surface, text_rect)
                 symbol_map.update({(row, col):SYMBOLS[symbol_counter]})
@@ -86,7 +89,7 @@ class Board:
                 piece = self.board[row][col]
 
                 if piece.color != 0:
-                    piece.draw(surface, piece.number)
+                    piece.draw(surface, piece.number, piece.color)
 
     def remove(self, pieces):
         for piece in pieces:

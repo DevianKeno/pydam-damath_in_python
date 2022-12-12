@@ -1,4 +1,4 @@
-from .constants import LIGHT_BLUE, RED, WHITE, BLACK, DARKER_BLUE, DARKER_RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT
+from .constants import LIGHT_BLUE, RED, WHITE, BLACK, DARKER_BLUE, DARKER_RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR
 import pygame, operator
 from ui_class.fade import fade
 
@@ -12,7 +12,7 @@ class Scoreboard:
         self.player2_score = 0 #blue
 
     def draw(self):
-        self.surface.fill('#EBA717')
+        self.surface.fill(SCOREBOARD_COLOR)
         pygame.draw.rect(self.surface, LIGHT_BLUE, (10, 10, self.width-20, self.height//2-10))
         pygame.draw.rect(self.surface, RED, (10, self.height//2+10, self.width-20, self.height//2-20))
 
