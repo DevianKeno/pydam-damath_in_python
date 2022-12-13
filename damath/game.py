@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE
+from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET
 #from .scoreboard import Scoreboard
 
 pygame.mixer.init()
@@ -26,7 +26,16 @@ class Game:
         self.valid_moves = {}
 
     def winner(self):   
-        return self.board.winner()
+        if self.board.red_left <=0 or self.board.white_left <= 0:
+            red_score, blue_score = self.scoreboard.score()
+            if red_score > blue_score:
+                return "Red Wins"
+            elif blue_score > red_score:
+                return "Blue Wins"
+            else:
+                return "Tie"
+        
+        return None
 
     def reset(self):
         self.scoreboard.reset()
@@ -76,15 +85,18 @@ class Game:
         return True
     
     def draw_valid_moves(self, moves):
-        for move in moves:
-            row, col = move
-            """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-            self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
-            alpha_circle.set_alpha(50)
-            alpha_circle.fill(WHITE)
-            pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-            pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), 16)
-            #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+        if self.selected:
+            for move in moves:
+                row, col = move
+                """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+                self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                alpha_circle.set_alpha(50)
+                alpha_circle.fill(WHITE)
+                pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
+                pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
+                #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+        else:
+            pass
 
     def change_turn(self):
         self.valid_moves = {}

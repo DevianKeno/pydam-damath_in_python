@@ -1,6 +1,6 @@
 import pygame
 from .piece import Piece
-from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD
+from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
 import operator
 
 class Board:
@@ -22,14 +22,14 @@ class Board:
                 pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
                                  SQUARE_SIZE, SQUARE_SIZE))"""
             
-            surface.blit(BOARD, (-3, 0))
+        surface.blit(BOARD_BLACK, (1, -1))
 
         for row in range(ROWS):
             for col in range((row+1) % 2, ROWS, 2):
-                font = pygame.font.Font(None, 48) 
+                """font = pygame.font.Font(None, 48) 
                 text_surface = font.render(SYMBOLS[symbol_counter], True, WHITE) #FFFFFF
-                text_rect = text_surface.get_rect(center=(col*SQUARE_SIZE+(SQUARE_SIZE//2), row * SQUARE_SIZE+(SQUARE_SIZE//2)+2))
-                surface.blit(text_surface, text_rect)
+                text_rect = text_surface.get_rect(center=(col*SQUARE_SIZE+(SQUARE_SIZE//2)+OFFSET, row * SQUARE_SIZE+(SQUARE_SIZE//2)+OFFSET))
+                surface.blit(text_surface, text_rect)"""
                 symbol_map.update({(row, col):SYMBOLS[symbol_counter]})
                 if symbol_counter < 3:
                     symbol_counter+=1
@@ -99,14 +99,6 @@ class Board:
                     self.red_left -= 1 
                 else:
                     self.white_left -= 1
-
-    def winner(self):
-        if self.red_left <= 0:
-            return "BLUE WINS!"
-        elif self.white_left <= 0:
-            return "RED WINS"
-
-        return None 
 
     def get_valid_moves(self, piece):
         moves = {}

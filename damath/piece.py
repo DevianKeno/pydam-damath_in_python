@@ -1,5 +1,5 @@
 import pygame
-from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING
+from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, OFFSET
 
 class Piece:
 
@@ -32,18 +32,18 @@ class Piece:
 
         font = pygame.font.Font("font/GlacialIndifference-Bold.ttf", 24) #18 = fontsize
         text_surface = font.render(str(number), True, BLACK) #FFFFFF
-        text_rect = text_surface.get_rect(center=(self.x, self.y))
+        text_rect = text_surface.get_rect(center=(self.x+OFFSET, self.y+OFFSET))
 
         if color == RED:
             if self.king:
-                surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, (66, 66)), (self.x-33, self.y-33))
+                surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, (66, 66)), (self.x, self.y))
             else:
-                surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x-33, self.y-33))
+                surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x, self.y))
         else:
             if self.king:
-                surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, (66, 66)), (self.x-33, self.y-33))   
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, (66, 66)), (self.x, self.y))   
             else:
-                surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x-33, self.y-33))           
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x, self.y))           
         
         surface.blit(text_surface, text_rect)
 

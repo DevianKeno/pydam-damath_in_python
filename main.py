@@ -1,10 +1,13 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR
+from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
+SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET
+
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE
 from ui_class.button import Button
 from ui_class.fade import *
+from damath.piece import Piece
 from damath.game import Game
 from damath.scoreboard import Scoreboard
 from numpy import linspace
@@ -12,8 +15,8 @@ from numpy import linspace
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
     x, y = pos
-    row = (y-15) // SQUARE_SIZE
-    col = (x-300) // SQUARE_SIZE
+    row = (y-board_rect.y-OFFSET) // SQUARE_SIZE
+    col = (x-board_rect.x-OFFSET) // SQUARE_SIZE
     return row, col
 
 def anim_dim():
@@ -25,6 +28,7 @@ pygame.font.init()
 pygame.mixer.init()
 
 # --------- defining constants / objects for screen  ---------
+
 reso = pygame.display.Info() # gets the video display information object
 SCREEN_WIDTH = 1080 #reso.current_w #1080
 SCREEN_HEIGHT = 720 #reso.current_h #720
@@ -185,8 +189,8 @@ return_img = pygame.transform.smoothscale(pygame.image.load(return_img_filepath)
 return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RETURN_DIMENSION) # w, h, (x, y), radius, image, text=None
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
-board_surface = pygame.Surface((BOARD_WIDTH, BOARD_HEIGHT)) # creating a Surface object where the board will be placed
-board_rect = pygame.Rect(300, 15, BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
+board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
+board_rect = pygame.Rect(375, 25, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect = pygame.Rect(45, 125, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
@@ -201,7 +205,6 @@ game = Game(board_surface, scoreboard)
 paused_rect = pygame.Rect((SCREEN_WIDTH//2, SCREEN_HEIGHT//2-200, 350, 400))
 paused_surface = pygame.Surface((paused_rect.w, paused_rect.h), pygame.SRCALPHA)
 #paused_surface.set_colorkey((0, 0, 0))
-
 
 # pause menu options
 resume_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-265), 5, None, text='Resume', fontsize=24)
@@ -304,8 +307,7 @@ def pause():
         resume_btn.draw()
         restart_btn.draw()
         pause_options_btn.draw()
-        quit_btn.draw()     
-
+        quit_btn.draw() 
         pygame.display.update()
         clock.tick(60)
 
@@ -314,18 +316,17 @@ def pause():
 def start_game():
     
     running = True
-
+    
     while running:
         screen.fill(BG_COLOR)
-
-        screen.blit(board_surface, (board_rect.x, board_rect.y))                       
-        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
-        scoreboard.draw()
-        return_btn.display_image()      
+        
+        screen.blit(board_surface, (board_rect.x, board_rect.y))     
+        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
 
         if game.winner() != None:
             print(game.winner()) 
-            running = False      
+            running = False
+            main_menu()   
 
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
         if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
@@ -342,6 +343,38 @@ def start_game():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     pause()
                     break
+            # test codes
+                _keys = pygame.key.get_pressed()
+
+                if _keys[pygame.K_LSHIFT]:
+                    if _keys[pygame.K_1]: # game resets
+                        game.reset()
+                    if _keys[pygame.K_2]: # blue wins
+                        game.scoreboard.player1_score = 1
+                        game.scoreboard.player2_score = 0
+                        game.board.red_left = 0
+                    if _keys[pygame.K_3]: # red wins
+                        game.scoreboard.player1_score = 0
+                        game.scoreboard.player2_score = 1
+                        game.board.red_left = 0
+                    if _keys[pygame.K_4]: # make all pieces king
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j].king = True
+                    if _keys[pygame.K_5]: # make all pieces not king
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j].king = False   
+                    if _keys[pygame.K_6]: # removes all pieces
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j] = Piece(i, j, 0, 0)
+                    if _keys[pygame.K_7]: # displays a single chip in both ends
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j] = Piece(i, j, 0, 0)
+                        game.board.board[0][1] = Piece(0, 1, LIGHT_BLUE, 2)   
+                        game.board.board[7][6] = Piece(7, 6, RED, 2)  
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:
@@ -353,6 +386,9 @@ def start_game():
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
                         game.select(row, col)
+
+        scoreboard.draw()
+        return_btn.display_image()     
         game.update()
         clock.tick(60)
  
