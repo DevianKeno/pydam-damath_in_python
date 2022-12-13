@@ -108,17 +108,43 @@ class Board:
         moves = {}
         left  = piece.col - 1
         right = piece.col + 1
+        up = -1
+        down = 1
         row  = piece.row
-        if piece.color == RED or piece.king:
-            moves.update(self._traverse_left(row-1, max(row-3, -1), -1, piece.color, left))
-            moves.update(self._traverse_right(row-1, max(row-3, -1), -1, piece.color, right))
-        if piece.color == LIGHT_BLUE or piece.king:
-            moves.update(self._traverse_left(row+1, min(row+3, ROWS), 1, piece.color, left))
-            moves.update(self._traverse_right(row+1, min(row+3, ROWS), 1, piece.color, right))
+        if piece.color == RED:
+            if piece.king:
+                # Up
+                moves.update(self._traverse_left(row-1, -1, up, piece.color, left, True))
+                moves.update(self._traverse_right(row-1, -1, up, piece.color, right, True))
+                # Down
+                moves.update(self._traverse_left(row+1, ROWS, down, piece.color, left, True))
+                moves.update(self._traverse_right(row+1, ROWS, down, piece.color, right, True))
+            else:
+                # Up
+                moves.update(self._traverse_left(row-1, max(row-3, -1), up, piece.color, left, False))
+                moves.update(self._traverse_right(row-1, max(row-3, -1), up, piece.color, right, False))
+                # Down (Capture only)
+                moves.update(self._traverse_left(row+1, min(row+3, ROWS), down, piece.color, left, False))
+                moves.update(self._traverse_right(row+1, min(row+3, ROWS), down, piece.color, right, False))
+        if piece.color == LIGHT_BLUE:
+            if piece.king:
+                # Up
+                moves.update(self._traverse_left(row-1, -1, up, piece.color, left, True))
+                moves.update(self._traverse_right(row-1, -1, up, piece.color, right, True))
+                # Down
+                moves.update(self._traverse_left(row+1, ROWS, down, piece.color, left, True))
+                moves.update(self._traverse_right(row+1, ROWS, down, piece.color, right, True))
+            else:
+                # Up (Capture only)
+                moves.update(self._traverse_left(row-1, max(row-3, -1), up, piece.color, left, False))
+                moves.update(self._traverse_right(row-1, max(row-3, -1), up, piece.color, right, False))
+                # Down
+                moves.update(self._traverse_left(row+1, min(row+3, ROWS), 1, piece.color, left, False))
+                moves.update(self._traverse_right(row+1, min(row+3, ROWS), 1, piece.color, right, False))
 
         return moves
 
-    def _traverse_left(self, start, stop, step, color, left, skipped=[]):
+    def _traverse_left(self, start, stop, step, color, left, IsKing, skipped=[]):
         moves = {}
         last = []
         for r in range(start, stop, step):
@@ -126,7 +152,48 @@ class Board:
                 break
 
             current = self.board[r][left]
+            # Checks if empty
             if current.color == 0:
+                if color == RED:
+                    if step == 1:
+                        if last:
+                            if step == -1:
+                                row = max(r-3, 0)
+                            else:
+                                row = min(r+3, ROWS)
+                            # Down
+                            moves.update(self._traverse_left(r+step, row, step, color, left-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, step, color, left+1, IsKing, skipped=last))
+                            # Up
+                            # NEEDS FIXING
+                            moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
+                            moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
+                        else:
+                            if IsKing:
+                                pass
+                            else:
+                                break
+                else:
+                    if step == -1:
+                        if last:
+                            if step == -1:
+                                row = max(r-3, 0)
+                            else:
+                                row = min(r+3, ROWS)
+                            # Down
+                            moves.update(self._traverse_left(r+step, row, step, color, left-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, step, color, left+1, IsKing, skipped=last))
+                            # Up
+                            # NEEDS FIXING
+                            moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
+                            moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
+                        else:
+                            if IsKing:
+                                pass
+                            else:
+                                break
+
+
                 if skipped and not last:
                     break
                 elif skipped:
@@ -139,13 +206,17 @@ class Board:
                         row = max(r-3, 0)
                     else:
                         row = min(r+3, ROWS)
-            
-                    moves.update(self._traverse_left(r+step, row, step, color, left-1, skipped=last))
-                    moves.update(self._traverse_right(r+step, row, step, color, left+1, skipped=last))
+                    moves.update(self._traverse_left(r+step, row, step, color, left-1, IsKing, skipped=last))
+                    moves.update(self._traverse_right(r+step, row, step, color, left+1, IsKing, skipped=last))
+                
+                if IsKing:
+                    pass
+                else:
+                    break
+            # Checks if same piece
+            elif current.color == color:
                 break
-
-            elif current.color ==  color:
-                break
+            # There's other piece
             else:
                 last = [current]
 
@@ -153,7 +224,7 @@ class Board:
 
         return moves
 
-    def _traverse_right(self, start, stop, step, color, right, skipped=[]):
+    def _traverse_right(self, start, stop, step, color, right, IsKing, skipped=[]):
         moves = {}
         last = []
         for r in range(start, stop, step):
@@ -162,22 +233,63 @@ class Board:
 
             current = self.board[r][right]
             if current.color == 0:
+                if color == RED:
+                    if step == 1:
+                        if last:
+                            if step == -1:
+                                row = max(r-3, 0)
+                            else:
+                                row = min(r+3, ROWS)
+                            # Down
+                            moves.update(self._traverse_left(r+step, row, step, color, right-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, step, color, right+1, IsKing, skipped=last))
+                            # Up
+                            # NEEDS FIXING
+                            moves.update(self._traverse_left(r+step, row, -1, color, right-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, -1, color, right+1, IsKing, skipped=last))
+                        else:
+                            if IsKing:
+                                pass
+                            else:
+                                break
+                else:
+                    if step == -1:
+                        if last:
+                            if step == -1:
+                                row = max(r-3, 0)
+                            else:
+                                row = min(r+3, ROWS)
+                            # Down
+                            moves.update(self._traverse_left(r+step, row, step, color, right-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, step, color, right+1, IsKing, skipped=last))
+                            # Up
+                            # NEEDS FIXING
+                            moves.update(self._traverse_left(r+step, row, -1, color, right-1, IsKing, skipped=last))
+                            moves.update(self._traverse_right(r+step, row, -1, color, right+1, IsKing, skipped=last))
+                        else:
+                            if IsKing:
+                                pass
+                            else:
+                                break
+
                 if skipped and not last:
                     break
                 elif skipped:
                     moves[(r, right)] = last + skipped
                 else:
                     moves[(r, right)] = last
-
                 if last:
                     if step == -1:
                         row = max(r-3, 0)
                     else:
                         row = min(r+3, ROWS)
-            
-                    moves.update(self._traverse_left(r+step, row, step, color, right-1, skipped=last))
-                    moves.update(self._traverse_right(r+step, row, step, color, right+1, skipped=last))
-                break
+                    moves.update(self._traverse_left(r+step, row, step, color, right-1, IsKing, skipped=last))
+                    moves.update(self._traverse_right(r+step, row, step, color, right+1, IsKing, skipped=last))
+                
+                if IsKing:
+                    pass
+                else:
+                    break
 
             elif current.color ==  color:
                 break
