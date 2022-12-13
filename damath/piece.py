@@ -1,5 +1,5 @@
 import pygame
-from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN, BLUE_PIECE, RED_PIECE
+from .constants import RED, WHITE, BLACK, SQUARE_SIZE, CROWN, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING
 
 class Piece:
 
@@ -35,13 +35,20 @@ class Piece:
         text_rect = text_surface.get_rect(center=(self.x, self.y))
 
         if color == RED:
-            surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x-33, self.y-33))
+            if self.king:
+                surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, (66, 66)), (self.x-33, self.y-33))
+            else:
+                surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x-33, self.y-33))
         else:
-            surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x-33, self.y-33))           
+            if self.king:
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, (66, 66)), (self.x-33, self.y-33))   
+            else:
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x-33, self.y-33))           
+        
         surface.blit(text_surface, text_rect)
 
-        if self.king:
-            surface.blit(CROWN, (self.x - CROWN.get_width()//2, self.y-radius))
+        """if self.king:
+            surface.blit(CROWN, (self.x - CROWN.get_width()//2, self.y-radius))"""
 
     def move(self, row, col):
         self.row = row

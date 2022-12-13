@@ -1,6 +1,6 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR
+from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE
 from ui_class.button import Button
@@ -31,7 +31,8 @@ SCREEN_HEIGHT = 720 #reso.current_h #720
 FPS = 60
 #BG_COLOR = '#240032'
 
-ANIM_SPEED = 5
+ANIM_SPEED = 3
+ANIM_ALPHA = 180 # opacity (0 - transparent, 255 - opaque)
 CHIP_WIDTH = 360
 CHIP_HEIGHT = 240
 BG_COLOR = BLACK
@@ -41,11 +42,9 @@ pygame.display.set_caption('DamPY') # window caption
 pygame.display.set_icon(LOGO)
 clock = pygame.time.Clock()
 
-# --------- Spinning Chip Animation assets ---------
+# --------- Falling Spinning Chip Animation assets ---------
 
-class SpinningChip:
-
-    ALPHA = 180 # opacity (0 - transparent, 255 - opaque)
+class FallingSpinningChip:
 
     def __init__(self, screen, color):
         self.screen = screen
@@ -79,15 +78,39 @@ class SpinningChip:
                 self.frame += 1
 
             if self.color == 'blue':
-                frames_blue[self.frame].set_alpha(self.ALPHA)
+                frames_blue[self.frame].set_alpha(ANIM_ALPHA)
                 self.screen.blit(frames_blue[self.frame], (self.width, self.height))
+
             else:
-                frames_red[self.frame].set_alpha(self.ALPHA)
+                frames_red[self.frame].set_alpha(ANIM_ALPHA)
                 self.screen.blit(frames_red[self.frame], (self.width, self.height))
-        
+    
     def reset(self):
         self._init()
 
+# --------- In-Place Spinning Chip Animation assets ---------
+
+class SpinningChip:
+    
+    def __init__(self, screen, color):
+        self.screen = screen
+        self.color = color
+        self.frame = 0
+
+    def play(self):
+
+        if self.frame == len(frames_blue_big)-1:
+            self.frame = 0
+        else:
+            self.frame += 1
+
+        if self.color == 'red':
+            frames_red_big[self.frame].set_alpha(ANIM_ALPHA)
+            self.screen.blit(frames_red_big[self.frame], (SCREEN_WIDTH//3-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))
+        else:
+            frames_blue_big[self.frame].set_alpha(ANIM_ALPHA)
+            self.screen.blit(frames_blue_big[self.frame], (SCREEN_WIDTH//3.-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))           
+    
 # --------- loading chip frames ---------
 
 blue_chips = []
@@ -95,9 +118,9 @@ red_chips = []
 
 for i in range(8):
     if (i%2 == 0):
-        blue_chips.append(SpinningChip(screen, 'blue'))
+        blue_chips.append(FallingSpinningChip(screen, 'blue'))
     else:
-        red_chips.append(SpinningChip(screen, 'red'))
+        red_chips.append(FallingSpinningChip(screen, 'red'))
 
 # --------- animation assets ---------
 frames_blue = []
@@ -123,35 +146,30 @@ for i in range(1, 462):
 
     frames_red.append(frame)
 
-# --------- Screen Gradient function ---------
-"""
-first_color = (83, 0, 145); last_color = (51, 0, 89)
+frames_blue_big = []
 
-firstcolor_array = linspace(83, 145, 100)
-firstcolor_array = [int(f) for f in firstcolor_array]
+for i in range(1, 462):
+    if i < 10:
+        frame = pygame.image.load(f'assets/anim_lowres/blue/000{i}.png')
+    elif i < 100:
+        frame = pygame.image.load(f'assets/anim_lowres/blue/00{i}.png') 
+    else:
+        frame = pygame.image.load(f'assets/anim_lowres/blue/0{i}.png')
 
-lastcolor_array = linspace(51, 89, 100)
-lastcolor_array = [int(l) for l in lastcolor_array]
+    frames_blue_big.append(frame)   
 
-idx = 99
-reverse = False
+frames_red_big = []
 
-def screen_gradient(screen):
-    global firstcolor_array, lastcolor_array, reverse, idx
-    BG_COLOR = (firstcolor_array[idx], 0, lastcolor_array[idx])
-    screen.fill(BG_COLOR)
+for i in range(1, 462):
+    if i < 10:
+        frame = pygame.image.load(f'assets/anim_lowres/red/000{i}.png')
+    elif i < 100:
+        frame = pygame.image.load(f'assets/anim_lowres/red/00{i}.png') 
+    else:
+        frame = pygame.image.load(f'assets/anim_lowres/red/0{i}.png')
 
-    if idx == 0:
-        reverse = True
-        idx += 1
-    if idx == 99:
-        reverse = False
-    if idx > 0 and not reverse:
-        idx -= 1
-    if idx > 0 and reverse:
-        idx += 1
-"""
-    
+    frames_red_big.append(frame)   
+
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start') # w, h, (x, y), radius, image=None, text
 
@@ -169,31 +187,38 @@ return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RE
 # --------- instantiating the Damath Board and Scoreboard  ---------
 board_surface = pygame.Surface((BOARD_WIDTH, BOARD_HEIGHT)) # creating a Surface object where the board will be placed
 board_rect = pygame.Rect(300, 15, BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
-#board_surface.fill(WHITE)
+
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect = pygame.Rect(45, 125, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
 scoreboard = Scoreboard(scoreboard_surface)
 
+big_blue_chip = SpinningChip(screen, 'blue')
+big_red_chip = SpinningChip(screen, 'red')
+
 game = Game(board_surface, scoreboard)
+
 # --------- instantiating Pause objects ---------
-paused_rect = pygame.Rect((SCREEN_WIDTH//2-175, SCREEN_HEIGHT//2-200, 350, 400))
-paused_surface = pygame.Surface((paused_rect.w, paused_rect.h))
-paused_surface.fill((0, 0, 0))
-paused_surface.set_colorkey((0, 0, 0))
+paused_rect = pygame.Rect((SCREEN_WIDTH//2, SCREEN_HEIGHT//2-200, 350, 400))
+paused_surface = pygame.Surface((paused_rect.w, paused_rect.h), pygame.SRCALPHA)
+#paused_surface.set_colorkey((0, 0, 0))
+
 
 # pause menu options
-resume_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 60), 5, None, text='Resume', fontsize=24)
-restart_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 135), 5, None, text='Restart', fontsize=24)
-pause_options_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 210), 5, None, text='Options', fontsize=24)
-quit_btn = Button(paused_surface, 250, 50, (paused_rect.w//2-125, 285), 5, None, text='Quit Game', fontsize=24)
+resume_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-265), 5, None, text='Resume', fontsize=24)
+restart_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-190), 5, None, text='Restart', fontsize=24)
+pause_options_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-115), 5, None, text='Options', fontsize=24)
+quit_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5, None, text='Quit Game', fontsize=24)
+
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
-    
+
+    game.reset()
+
     while True:
         #screen.fill(BG_COLOR) # window color
         screen.fill(BG_COLOR)
-        
+
         for i in range(len(red_chips)):
             red_chips[i].next_frame()
             blue_chips[i].next_frame()
@@ -224,46 +249,16 @@ def main_menu() :
 
 # --------- pause function ---------
 
-
 def pause():
-
     paused = True
-    board_surface.set_alpha(50)
-    scoreboard_surface.set_alpha(50)   
-    screen.blits(((scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)), (board_surface, (board_rect.x, board_rect.y))))
 
     while paused:
+        screen.fill(BLACK)
 
-        screen.blit(paused_surface, (paused_rect.x, paused_rect.y))
-        paused_surface.fill(WHITE)
-        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
-        #print(current_mouse_x, current_mouse_y)
-      
-        if resume_btn.top_rect.collidepoint((current_mouse_x-paused_rect.x, current_mouse_y-paused_rect.y)):
-            resume_btn.hover_update(start_game, delay=1)
-            restart_btn.reset()
-            pause_options_btn.reset()
-            quit_btn.reset()
-        elif restart_btn.top_rect.collidepoint((current_mouse_x-paused_rect.x, current_mouse_y-paused_rect.y)):
-            restart_btn.hover_update(game.reset)
-            resume_btn.reset()
-            pause_options_btn.reset()
-            quit_btn.reset()
-        elif pause_options_btn.top_rect.collidepoint((current_mouse_x-paused_rect.x, current_mouse_y-paused_rect.y)):
-            pause_options_btn.hover_update(options_menu)
-            resume_btn.reset()
-            restart_btn.reset()
-            quit_btn.reset()
-        elif quit_btn.top_rect.collidepoint((current_mouse_x-paused_rect.x, current_mouse_y-paused_rect.y)):
-            resume_btn.reset()
-            restart_btn.reset()
-            pause_options_btn.reset()   
-            quit_btn.hover_update(main_menu, game.reset(), delay=1)   
+        if game.turn == RED:
+            big_red_chip.play()
         else:
-            quit_btn.reset()
-            resume_btn.reset()
-            restart_btn.reset()
-            pause_options_btn.reset()           
+            big_blue_chip.play()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -272,10 +267,40 @@ def pause():
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                    paused = not paused   
+                    paused = not paused
                     break
 
-        #pygame.draw.rect(paused_surface, WHITE, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
+        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
+        #print(current_mouse_x, current_mouse_y)
+      
+        if resume_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            resume_btn.hover_update(start_game, delay=1)
+            restart_btn.reset()
+            pause_options_btn.reset()
+            quit_btn.reset()
+        elif restart_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            restart_btn.hover_update(game.reset)
+            resume_btn.reset()
+            pause_options_btn.reset()
+            quit_btn.reset()
+        elif pause_options_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            pause_options_btn.hover_update(options_menu)
+            resume_btn.reset()
+            restart_btn.reset()
+            quit_btn.reset()
+        elif quit_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            resume_btn.reset()
+            restart_btn.reset()
+            pause_options_btn.reset()   
+            quit_btn.hover_update(main_menu, delay=1)   
+        else:
+            quit_btn.reset()
+            resume_btn.reset()
+            restart_btn.reset()
+            pause_options_btn.reset()           
+
+        #pygame.draw.rect(paused_surface, BLACK, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
+
         resume_btn.draw()
         restart_btn.draw()
         pause_options_btn.draw()
@@ -287,10 +312,16 @@ def pause():
 # --------- start game function ---------
 # (when Start button is pressed)
 def start_game():
+    
     running = True
 
     while running:
         screen.fill(BG_COLOR)
+
+        screen.blit(board_surface, (board_rect.x, board_rect.y))                       
+        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
+        scoreboard.draw()
+        return_btn.display_image()      
 
         if game.winner() != None:
             print(game.winner()) 
@@ -310,6 +341,8 @@ def start_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     pause()
+                    break
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:
                     if board_rect.collidepoint((current_mouse_x, current_mouse_y)):
@@ -320,14 +353,6 @@ def start_game():
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
                         game.select(row, col)
-
-        board_surface.set_alpha()
-        scoreboard_surface.set_alpha()                          
-        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
-        screen.blit(board_surface, (board_rect.x, board_rect.y))   
-        scoreboard.draw()
-        return_btn.display_image()      
-
         game.update()
         clock.tick(60)
  

@@ -86,7 +86,7 @@ class Button:
             pygame.mixer.music.load("audio/pop.wav")
             pygame.mixer.music.play()
 
-    def hover_update(self, func=None, func2=None, _fade=True, delay=6):
+    def hover_update(self, func=None, _fade=True, delay=6):
         """
         Updates if mouse hovered or clicked the button
         """
@@ -126,8 +126,6 @@ class Button:
                         fade(self.screen, SCREEN_WIDTH, SCREEN_HEIGHT, delay=self.delay)
                     self.clicked = False
                     func()
-                    if func2 is not None:
-                        func2()  
         
     def reset(self):
         """

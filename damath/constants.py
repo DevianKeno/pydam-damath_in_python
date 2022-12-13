@@ -25,6 +25,9 @@ YELLOW = '#FFE804'
 BLUE_PIECE = pygame.image.load('assets\piece_blue.png')
 RED_PIECE = pygame.image.load('assets\piece_red.png')
 
-BOARD = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-10))
+BLUE_PIECE_KING = pygame.image.load('assets\piece_blue_king.png')
+RED_PIECE_KING = pygame.image.load('assets\piece_red_king.png')
+
+BOARD = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))
 
 CROWN = pygame.transform.scale(pygame.image.load('assets\crown.png'), (25, 14))

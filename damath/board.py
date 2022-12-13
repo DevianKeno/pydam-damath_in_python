@@ -22,7 +22,7 @@ class Board:
                 pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
                                  SQUARE_SIZE, SQUARE_SIZE))"""
             
-            surface.blit(BOARD, (0, 2))
+            surface.blit(BOARD, (-3, 0))
 
         for row in range(ROWS):
             for col in range((row+1) % 2, ROWS, 2):
