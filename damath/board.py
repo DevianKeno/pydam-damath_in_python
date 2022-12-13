@@ -4,11 +4,15 @@ from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, B
 import operator
 
 class Board:
-    def __init__(self):
+    def __init__(self, theme):
         self.board = [] #array representation of the board
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
         self.create_board()
+        self.theme = theme
+
+    def update_theme(self, theme):
+        self.theme = theme
 
     def draw_squares(self, surface):
         surface.fill(BLACK)
@@ -22,7 +26,7 @@ class Board:
                 pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
                                  SQUARE_SIZE, SQUARE_SIZE))"""
             
-        surface.blit(BOARD_BLACK, (1, -1))
+        surface.blit(self.theme, (1, -1))
 
         for row in range(ROWS):
             for col in range((row+1) % 2, ROWS, 2):

@@ -34,5 +34,11 @@ RED_PIECE_KING = pygame.image.load('assets\piece_red_king.png')
 
 #BOARD_1 = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))
 BOARD_BLACK = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_BLACK.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
+BOARD_BROWN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_BROWN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
+BOARD_GREEN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_GREEN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
+BOARD_LIGHTBROWN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_LIGHTBROWN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
+
+BOARD_W = BOARD_BLACK.get_width()
+BOARD_H = BOARD_BLACK.get_height()
 
 CROWN = pygame.transform.scale(pygame.image.load('assets\crown.png'), (25, 14))

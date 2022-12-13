@@ -7,7 +7,8 @@ pygame.mixer.init()
 
 class Game:
 
-    def __init__(self, surface, scoreboard):
+    def __init__(self, surface, scoreboard, theme):
+        self.theme = theme
         self._init()
         self.surface = surface
         self.scoreboard = scoreboard
@@ -21,7 +22,7 @@ class Game:
 
     def _init(self):
         self.selected = None
-        self.board = Board()
+        self.board = Board(self.theme)
         self.turn = RED
         self.valid_moves = {}
 

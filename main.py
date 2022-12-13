@@ -1,7 +1,7 @@
 import pygame, sys, random
 
 from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
-SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET
+SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN
 
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE
@@ -10,7 +10,7 @@ from ui_class.fade import *
 from damath.piece import Piece
 from damath.game import Game
 from damath.scoreboard import Scoreboard
-from numpy import linspace
+from ui_class.themes_option import Themes, ThemesList
 
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
@@ -40,6 +40,7 @@ ANIM_ALPHA = 180 # opacity (0 - transparent, 255 - opaque)
 CHIP_WIDTH = 360
 CHIP_HEIGHT = 240
 BG_COLOR = BLACK
+
 #BG_COLOR = '#FFE3C3'
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('DamPY') # window caption
@@ -188,6 +189,16 @@ RETURN_DIMENSION = (30, 30)
 return_img = pygame.transform.smoothscale(pygame.image.load(return_img_filepath), (RETURN_DIMENSION)).convert_alpha()
 return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RETURN_DIMENSION) # w, h, (x, y), radius, image, text=None
 
+# --------- instantiating buttons in options window ---------
+themes = ThemesList(screen)
+
+themes.append(Themes(screen, BOARD_BLACK, 0))
+themes.append(Themes(screen, BOARD_GREEN, 1))
+themes.append(Themes(screen, BOARD_BROWN, 2))
+themes.append(Themes(screen, BOARD_LIGHTBROWN, 3))
+
+BOARD_DEFAULT_THEME = themes.list[themes.focused].board
+
 # --------- instantiating the Damath Board and Scoreboard  ---------
 board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
 board_rect = pygame.Rect(375, 25, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
@@ -199,14 +210,15 @@ scoreboard = Scoreboard(scoreboard_surface)
 big_blue_chip = SpinningChip(screen, 'blue')
 big_red_chip = SpinningChip(screen, 'red')
 
-game = Game(board_surface, scoreboard)
-
+game = Game(board_surface, scoreboard, BOARD_DEFAULT_THEME)  
 # --------- instantiating Pause objects ---------
 paused_rect = pygame.Rect((SCREEN_WIDTH//2, SCREEN_HEIGHT//2-200, 350, 400))
 paused_surface = pygame.Surface((paused_rect.w, paused_rect.h), pygame.SRCALPHA)
 #paused_surface.set_colorkey((0, 0, 0))
 
 # pause menu options
+pause_return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RETURN_DIMENSION) # w, h, (x, y), radius, image, text=None
+
 resume_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-265), 5, None, text='Resume', fontsize=24)
 restart_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-190), 5, None, text='Restart', fontsize=24)
 pause_options_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-115), 5, None, text='Options', fontsize=24)
@@ -234,7 +246,7 @@ def main_menu() :
             start_btn.hover_update(start_game)
         elif option_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
             start_btn.reset()
-            option_btn.hover_update(options_menu)
+            option_btn.hover_update(options_menu, param='main')
         else:
             start_btn.reset()
             option_btn.reset() 
@@ -287,7 +299,7 @@ def pause():
             pause_options_btn.reset()
             quit_btn.reset()
         elif pause_options_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            pause_options_btn.hover_update(options_menu)
+            pause_options_btn.hover_update(options_menu, param='pause')
             resume_btn.reset()
             restart_btn.reset()
             quit_btn.reset()
@@ -314,7 +326,7 @@ def pause():
 # --------- start game function ---------
 # (when Start button is pressed)
 def start_game():
-    
+
     running = True
     
     while running:
@@ -389,22 +401,32 @@ def start_game():
 
         scoreboard.draw()
         return_btn.display_image()     
+        game.board.update_theme(themes.list[themes.focused].board)
         game.update()
         clock.tick(60)
  
 # --------- options menu function ---------
 # (when options button is pressed)
-def options_menu():
+def options_menu(who_called_me):
+    
     print("Options Button: Clicked")
+
     running = True
-    screen.fill(BG_COLOR)
+
     while running:
 
+        screen.fill(BG_COLOR)
+
+        for idx, theme in enumerate(themes.list):
+            themes.rect_list[idx] = pygame.Rect(theme.x, theme.y, theme.theme.get_width(), theme.theme.get_height())
+
+        for i in range(3):
+            red_chips[i].next_frame()
+            blue_chips[i].next_frame()
+        
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
-        if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            return_btn.hover_update(main_menu)
-        else:
-            return_btn.reset()
+
+        themes.display()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -415,8 +437,37 @@ def options_menu():
                     fade(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
                     running = False
                     pygame.display.update()
+                
+                if event.key == pygame.K_LEFT:
+                    themes.move('right')
 
-        return_btn.display_image()                     
+                if event.key == pygame.K_RIGHT:
+                    themes.move('left')
+
+                if event.key == pygame.K_RETURN:
+                    game.board.update_theme(themes.list[themes.focused].board)
+                    if 'main' is who_called_me:
+                        main_menu()
+                    elif 'pause' is who_called_me:
+                        pause()                    
+
+        if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            if 'main' is who_called_me:
+                return_btn.hover_update(main_menu)
+            elif 'pause' is who_called_me:
+                return_btn.hover_update(start_game)
+        elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
+            return_btn.reset()
+            if pygame.mouse.get_pressed()[0]:
+                game.board.update_theme(themes.list[themes.focused].board)
+                if 'main' is who_called_me:
+                    main_menu()
+                elif 'pause' is who_called_me:
+                    pause()
+        else:
+            return_btn.reset()
+
+        return_btn.display_image()        
         pygame.display.update()
         clock.tick(60)
 
