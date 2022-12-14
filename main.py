@@ -35,8 +35,8 @@ SCREEN_HEIGHT = 720 #reso.current_h #720
 FPS = 60
 #BG_COLOR = '#240032'
 
-ANIM_SPEED = 3
-ANIM_ALPHA = 180 # opacity (0 - transparent, 255 - opaque)
+ANIM_SPEED = 20
+ANIM_ALPHA = 255 # opacity (0 - transparent, 255 - opaque)
 CHIP_WIDTH = 360
 CHIP_HEIGHT = 240
 

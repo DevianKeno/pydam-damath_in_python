@@ -152,9 +152,9 @@ class Board:
         return moves
 
     def _traverse_left(self, start, stop, step, color, left, IsKing, HasSkipped, skipped=[]):
-        print("piece: ", HasSkipped)
         moves = {}
         last = []
+        next_piece = 0
         for r in range(start, stop, step):
             if left < 0:
                 break
@@ -210,6 +210,8 @@ class Board:
                 elif skipped:
                     moves[(r, left)] = last + skipped
                 else:
+                    if next_piece >= 2:
+                        break
                     moves[(r, left)] = last
 
                 if last:
@@ -242,6 +244,7 @@ class Board:
     def _traverse_right(self, start, stop, step, color, right, IsKing, HasSkipped, skipped=[]):
         moves = {}
         last = []
+        next_piece = 0
         for r in range(start, stop, step):
             if right >= COLS:
                 break
@@ -294,6 +297,8 @@ class Board:
                 elif skipped:
                     moves[(r, right)] = last + skipped
                 else:
+                    if next_piece >= 2:
+                        break
                     moves[(r, right)] = last
                 if last:
                     if step == -1:
@@ -311,6 +316,7 @@ class Board:
             elif current.color ==  color:
                 break
             else:
+                next_piece += 1
                 last = [current]
 
             right += 1
