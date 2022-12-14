@@ -4,9 +4,12 @@ from ui_class.constants import BTN_COLOR
 BOARD_WIDTH = 620
 BOARD_HEIGHT = 620  
 
-SCOREBOARD_WIDTH = 225
-SCOREBOARD_HEIGHT = 550
+SCOREBOARD_WIDTH = 245
+SCOREBOARD_HEIGHT = 495
 SCOREBOARD_COLOR = BTN_COLOR
+
+SCOREBOARD_RED = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_RED.png'), (250, 250))
+SCOREBOARD_BLUE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_BLUE.png'), (250, 250))
 
 ROWS, COLS = 8, 8
 SQUARE_SIZE = BOARD_WIDTH//COLS
