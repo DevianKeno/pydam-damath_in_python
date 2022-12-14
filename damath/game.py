@@ -55,7 +55,10 @@ class Game:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
             if not self.valid_moves:
-                self.change_turn()
+                if not self.board.piece_had_skipped(self.selected, row, col):
+                    return False
+                else:
+                    self.change_turn()
             return True
         
         return False
@@ -81,7 +84,7 @@ class Game:
                 self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
                 self.board.remove(skipped)
             
-            print("checK: ", self.board.piece_had_skipped(self.selected, row, col))
+            print("check: ", self.board.piece_had_skipped(self.selected, row, col))
             if not self.board.piece_had_skipped(self.selected, row, col):
                 print("piece set to false")
                 self.board.piece_skipped(self.selected, row, col)
