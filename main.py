@@ -25,7 +25,7 @@ def anim_dim():
 # --------- initialization ---------
 pygame.init()
 pygame.font.init()
-pygame.mixer.init()
+pygame.mixer.init(44100, -16, 2, 2048)
 
 # --------- defining constants / objects for screen  ---------
 
@@ -204,7 +204,7 @@ board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFF
 board_rect = pygame.Rect(375, 25, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
-scoreboard_rect = pygame.Rect(45, 125, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
+scoreboard_rect = pygame.Rect(68, 125, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
 scoreboard = Scoreboard(scoreboard_surface)
 
 big_blue_chip = SpinningChip(screen, 'blue')
@@ -257,13 +257,14 @@ class Transition:
         self.transition = transition_list
         self.frame = 0
         self.finished = False
-    
+
     def play(self):
+
         if self.frame == len(self.transition)-1:
             self.finished = True
         else:
             self.frame += 1
-
+ 
         self.screen.blit(self.transition[self.frame], (0, 0))
 
     def reset(self):
@@ -332,6 +333,8 @@ def main_menu() :
         screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
 
         if main_play_trans:
+            sfx = pygame.mixer.Sound('audio/transition_in.wav')
+            sfx.play()
             transition_in.play()
             if transition_in.get_finished():
                 start_game()
@@ -491,6 +494,8 @@ def start_game():
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
         return_btn.display_image() 
 
+        if not transition_out.get_finished():
+            pygame.mixer.Sound('audio/transition_out.wav').play()
         transition_out.play()    
 
         scoreboard.draw()
@@ -529,7 +534,6 @@ def options_menu(who_called_me):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    fade(screen, SCREEN_WIDTH, SCREEN_HEIGHT)
                     running = False
                     pygame.display.update()
                 
