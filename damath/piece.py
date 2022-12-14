@@ -26,9 +26,6 @@ class Piece:
     def make_king(self):
         self.king = True
 
-    def done_move(self):
-        self.HasSkipped = False
-
     def draw(self, surface, number, color):
         radius = SQUARE_SIZE//2 - self.PADDING
         #pygame.draw.circle(surface, BLACK, (self.x, self.y), radius+ self.OUTLINE)

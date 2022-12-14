@@ -57,8 +57,8 @@ class Game:
             if not self.valid_moves:
                 if not self.board.piece_had_skipped(self.selected, row, col):
                     return False
-                else:
-                    self.change_turn()
+                self.board.piece_skipped(self.selected, row, col, False)
+                self.change_turn()
             return True
         
         return False

@@ -149,7 +149,6 @@ class Board:
                 # Down
                 moves.update(self._traverse_left(row+1, min(row+3, ROWS), down, piece.color, left, False, piece.HasSkipped))
                 moves.update(self._traverse_right(row+1, min(row+3, ROWS), down, piece.color, right, False, piece.HasSkipped))
-        piece.done_move()
         return moves
 
     def _traverse_left(self, start, stop, step, color, left, IsKing, HasSkipped, skipped=[]):
