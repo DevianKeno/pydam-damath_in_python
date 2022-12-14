@@ -57,6 +57,9 @@ class Scoreboard:
                 continue
             else:
                 result += op(piece.number, num.number)
+                if piece.king:
+                    result *= 2
+                    
             print("+", result)
 
         if color == RED:
