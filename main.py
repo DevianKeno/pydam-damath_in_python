@@ -302,9 +302,10 @@ def pause():
             pause_options_btn.reset()
             quit_btn.reset()
         elif restart_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            restart_btn.hover_update(game.reset)
             if pygame.mouse.get_pressed()[0]:
+                game.reset()
                 start_game()
+            restart_btn.hover_update()
             pause_options_btn.reset()
             quit_btn.reset()
         elif pause_options_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
