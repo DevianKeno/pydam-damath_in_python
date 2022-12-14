@@ -235,6 +235,7 @@ class Board:
                 break
             # There's other piece
             else:
+                next_piece += 1
                 last = [current]
 
             left -= 1
