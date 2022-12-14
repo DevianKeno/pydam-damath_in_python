@@ -2,7 +2,7 @@ import pygame, sys, random
 
 from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
 SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
-BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING
+BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
@@ -192,7 +192,7 @@ return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RE
 themes = ThemesList(screen)
 
 BOARDS = [BOARD_BLACK, BOARD_GREEN, BOARD_BROWN, BOARD_LIGHTBROWN,
-          BOARD_PINK, BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE]
+          BOARD_PINK, BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_RED]
 
 for idx, board in enumerate(BOARDS):
     themes.append(Themes(screen, board, idx))
@@ -230,13 +230,73 @@ quit_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5
 # sliders
 music_slider = pygame.transform.smoothscale(BLUE_PIECE_KING, (50, 50))
 
+# --------- transition objects ---------
+# --------- instantiating Transition objects ---------
+transition_in_list = []
 
+for i in range(50):
+    if i < 10:
+        frame =  pygame.image.load(f'assets/anim_transition_in/000{i}.png')
+    else:
+        frame = pygame.image.load(f'assets/anim_transition_in/00{i}.png')
+
+    transition_in_list.append(frame)
+
+
+transition_out_list = []
+
+for i in range(37):
+
+    frame =  pygame.image.load(f'assets/anim_transition_out/00{i+50}.png')
+    transition_out_list.append(frame)
+
+# --------- Transition class ---------
+class Transition:
+    def __init__(self, screen, transition_list):
+        self.screen = screen
+        self.transition = transition_list
+        self.frame = 0
+        self.finished = False
+    
+    def play(self):
+        if self.frame == len(self.transition)-1:
+            self.finished = True
+        else:
+            self.frame += 1
+
+        self.screen.blit(self.transition[self.frame], (0, 0))
+
+    def reset(self):
+        self.frame = 0
+        self.finished = False
+    
+    def get_finished(self):
+        return self.finished
+
+transition_in = Transition(screen, transition_in_list)
+transition_out = Transition(screen, transition_out_list)
+
+def full_trans_play():
+
+    if not transition_in.get_finished():
+        transition_in.play()
+    else:
+        transition_out.play()
+
+def full_trans_reset():
+
+    transition_in.reset()
+    transition_out.reset()
+
+def full_trans_is_finished():
+    return (transition_in.get_finished() and transition_out.get_finished())
 
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
 
     game.reset()
+    main_play_trans = False
 
     while True:
         #screen.fill(BG_COLOR) # window color
@@ -251,8 +311,10 @@ def main_menu() :
         # button hover effect
         # if the cursor is inside the button
         if start_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+            start_btn.hover_update()
             option_btn.reset() 
-            start_btn.hover_update(start_game)
+            if pygame.mouse.get_pressed()[0]:
+                main_play_trans = True
         elif option_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
             start_btn.reset()
             option_btn.hover_update(options_menu, param='main')
@@ -264,10 +326,16 @@ def main_menu() :
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()   
-                
+        
         start_btn.draw()
         option_btn.display_image()
         screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
+
+        if main_play_trans:
+            transition_in.play()
+            if transition_in.get_finished():
+                start_game()
+
         pygame.display.update()
         clock.tick(FPS)
 
@@ -339,15 +407,13 @@ def pause():
 # (when Start button is pressed)
 def start_game():
 
+    full_trans_reset()
     running = True
     
     while running:
-        screen.fill(BG_COLOR)
-        screen.blit(CLEAR_BG, (0, 0))
-        
-        screen.blit(board_surface, (board_rect.x, board_rect.y))     
-        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
 
+        screen.blit(CLEAR_BG, (0, 0))     
+        
         if game.winner() != None:
             print(game.winner()) 
             running = False
@@ -421,10 +487,16 @@ def start_game():
                                 pygame.mixer.music.play()
                         game.select(row, col)
 
+        screen.blit(board_surface, (board_rect.x, board_rect.y))     
+        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
+        return_btn.display_image() 
+
+        transition_out.play()    
+
         scoreboard.draw()
-        return_btn.display_image()     
         game.board.update_theme(themes.list[themes.focused].board)
         game.update()
+
         clock.tick(60)
  
 # --------- options menu function ---------
