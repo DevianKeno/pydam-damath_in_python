@@ -21,6 +21,7 @@ class Game:
         pygame.display.update() 
 
     def _init(self):
+        self.moved_piece = None
         self.selected = None
         self.board = Board(self.theme)
         self.turn = RED
@@ -50,7 +51,11 @@ class Game:
                 self.selected = None
                 self.select(row, col)
 
-        piece = self.board.get_piece(row, col)
+        if self.moved_piece == None:
+            piece = self.board.get_piece(row, col)
+        else:
+            piece = self.moved_piece
+
         if piece.color != 0 and piece.color == self.turn:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
@@ -60,19 +65,19 @@ class Game:
                 self.board.piece_skipped(self.selected, row, col, False)
                 self.change_turn()
             return True
-        
         return False
 
     def _move(self, row, col):
 
         piece = self.board.get_piece(row, col) #(color):number
+
         if self.selected and piece.color == 0 and (row, col) in self.valid_moves:
             pygame.mixer.music.load('audio//move.wav')
             pygame.mixer.music.play()
             self.board.move(self.selected, row, col, piece.number)
+            self.moved_piece = self.board.get_piece(row, col)
             skipped_list = list(self.valid_moves)
             skipped = self.valid_moves[(row, col)]        
-            
             if skipped:
                 self.board.piece_skipped(self.selected, row, col, True)
                 operations = []
@@ -91,7 +96,6 @@ class Game:
                 self.change_turn()
         else:
             return False
-
         return True
     
     def draw_valid_moves(self, moves):
@@ -109,6 +113,7 @@ class Game:
             pass
 
     def change_turn(self):
+        self.moved_piece = None
         self.valid_moves = {}
         if self.turn == RED:
             self.turn = LIGHT_BLUE
