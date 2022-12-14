@@ -14,6 +14,7 @@ class Piece:
         self.number = number
         self.num = None
         self.king = False
+        self.HasSkipped = False
         self.x = 0
         self.y = 0
         self.calc_pos()
@@ -24,6 +25,9 @@ class Piece:
 
     def make_king(self):
         self.king = True
+
+    def done_move(self):
+        self.HasSkipped = False
 
     def draw(self, surface, number, color):
         radius = SQUARE_SIZE//2 - self.PADDING

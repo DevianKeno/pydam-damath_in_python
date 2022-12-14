@@ -359,6 +359,8 @@ def start_game():
                 _keys = pygame.key.get_pressed()
 
                 if _keys[pygame.K_LSHIFT]:
+                    if _keys[pygame.K_c]: # change turn
+                        game.change_turn()
                     if _keys[pygame.K_1]: # game resets
                         game.reset()
                     if _keys[pygame.K_2]: # blue wins
