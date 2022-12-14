@@ -1,5 +1,5 @@
 import pygame
-from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, BG_COLOR
 # --------- Fade function ---------
 def fade(screen,width, height, delay=6): 
     fade = pygame.Surface((width, height))
@@ -27,4 +27,4 @@ def fade_whole_screen(screen, delay=6):
 
 # --------- Screen Reset function ---------
 def redrawWindow(screen):
-    screen.fill((255, 255, 255))
+    screen.fill(BG_COLOR)

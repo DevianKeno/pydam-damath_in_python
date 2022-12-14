@@ -1,10 +1,10 @@
 import pygame, sys, random
 
 from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
-SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN
-
+SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
+BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
-from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE
+from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR
 from ui_class.button import Button
 from ui_class.fade import *
 from damath.piece import Piece
@@ -39,7 +39,6 @@ ANIM_SPEED = 3
 ANIM_ALPHA = 180 # opacity (0 - transparent, 255 - opaque)
 CHIP_WIDTH = 360
 CHIP_HEIGHT = 240
-BG_COLOR = BLACK
 
 #BG_COLOR = '#FFE3C3'
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -189,15 +188,16 @@ RETURN_DIMENSION = (30, 30)
 return_img = pygame.transform.smoothscale(pygame.image.load(return_img_filepath), (RETURN_DIMENSION)).convert_alpha()
 return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RETURN_DIMENSION) # w, h, (x, y), radius, image, text=None
 
-# --------- instantiating buttons in options window ---------
+# --------- list of available themes in the game ---------
 themes = ThemesList(screen)
 
-themes.append(Themes(screen, BOARD_BLACK, 0))
-themes.append(Themes(screen, BOARD_GREEN, 1))
-themes.append(Themes(screen, BOARD_BROWN, 2))
-themes.append(Themes(screen, BOARD_LIGHTBROWN, 3))
+BOARDS = [BOARD_BLACK, BOARD_GREEN, BOARD_BROWN, BOARD_LIGHTBROWN,
+          BOARD_PINK, BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE]
 
-BOARD_DEFAULT_THEME = themes.list[themes.focused].board
+for idx, board in enumerate(BOARDS):
+    themes.append(Themes(screen, board, idx))
+
+BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
 board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
@@ -223,6 +223,14 @@ resume_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-265)
 restart_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-190), 5, None, text='Restart', fontsize=24)
 pause_options_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-115), 5, None, text='Options', fontsize=24)
 quit_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5, None, text='Quit Game', fontsize=24)
+
+# --------- instantiating Options objects ---------
+
+
+# sliders
+music_slider = pygame.transform.smoothscale(BLUE_PIECE_KING, (50, 50))
+
+
 
 # --------- main function ---------
 # (Main Menu)
@@ -268,7 +276,7 @@ def pause():
     paused = True
 
     while paused:
-        screen.fill(BLACK)
+        screen.fill(BG_COLOR)
 
         if game.turn == RED:
             big_red_chip.play()
@@ -295,7 +303,8 @@ def pause():
             quit_btn.reset()
         elif restart_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
             restart_btn.hover_update(game.reset)
-            resume_btn.reset()
+            if pygame.mouse.get_pressed()[0]:
+                start_game()
             pause_options_btn.reset()
             quit_btn.reset()
         elif pause_options_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
@@ -389,6 +398,8 @@ def start_game():
                                 game.board.board[i][j] = Piece(i, j, 0, 0)
                         game.board.board[0][1] = Piece(0, 1, LIGHT_BLUE, 2)   
                         game.board.board[7][6] = Piece(7, 6, RED, 2)  
+                        game.board.red_left = 1
+                        game.board.white_left = 1
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:

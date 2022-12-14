@@ -1,5 +1,4 @@
 import pygame
-from damath.constants import BOARD_BLACK, BOARD_BROWN, BOARD_GREEN, BOARD_W, BOARD_H, BLACK, LIGHT_BLUE, WHITE, BROWN
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 class ThemesList:
