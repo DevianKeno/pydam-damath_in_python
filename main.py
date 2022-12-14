@@ -414,6 +414,7 @@ def start_game():
                         """
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
+                        
                         if game.moved_piece != None:
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 pygame.mixer.music.load('audio\invalid.mp3')

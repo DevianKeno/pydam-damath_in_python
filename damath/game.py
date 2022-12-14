@@ -66,12 +66,18 @@ class Game:
             self.selected = piece
 
             self.valid_moves = self.board.get_valid_moves(piece)
+
             if not self.valid_moves:
                 if not self.board.piece_had_skipped(self.selected, row, col):
                     return False
                 self.board.piece_skipped(self.selected, row, col, False)
                 self.change_turn()
             return True
+
+        if self.moved_piece == None and not self.selected and (piece.color == 0 or piece.color != self.turn):
+            pygame.mixer.music.load('audio/invalid.mp3')
+            pygame.mixer.music.play()     
+
         return False
 
     def _move(self, row, col):
