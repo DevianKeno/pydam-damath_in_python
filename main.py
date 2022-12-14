@@ -4,7 +4,7 @@ from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZ
 SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
 BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
-from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR
+from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
 from ui_class.fade import *
 from damath.piece import Piece
@@ -241,6 +241,7 @@ def main_menu() :
     while True:
         #screen.fill(BG_COLOR) # window color
         screen.fill(BG_COLOR)
+        screen.blit(TITLE_BG, (0, 0))
 
         for i in range(len(red_chips)):
             red_chips[i].next_frame()
@@ -277,6 +278,7 @@ def pause():
 
     while paused:
         screen.fill(BG_COLOR)
+        screen.blit(TITLE_BG, (0, 0))
 
         if game.turn == RED:
             big_red_chip.play()
@@ -341,6 +343,7 @@ def start_game():
     
     while running:
         screen.fill(BG_COLOR)
+        screen.blit(CLEAR_BG, (0, 0))
         
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
@@ -411,6 +414,10 @@ def start_game():
                         """
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
+                        if game.moved_piece != None:
+                            if row != game.moved_piece.row or row != game.moved_piece.col:
+                                pygame.mixer.music.load('audio\invalid.mp3')
+                                pygame.mixer.music.play()
                         game.select(row, col)
 
         scoreboard.draw()
@@ -430,6 +437,7 @@ def options_menu(who_called_me):
     while running:
 
         screen.fill(BG_COLOR)
+        screen.blit(CLEAR_BG, (0, 0))
 
         for idx, theme in enumerate(themes.list):
             themes.rect_list[idx] = pygame.Rect(theme.x, theme.y, theme.theme.get_width(), theme.theme.get_height())
@@ -465,11 +473,22 @@ def options_menu(who_called_me):
                     elif 'pause' is who_called_me:
                         pause()                    
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if themes.focused < len(themes.rect_list)-1:
+                    if themes.rect_list[themes.focused+1].collidepoint((current_mouse_x, current_mouse_y)):
+                        if pygame.mouse.get_pressed()[0]:
+                            themes.move('left')
+                if themes.focused > 0:
+                    if themes.rect_list[themes.focused-1].collidepoint((current_mouse_x, current_mouse_y)):
+                        if pygame.mouse.get_pressed()[0]:
+                            themes.move('right')
+
         if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
             if 'main' is who_called_me:
                 return_btn.hover_update(main_menu)
             elif 'pause' is who_called_me:
                 return_btn.hover_update(start_game)
+
         elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
             return_btn.reset()
             if pygame.mouse.get_pressed()[0]:

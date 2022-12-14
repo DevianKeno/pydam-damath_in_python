@@ -61,6 +61,8 @@ class ThemesList:
 # --------- Themes class ---------
 class Themes:
 
+    SPEED = 65
+
     def __init__(self, screen, theme, number):
         self.screen = screen
         self.selected = False
@@ -84,7 +86,7 @@ class Themes:
         target = self.x - self.gap
 
         while target != self.x:
-            self.x -= 13
+            self.x -= self.SPEED
             self.screen.blit(self.theme, (self.x, self.y))
 
 
@@ -92,6 +94,6 @@ class Themes:
 
         target = self.x + self.gap
         while target != self.x:
-            self.x += 13
+            self.x += self.SPEED
             self.screen.blit(self.theme, (self.x, self.y))
                 

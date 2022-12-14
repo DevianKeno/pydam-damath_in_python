@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET
+from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 #from .scoreboard import Scoreboard
 
 pygame.mixer.init()
@@ -48,6 +48,8 @@ class Game:
         if self.selected:
             result = self._move(row, col)
             if not result:
+                pygame.mixer.music.load('audio/invalid.mp3')
+                pygame.mixer.music.play()
                 self.selected = None
                 self.select(row, col)
 
@@ -57,7 +59,12 @@ class Game:
             piece = self.moved_piece
 
         if piece.color != 0 and piece.color == self.turn:
+
+            if self.moved_piece == None:
+                pygame.mixer.music.load('audio/select.wav')
+                pygame.mixer.music.play()
             self.selected = piece
+
             self.valid_moves = self.board.get_valid_moves(piece)
             if not self.valid_moves:
                 if not self.board.piece_had_skipped(self.selected, row, col):
@@ -72,13 +79,13 @@ class Game:
         piece = self.board.get_piece(row, col) #(color):number
 
         if self.selected and piece.color == 0 and (row, col) in self.valid_moves:
-            pygame.mixer.music.load('audio//move.wav')
-            pygame.mixer.music.play()
             self.board.move(self.selected, row, col, piece.number)
             self.moved_piece = self.board.get_piece(row, col)
             skipped_list = list(self.valid_moves)
             skipped = self.valid_moves[(row, col)]        
             if skipped:
+                pygame.mixer.music.load('audio\capture.wav')
+                pygame.mixer.music.play()
                 self.board.piece_skipped(self.selected, row, col, True)
                 operations = []
                 if len(skipped) > 1:
@@ -88,8 +95,12 @@ class Game:
                     operations.append(self.board.piece_landed(row, col))
                 self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
                 self.board.remove(skipped)
-            
+            else:
+                pygame.mixer.music.load('audio//move.wav')
+                pygame.mixer.music.play()            
+
             print("check: ", self.board.piece_had_skipped(self.selected, row, col))
+
             if not self.board.piece_had_skipped(self.selected, row, col):
                 print("piece set to false")
                 self.board.piece_skipped(self.selected, row, col)
@@ -99,7 +110,13 @@ class Game:
         return True
     
     def draw_valid_moves(self, moves):
+
         if self.selected:
+            if self.selected.color == RED:
+                circle_color = RED
+            else:
+                circle_color = LIGHT_BLUE
+
             for move in moves:
                 row, col = move
                 """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
@@ -107,7 +124,7 @@ class Game:
                 alpha_circle.set_alpha(50)
                 alpha_circle.fill(WHITE)
                 pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-                pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
+                pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
                 #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         else:
             pass
