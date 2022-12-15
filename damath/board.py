@@ -162,6 +162,9 @@ class Board:
             if current.color == 0:
                 if HasSkipped:
                     if not last:
+                        if IsKing:
+                            left += 1
+                            continue
                         break
                 if color == RED:
                     if step == 1:
@@ -178,9 +181,7 @@ class Board:
                             # moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
                             # moves.update(self._traverse_left(r+step, row, -1, color, left-1, IsKing, skipped=last))
                         else:
-                            if IsKing:
-                                pass
-                            else:
+                            if not IsKing:
                                 break
                 else:
                     if step == -1:
@@ -252,6 +253,9 @@ class Board:
             if current.color == 0:
                 if HasSkipped:
                     if not last:
+                        if IsKing:
+                            right += 1
+                            continue
                         break
                 if color == RED:
                     if step == 1:
@@ -267,9 +271,7 @@ class Board:
                             # moves.update(self._traverse_left(r+1, row, 1, color, right-1, IsKing, skipped=last))
                             # moves.update(self._traverse_right(r+1, row, 1, color, right+1, IsKing, skipped=last))
                         else:
-                            if IsKing:
-                                pass
-                            else:
+                            if not IsKing:
                                 break
                 else:
                     if step == -1:

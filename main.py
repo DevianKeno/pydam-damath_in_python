@@ -85,7 +85,6 @@ class FallingSpinningChip:
             if self.color == 'blue':
                 frames_blue[self.frame].set_alpha(ANIM_ALPHA)
                 self.screen.blit(frames_blue[self.frame], (self.width, self.height))
-
             else:
                 frames_red[self.frame].set_alpha(ANIM_ALPHA)
                 self.screen.blit(frames_red[self.frame], (self.width, self.height))

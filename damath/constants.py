@@ -7,6 +7,7 @@ BOARD_HEIGHT = 620
 SCOREBOARD_WIDTH = 245
 SCOREBOARD_HEIGHT = 495
 SCOREBOARD_COLOR = BTN_COLOR
+SCOREBOARD_ALPHA = 180
 
 SCOREBOARD_RED = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_RED.png'), (250, 250))
 SCOREBOARD_BLUE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_BLUE.png'), (250, 250))
