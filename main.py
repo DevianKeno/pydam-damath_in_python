@@ -1,9 +1,6 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, ROWS, COLS, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
-SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
-BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED, \
-    BOARD_COCO_MARTHEME
+from damath.constants import *
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
@@ -318,16 +315,16 @@ def full_trans_is_finished():
 
 
 class TitleAnimation:
-    
-    SPEED = 1
+
 
     def __init__ (self, surface, img, height):
         self.surface = surface
         self.img = img
         self.height = height
         
-        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//(2))
-        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//(2))
+        self.speed = 1
+        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
+        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
         self.finished = False #finished reaching height
         self.reversed = False #reversed after reaching height
 
@@ -335,16 +332,20 @@ class TitleAnimation:
         if not self.reversed:
             if self.pos == self.height + self.start:
                 self.reversed = True
-                self.pos -= self.SPEED
+                self.pos -= self.speed
+            elif self.pos == self.height + self.start - 12 or self.pos == self.height + self.start - 4:
+                self.pos += 4
             else:
-                self.pos += self.SPEED
+                self.pos += self.speed
             self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
         if self.reversed:
             if self.pos == self.start - self.height:
                 self.reversed = False
-                self.pos += self.SPEED
+                self.pos += self.speed
+            elif self.pos == self.start - self.height + 12 or self.pos == self.height + self.start + 4:
+                self.pos -= 4
             else:
-                self.pos -= self.SPEED
+                self.pos -= self.speed
             self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
 
 TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
@@ -363,7 +364,7 @@ def main_menu() :
     while True:
         #screen.fill(BG_COLOR) # window color
         screen.fill(BG_COLOR)
-        screen.blit(TITLE_BG, (0, 20))
+        screen.blit(TITLE_BG, (0, 0))
 
 
         for i in range(len(red_chips)):
@@ -488,6 +489,7 @@ def pause():
 # (when Start button is pressed)
 def start_game():
 
+    pygame.mixer.music.stop()
     full_trans_reset()
     running = True
     
