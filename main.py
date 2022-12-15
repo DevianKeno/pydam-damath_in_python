@@ -48,7 +48,7 @@ def anim_dim():
 
 def show_score():
     score = round(max(game.scoreboard.score()), 2)
-    font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 100).render(str(score), True, WHITE)
+    font = pygame.font.Font('font\CookieRun Bold.ttf', 100).render(str(score), True, WHITE)
     #score_rect = pygame.Rect(255, 165, 535, 235)
     screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
     
