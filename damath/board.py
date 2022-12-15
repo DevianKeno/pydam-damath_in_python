@@ -1,5 +1,8 @@
+import pygame
 from .piece import Piece
 from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
+
+pygame.mixer.init()
 
 class Board:
     def __init__(self, theme):
@@ -47,11 +50,17 @@ class Board:
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
         piece.move(row, col)
 
-        if row == ROWS - 1 or row == 0:
-            piece.make_king()
+        if row == ROWS - 1:
             if piece.color == LIGHT_BLUE:
+                piece.make_king()
+                pygame.mixer.music.load('audio/capture.wav')
+                pygame.mixer.music.play()
                 self.white_kings += 1
-            else:
+        elif row == 0:
+            if piece.color == RED:
+                piece.make_king()
+                pygame.mixer.music.load('audio/capture.wav')
+                pygame.mixer.music.play()
                 self.red_kings += 1
     
     def piece_skipped(self, piece, row, col, bool=False):
