@@ -1,5 +1,5 @@
 from .constants import LIGHT_BLUE, RED, WHITE, BLACK, DARKER_BLUE, DARKER_RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, \
-    SCOREBOARD_BLUE, SCOREBOARD_RED, SCOREBOARD_COLOR, SCOREBOARD_ALPHA
+    SCOREBOARD_BLUE, SCOREBOARD_RED, SCOREBOARD_COLOR, SCOREBOARD_ALPHA, SCOREBOARD_BLUE_ACTIVE, SCOREBOARD_RED_ACTIVE
 import pygame, operator
 from ui_class.fade import fade
 
@@ -33,7 +33,7 @@ class Scoreboard:
             blue_box = pygame.Rect((10, self.height//2+30, self.width-20, self.height//2-20))  
 
             self.surface.blit(SCOREBOARD_BLUE, (0, 0))
-            self.surface.blit(SCOREBOARD_RED, (0, 251))
+            self.surface.blit(SCOREBOARD_RED_ACTIVE, (0, 251))
 
             p1_score_surface = font.render(str(round(self.player1_score, 2)), True, RED) #FFFFFF
             p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
@@ -47,7 +47,7 @@ class Scoreboard:
             blue_box = pygame.Rect((10, self.height//2+30, self.width-20, self.height//2-20))
             red_box = pygame.Rect((10, 10+self.TXT_OFFSET, self.width-20, self.height//2-10))  
 
-            self.surface.blit(SCOREBOARD_BLUE, (0, 0))
+            self.surface.blit(SCOREBOARD_BLUE_ACTIVE, (0, 0))
             self.surface.blit(SCOREBOARD_RED, (0, 251))
 
             p2_score_surface = font.render(str(round(self.player2_score, 2)), True, LIGHT_BLUE) #FFFFFF
