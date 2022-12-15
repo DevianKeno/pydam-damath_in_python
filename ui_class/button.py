@@ -2,6 +2,7 @@ from ui_class.constants import TXT_COLOR, BTN_COLOR, FONTSIZE, HOVER_SIZE
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from ui_class.fade import *
 from audio_constants import *
+from damath.constants import LIGHT_BLUE, RED
 import pygame
 
 class Button:
@@ -37,7 +38,7 @@ class Button:
         self.bottom_big_circle = [self.x+self.width-self.bigcircle_x_offset, self.y+self.height-self.bigcircle_y_offset]
         self.bottom_small_circle = [self.x+self.width-self.smallcircle_x_offset, self.y+self.height-self.smallcircle_y_offset]
         self.radius = self.init_radius 
-        self.top_color = BTN_COLOR
+        self.top_color = LIGHT_BLUE
         self.text_color = TXT_COLOR
         self.text_fontsize = self.fontsize
         self.play = 0
@@ -94,7 +95,7 @@ class Button:
         self.top_rect.update((self.x-(HOVER_SIZE/2), self.y-(HOVER_SIZE/2)), 
                                 (self.width+HOVER_SIZE, self.height+HOVER_SIZE))
         self.radius = self.init_radius+1
-        self.top_color = '#51A938'
+        self.top_color = RED #'#51A938'
         self.text_fontsize = self.fontsize+(int(self.fontsize*0.2))
         self.play+=1
         self.play_audio()
@@ -136,7 +137,7 @@ class Button:
         """
         self.top_rect.update((self.x, self.y), (self.width, self.height))
         self.radius = self.init_radius 
-        self.top_color = BTN_COLOR
+        self.top_color = LIGHT_BLUE
         self.text_color = TXT_COLOR
         self.text_fontsize = self.fontsize
         self.play = 0

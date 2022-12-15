@@ -11,6 +11,31 @@ from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
 from audio_constants import *
 
+# --------- initialization ---------
+pygame.init()
+pygame.font.init()
+pygame.mixer.init(44100, -16, 2, 2048)
+
+# --------- defining constants / objects for screen  ---------
+
+reso = pygame.display.Info() # gets the video display information object
+FPS = 60
+
+ANIM_SPEED = 20
+ANIM_ALPHA = 255 # opacity (0 - transparent, 255 - opaque)
+CHIP_WIDTH = 360
+CHIP_HEIGHT = 240
+
+# sound volume
+SOUND_VOLUME = 0.8
+
+#BG_COLOR = '#FFE3C3'
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('DamPY') # window caption
+pygame.display.set_icon(LOGO)
+clock = pygame.time.Clock()
+
+CHEAT_CODES = True
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
     x, y = pos
@@ -21,31 +46,20 @@ def get_row_col_from_mouse(pos):
 def anim_dim():
     return random.randrange(0-CHIP_WIDTH, SCREEN_WIDTH, 1), 0-CHIP_HEIGHT
 
-# --------- initialization ---------
-pygame.init()
-pygame.font.init()
-pygame.mixer.init(44100, -16, 2, 2048)
+def show_score():
+    score = round(max(game.scoreboard.score()), 2)
+    font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 100).render(str(score), True, WHITE)
+    #score_rect = pygame.Rect(255, 165, 535, 235)
+    screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
+    
+SOUNDS = [POP_SOUND, MOVE_SOUND, SWEEP_SOUND, 
+          SELECT_SOUND, CAPTURE_SOUND, INVALID_SOUND,
+          TRANSITION_IN_SOUND, TRANSITION_OUT_SOUND]
 
-# --------- defining constants / objects for screen  ---------
-
-reso = pygame.display.Info() # gets the video display information object
-#SCREEN_WIDTH = 1080 #reso.current_w #1080
-#SCREEN_HEIGHT = 720 #reso.current_h #720
-FPS = 60
-#BG_COLOR = '#240032'
-
-ANIM_SPEED = 20
-ANIM_ALPHA = 255 # opacity (0 - transparent, 255 - opaque)
-CHIP_WIDTH = 360
-CHIP_HEIGHT = 240
-
-#BG_COLOR = '#FFE3C3'
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('DamPY') # window caption
-pygame.display.set_icon(LOGO)
-clock = pygame.time.Clock()
-
-CHEAT_CODES = True
+def change_volume(vol):
+    for sound in SOUNDS:
+        sound.set_volume(vol)
+change_volume(SOUND_VOLUME)
 
 # --------- Falling Spinning Chip Animation assets ---------
 
@@ -114,17 +128,7 @@ class SpinningChip:
         else:
             frames_blue_big[self.frame].set_alpha(ANIM_ALPHA)
             self.screen.blit(frames_blue_big[self.frame], (SCREEN_WIDTH//3.-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))           
-    
-# --------- sound volume ---------
-SOUND_VOLUME = 0.8
-SOUNDS = [POP_SOUND, MOVE_SOUND, SWEEP_SOUND, 
-          SELECT_SOUND, CAPTURE_SOUND, INVALID_SOUND,
-          TRANSITION_IN_SOUND, TRANSITION_OUT_SOUND]
 
-def change_volume(vol):
-    for sound in SOUNDS:
-        sound.set_volume(vol)
-change_volume(SOUND_VOLUME)
 # --------- loading chip frames ---------
 
 blue_chips = []
@@ -185,7 +189,7 @@ for i in range(1, 462):
     frames_red_big.append(frame)   
 
 # --------- instantiating Start button ---------
-start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start') # w, h, (x, y), radius, image=None, text
+start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
 
 # --------- instantiating Options button ---------
 option_img_filepath = 'img\\settings-25-512.png'
@@ -313,7 +317,7 @@ def full_trans_reset():
 def full_trans_is_finished():
     return (transition_in.get_finished() and transition_out.get_finished())
 
-
+# --------- title animation function ---------
 class TitleAnimation:
 
 
@@ -349,6 +353,10 @@ class TitleAnimation:
             self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
 
 TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
+
+# --------- end game options ---------
+play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=20)
+back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=16)
 
 # --------- main function ---------
 # (Main Menu)
@@ -785,6 +793,8 @@ def game_ends():
 
     WINNER = WinnerWindow(screen, winner_anim_frames)
 
+    play_again_transition_in = False
+    back_to_menu_transition_in = False
     running = True
     
     while running:
@@ -799,16 +809,40 @@ def game_ends():
         WINNER.play()
         if WINNER.finished:
             show_score()
+            play_again_btn.draw()
+            back_to_menu_btn.draw()
+
+            mx, my = pygame.mouse.get_pos()
+
+            if play_again_btn.top_rect.collidepoint((mx, my)):
+                if pygame.mouse.get_pressed()[0]:
+                    play_again_transition_in = True
+                back_to_menu_btn.reset()
+                play_again_btn.hover_update()
+            elif back_to_menu_btn.top_rect.collidepoint((mx, my)):
+                if pygame.mouse.get_pressed()[0]:
+                    back_to_menu_transition_in = True
+                play_again_btn.reset()
+                back_to_menu_btn.hover_update()
+            else:
+                play_again_btn.reset()
+                back_to_menu_btn.reset()
+
+            if play_again_transition_in:
+                transition_in.play()
+                if transition_in.get_finished():
+                    game.reset()
+                    start_game()
+            
+            if back_to_menu_transition_in:
+                transition_in.play()
+                if transition_in.get_finished():
+                    main_menu()
+
             WINNER.finished = False
-        print(pygame.mouse.get_pos())
+
         pygame.display.update()
         clock.tick(FPS)
-
-def show_score():
-    score = max(game.scoreboard.score())
-    font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 100).render(str(score), True, WHITE)
-    score_rect = pygame.Rect(255, 165, 535, 235)
-    screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
 
 
 class WinnerWindow:

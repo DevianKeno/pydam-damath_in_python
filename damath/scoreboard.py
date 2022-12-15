@@ -26,7 +26,8 @@ class Scoreboard:
 
     def update(self, turn):
 
-        font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 66) 
+        font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 48)
+        font.set_bold(True)
 
         if turn == RED: 
             red_box = pygame.Rect((10, 10+self.TXT_OFFSET, self.width-20, self.height//2-10))
@@ -35,11 +36,11 @@ class Scoreboard:
             self.surface.blit(SCOREBOARD_BLUE, (0, 0))
             self.surface.blit(SCOREBOARD_RED_ACTIVE, (0, 251))
 
-            p1_score_surface = font.render(str(round(self.player1_score, 2)), True, RED) #FFFFFF
+            p1_score_surface = font.render(str(round(self.player1_score, 1)), True, RED) #FFFFFF
             p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
             self.surface.blit(p1_score_surface, p1_score_rect) 
 
-            p2_score_surface = font.render(str(round(self.player2_score, 2)), True, LIGHT_BLUE) #FFFFFF
+            p2_score_surface = font.render(str(round(self.player2_score, 1)), True, LIGHT_BLUE) #FFFFFF
             p2_score_rect = p2_score_surface.get_rect(center=red_box.center)
             self.surface.blit(p2_score_surface, p2_score_rect)
 
