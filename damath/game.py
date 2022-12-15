@@ -31,11 +31,11 @@ class Game:
         if self.board.red_left <=0 or self.board.white_left <= 0:
             red_score, blue_score = self.scoreboard.score()
             if red_score > blue_score:
-                return "Red Wins"
+                return RED
             elif blue_score > red_score:
-                return "Blue Wins"
+                return LIGHT_BLUE
             else:
-                return "Tie"
+                return "TIE"
         
         return None
 

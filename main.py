@@ -349,6 +349,7 @@ class TitleAnimation:
             self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
 
 TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
+
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
@@ -502,7 +503,7 @@ def start_game():
         if game.winner() != None:
             print(game.winner()) 
             running = False
-            main_menu()   
+            game_ends()
 
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
         if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
@@ -764,5 +765,66 @@ def options_menu(who_called_me):
         return_btn.display_image()        
         pygame.display.update()
         clock.tick(FPS)
+
+# --------- game end function ---------
+def game_ends():
+    
+    winner_anim_frames = []
+
+    # only load the frames of the winning color
+    print(game.winner() == RED)
+
+    if game.winner() == RED:
+        for i in range(21):
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+21}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
+            winner_anim_frames.append(frame)
+    else:
+        for i in range(20):
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\BLUE_WINS\{i+42}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
+            winner_anim_frames.append(frame)
+
+    WINNER = WinnerWindow(screen, winner_anim_frames)
+
+    running = True
+    
+    while running:
+
+        screen.blit(CLEAR_BG, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        WINNER.play()
+        if WINNER.finished:
+            show_score()
+            WINNER.finished = False
+        print(pygame.mouse.get_pos())
+        pygame.display.update()
+        clock.tick(FPS)
+
+def show_score():
+    score = max(game.scoreboard.score())
+    font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 100).render(str(score), True, WHITE)
+    score_rect = pygame.Rect(255, 165, 535, 235)
+    screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
+
+
+class WinnerWindow:
+    def __init__ (self, screen, frames_list):
+        self.screen = screen
+        self.frame = 0
+        self.finished = False
+        self.frames_list = frames_list
+        self.y = 0
+
+    def play(self):
+        if not self.finished:
+            if self.frame == len(self.frames_list)-1:
+                self.finished = True
+            else:
+                self.frame += 1
+            self.screen.blit(self.frames_list[self.frame], (0, 0))
 
 main_menu()
