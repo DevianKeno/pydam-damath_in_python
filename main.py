@@ -1,9 +1,9 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
+from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, ROWS, COLS, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
 SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
 BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED, \
-    BOARD_COCO_MARTHEME, ROWS, COLS
+    BOARD_COCO_MARTHEME
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
@@ -452,46 +452,7 @@ def start_game():
                     break
             # cheat codes
                 _keys = pygame.key.get_pressed()
-
-                if _keys[pygame.K_LSHIFT]:
-                    if pygame.mouse.get_pressed()[2]: # removes the selected piece
-                        drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
-                        piece = [game.board.get_piece(drow, dcol)]
-                        if piece[0].color != 0:
-                            game.board.remove(piece)
-                    if _keys[pygame.K_c]: # change turn
-                        game.change_turn()
-                    if _keys[pygame.K_1]: # game resets
-                        game.reset()
-                    if _keys[pygame.K_2]: # blue wins
-                        game.scoreboard.player1_score = 1
-                        game.scoreboard.player2_score = 0
-                        game.board.red_left = 0
-                    if _keys[pygame.K_3]: # red wins
-                        game.scoreboard.player1_score = 0
-                        game.scoreboard.player2_score = 1
-                        game.board.red_left = 0
-                    if _keys[pygame.K_4]: # make all pieces king
-                        for i in range(8):
-                            for j in range(8):
-                                game.board.board[i][j].king = True
-                    if _keys[pygame.K_5]: # make all pieces not king
-                        for i in range(8):
-                            for j in range(8):
-                                game.board.board[i][j].king = False   
-                    if _keys[pygame.K_6]: # removes all pieces
-                        for i in range(8):
-                            for j in range(8):
-                                game.board.board[i][j] = Piece(i, j, 0, 0)
-                    if _keys[pygame.K_7]: # displays a single chip in both ends
-                        for i in range(8):
-                            for j in range(8):
-                                game.board.board[i][j] = Piece(i, j, 0, 0)
-                        game.board.board[0][1] = Piece(0, 1, LIGHT_BLUE, 2)   
-                        game.board.board[7][6] = Piece(7, 6, RED, 2)  
-                        game.board.red_left = 1
-                        game.board.white_left = 1
-
+                
                 if _keys[pygame.K_LCTRL]:
 
                     if _keys[pygame.K_w]: # king pieces
@@ -590,10 +551,47 @@ def start_game():
                                     game.board.white_left -= 1
                                 elif piece.color == 0:
                                     game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
-                                    game.board.red_left += 1                                
+                                    game.board.red_left += 1
+
+                if _keys[pygame.K_LSHIFT]:
+                    if _keys[pygame.K_c]: # change turn
+                        game.change_turn()
+                    if _keys[pygame.K_1]: # game resets
+                        game.reset()
+                    if _keys[pygame.K_2]: # blue wins
+                        game.scoreboard.player1_score = 1
+                        game.scoreboard.player2_score = 0
+                        game.board.red_left = 0
+                    if _keys[pygame.K_3]: # red wins
+                        game.scoreboard.player1_score = 0
+                        game.scoreboard.player2_score = 1
+                        game.board.red_left = 0
+                    if _keys[pygame.K_4]: # make all pieces king
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j].king = True
+                    if _keys[pygame.K_5]: # make all pieces not king
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j].king = False   
+                    if _keys[pygame.K_6]: # removes all pieces
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j] = Piece(i, j, 0, 0)
+                    if _keys[pygame.K_7]: # displays a single chip in both ends
+                        for i in range(8):
+                            for j in range(8):
+                                game.board.board[i][j] = Piece(i, j, 0, 0)
+                        game.board.board[0][1] = Piece(0, 1, LIGHT_BLUE, 2)   
+                        game.board.board[7][6] = Piece(7, 6, RED, 2)  
+                        game.board.red_left = 1
+                        game.board.white_left = 1
+                    if pygame.mouse.get_pressed()[2]: #removes the piece
+                        drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                        piece = [game.board.get_piece(drow, dcol)]
+                        game.board.remove(piece)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-
                 if pygame.mouse.get_pressed()[0]:
                     if board_rect.collidepoint((current_mouse_x, current_mouse_y)):
                         """
@@ -607,11 +605,7 @@ def start_game():
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 pygame.mixer.music.load('audio\invalid.mp3')
                                 pygame.mixer.music.play()
-                                
-                        if (-1 < row < ROWS) and (-1 < col < COLS): 
-                            """
-                            calls the function only if the row and col values are valid (0-7)
-                            """
+                        if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
