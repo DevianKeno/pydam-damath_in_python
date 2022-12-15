@@ -118,6 +118,16 @@ class SpinningChip:
             frames_blue_big[self.frame].set_alpha(ANIM_ALPHA)
             self.screen.blit(frames_blue_big[self.frame], (SCREEN_WIDTH//3.-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))           
     
+# --------- sound volume ---------
+SOUND_VOLUME = 0.8
+SOUNDS = [POP_SOUND, MOVE_SOUND, SWEEP_SOUND, 
+          SELECT_SOUND, CAPTURE_SOUND, INVALID_SOUND,
+          TRANSITION_IN_SOUND, TRANSITION_OUT_SOUND]
+
+def change_volume(vol):
+    for sound in SOUNDS:
+        sound.set_volume(vol)
+change_volume(SOUND_VOLUME)
 # --------- loading chip frames ---------
 
 blue_chips = []
@@ -306,9 +316,45 @@ def full_trans_reset():
 def full_trans_is_finished():
     return (transition_in.get_finished() and transition_out.get_finished())
 
+
+class TitleAnimation:
+    
+    SPEED = 1
+
+    def __init__ (self, surface, img, height):
+        self.surface = surface
+        self.img = img
+        self.height = height
+        
+        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//(2))
+        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//(2))
+        self.finished = False #finished reaching height
+        self.reversed = False #reversed after reaching height
+
+    def play(self):
+        if not self.reversed:
+            if self.pos == self.height + self.start:
+                self.reversed = True
+                self.pos -= self.SPEED
+            else:
+                self.pos += self.SPEED
+            self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
+        if self.reversed:
+            if self.pos == self.start - self.height:
+                self.reversed = False
+                self.pos += self.SPEED
+            else:
+                self.pos -= self.SPEED
+            self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
+
+TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
+
+    pygame.mixer.music.load('audio/DamPy.wav')
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
 
     full_trans_reset()
     game.reset()
@@ -317,7 +363,8 @@ def main_menu() :
     while True:
         #screen.fill(BG_COLOR) # window color
         screen.fill(BG_COLOR)
-        screen.blit(TITLE_BG, (0, 0))
+        screen.blit(TITLE_BG, (0, 20))
+
 
         for i in range(len(red_chips)):
             red_chips[i].next_frame()
@@ -345,8 +392,9 @@ def main_menu() :
         
         start_btn.draw()
         option_btn.display_image()
-        screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
 
+        TITLE_ANIMATED.play()
+        #screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
 
         if main_play_trans:
             transition_in.play()
@@ -444,6 +492,8 @@ def start_game():
     running = True
     
     while running:
+
+        change_volume(SOUND_VOLUME)
 
         screen.blit(CLEAR_BG, (0, 0))     
         
@@ -628,7 +678,7 @@ def start_game():
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
         return_btn.display_image() 
-   
+
         scoreboard.draw()
         game.board.update_theme(themes.list[themes.focused].board)
         transition_out.play() 

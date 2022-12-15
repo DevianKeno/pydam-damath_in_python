@@ -48,7 +48,7 @@ class Game:
         if self.selected:
             result = self._move(row, col)
             if not result:
-                INVALID_SOUND.play()
+                #INVALID_SOUND.play()
                 self.selected = None
                 self.select(row, col)
 
@@ -59,11 +59,11 @@ class Game:
 
         if piece.color != 0 and piece.color == self.turn:
 
-            if self.moved_piece == None:
-                SELECT_SOUND.play()
+            """if self.moved_piece == None:
+                SELECT_SOUND.play()"""
 
             self.selected = piece
-
+            SELECT_SOUND.play()
             self.valid_moves = self.board.get_valid_moves(piece)
 
             if not self.valid_moves:
@@ -73,7 +73,7 @@ class Game:
                 self.change_turn()
             return True
 
-        if self.moved_piece == None and not self.selected and (piece.color == 0 or piece.color != self.turn):
+        elif self.moved_piece == None and not self.selected and (piece.color == 0 or piece.color != self.turn):
             INVALID_SOUND.play()
 
         return False
