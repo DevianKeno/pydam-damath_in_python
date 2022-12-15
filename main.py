@@ -50,7 +50,7 @@ def show_score():
     score = round(max(game.scoreboard.score()), 2)
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 100).render(str(score), True, WHITE)
     #score_rect = pygame.Rect(255, 165, 535, 235)
-    screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
+    screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.8)))
     
 SOUNDS = [POP_SOUND, MOVE_SOUND, SWEEP_SOUND, 
           SELECT_SOUND, CAPTURE_SOUND, INVALID_SOUND,
@@ -360,10 +360,10 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 
 # --------- main function ---------
 # (Main Menu)
+pygame.mixer.music.load('audio/DamPy.wav')
+pygame.mixer.music.play(-1)
 def main_menu() :
 
-    pygame.mixer.music.load('audio/DamPy.wav')
-    pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.5)
 
     full_trans_reset()
@@ -469,6 +469,7 @@ def pause():
             pause_options_btn.reset()   
             quit_btn.hover_update()  
             if pygame.mouse.get_pressed()[0]:
+                pygame.mixer.music.play(-1)
                 pause_play_trans = True 
         else:
             quit_btn.reset()
@@ -809,6 +810,7 @@ def game_ends():
                 sys.exit()
         
         WINNER.play()
+        
         if WINNER.finished:
             show_score()
             play_again_btn.draw()
