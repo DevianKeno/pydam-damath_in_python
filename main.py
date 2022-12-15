@@ -257,8 +257,17 @@ class Transition:
         self.transition = transition_list
         self.frame = 0
         self.finished = False
-
+        self.sound_played = False
+    
     def play(self):
+        
+        if not self.sound_played:
+            if self.transition == transition_in_list:
+                pygame.mixer.Sound('audio/transition_in_fast.wav').play()
+                self.sound_played = True
+            else:
+                pygame.mixer.Sound('audio/transition_out.wav').play()
+                self.sound_played = True
 
         if self.frame == len(self.transition)-1:
             self.finished = True
@@ -270,6 +279,7 @@ class Transition:
     def reset(self):
         self.frame = 0
         self.finished = False
+        self.sound_played = False
     
     def get_finished(self):
         return self.finished
@@ -296,8 +306,8 @@ def full_trans_is_finished():
 # (Main Menu)
 def main_menu() :
 
-    game.reset()
     full_trans_reset()
+    game.reset()
     main_play_trans = False
 
     while True:
@@ -333,12 +343,12 @@ def main_menu() :
         option_btn.display_image()
         screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
 
+
         if main_play_trans:
-            sfx = pygame.mixer.Sound('audio/transition_in.wav')
-            sfx.play()
             transition_in.play()
             if transition_in.get_finished():
                 start_game()
+
         transition_out.play() 
         pygame.display.update()
         clock.tick(FPS)
@@ -347,8 +357,11 @@ def main_menu() :
 
 def pause():
     paused = True
+    full_trans_reset()
+
     restart_play_trans = False
     pause_play_trans = False
+
     while paused:
         screen.fill(BG_COLOR)
         screen.blit(TITLE_BG, (0, 0))
@@ -372,7 +385,7 @@ def pause():
         #print(current_mouse_x, current_mouse_y)
       
         if resume_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            resume_btn.hover_update(start_game, delay=1)
+            resume_btn.hover_update(start_game)
             restart_btn.reset()
             pause_options_btn.reset()
             quit_btn.reset()
@@ -407,15 +420,15 @@ def pause():
         restart_btn.draw()
         pause_options_btn.draw()
         quit_btn.draw() 
-        if restart_play_trans:
-            transition_in.play()
-            if transition_in.get_finished():
-                start_game()
 
-        if pause_play_trans:
+        if restart_play_trans or pause_play_trans:
             transition_in.play()
             if transition_in.get_finished():
-                main_menu()
+                if restart_play_trans:
+                    start_game()
+                else:
+                    main_menu()
+
         pygame.display.update()
         clock.tick(60)
 
@@ -611,13 +624,10 @@ def start_game():
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
         return_btn.display_image() 
-
-        if not transition_out.get_finished():
-            pygame.mixer.Sound('audio/transition_out.wav').play()
-        transition_out.play()    
-
+   
         scoreboard.draw()
         game.board.update_theme(themes.list[themes.focused].board)
+        transition_out.play() 
         game.update()
 
         clock.tick(60)
