@@ -26,8 +26,7 @@ class Scoreboard:
 
     def update(self, turn):
 
-        font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 48)
-        font.set_bold(True)
+        font = pygame.font.Font('font\CookieRun_Bold.ttf', 48)
 
         if turn == RED: 
             red_box = pygame.Rect((10, 10+self.TXT_OFFSET, self.width-20, self.height//2-10))

@@ -1,5 +1,6 @@
 import pygame
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from audio_constants import SWIPE_SOUND
 
 class ThemesList:
 
@@ -82,7 +83,8 @@ class Themes:
                 self.x += self.gap
 
     def move_left(self):
-
+        SWIPE_SOUND.set_volume(0.2)
+        SWIPE_SOUND.play()
         target = self.x - self.gap
 
         while target != self.x:
@@ -91,7 +93,8 @@ class Themes:
 
 
     def move_right(self):
-
+        SWIPE_SOUND.set_volume(0.2)
+        SWIPE_SOUND.play()
         target = self.x + self.gap
         while target != self.x:
             self.x += self.SPEED

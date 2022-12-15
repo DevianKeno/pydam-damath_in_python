@@ -64,7 +64,7 @@ class Button:
         (The text/image in the button Object)
         """
         # for text
-        font = pygame.font.Font('font\VCR_OSD_MONO.ttf', self.text_fontsize)
+        font = pygame.font.Font('font\CookieRun_Bold.ttf', self.text_fontsize)
         self.text_surface = font.render(self.text, True, self.text_color) #FFFFFF
         self.text_rect = self.text_surface.get_rect(center=self.top_rect.center)
             

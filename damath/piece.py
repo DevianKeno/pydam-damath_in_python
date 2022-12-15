@@ -31,7 +31,7 @@ class Piece:
         #pygame.draw.circle(surface, BLACK, (self.x, self.y), radius+ self.OUTLINE)
         #pygame.draw.circle(surface, self.color, (self.x, self.y), radius)
 
-        font = pygame.font.Font('font\VCR_OSD_MONO.ttf', 20) #18 = fontsize
+        font = pygame.font.Font('font\CookieRun_Bold.ttf', 20) #18 = fontsize
         text_surface = font.render(str(number), True, BLACK) #FFFFFF
         text_rect = text_surface.get_rect(center=(self.x+OFFSET, self.y+OFFSET))
 

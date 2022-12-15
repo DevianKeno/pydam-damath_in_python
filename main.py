@@ -9,7 +9,7 @@ from damath.piece import Piece
 from damath.game import Game
 from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
-from audio_constants import *
+from audio_constants import * 
 
 # --------- initialization ---------
 pygame.init()
@@ -48,7 +48,7 @@ def anim_dim():
 
 def show_score():
     score = round(max(game.scoreboard.score()), 2)
-    font = pygame.font.Font('font\CookieRun Bold.ttf', 100).render(str(score), True, WHITE)
+    font = pygame.font.Font('font\CookieRun_Bold.ttf', 100).render(str(score), True, WHITE)
     #score_rect = pygame.Rect(255, 165, 535, 235)
     screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.6)))
     
@@ -355,8 +355,8 @@ class TitleAnimation:
 TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
 
 # --------- end game options ---------
-play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=20)
-back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=16)
+play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
+back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=18)
 
 # --------- main function ---------
 # (Main Menu)
@@ -737,6 +737,7 @@ def options_menu(who_called_me):
                     themes.move('left')
 
                 if event.key == pygame.K_RETURN:
+                    THEME_SELECTED_SOUND.play()
                     game.board.update_theme(themes.list[themes.focused].board)
                     if 'main' is who_called_me:
                         main_menu()
@@ -762,6 +763,7 @@ def options_menu(who_called_me):
         elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
             return_btn.reset()
             if pygame.mouse.get_pressed()[0]:
+                THEME_SELECTED_SOUND.play()
                 game.board.update_theme(themes.list[themes.focused].board)
                 if 'main' is who_called_me:
                     main_menu()

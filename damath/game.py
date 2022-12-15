@@ -28,7 +28,7 @@ class Game:
         self.valid_moves = {}
 
     def winner(self):   
-        if self.board.red_left <=0 or self.board.white_left <= 0:
+        if (self.board.red_left <=0 or self.board.white_left <= 0):
             red_score, blue_score = self.scoreboard.score()
             if red_score > blue_score:
                 return RED
