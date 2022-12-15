@@ -1,6 +1,7 @@
 import pygame
 from .piece import Piece
 from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
+from audio_constants import *
 
 pygame.mixer.init()
 
@@ -59,14 +60,12 @@ class Board:
         if row == ROWS - 1:
             if piece.color == LIGHT_BLUE:
                 piece.make_king()
-                pygame.mixer.music.load('audio/capture.wav')
-                pygame.mixer.music.play()
+                CAPTURE_SOUND.play()
                 self.white_kings += 1
         elif row == 0:
             if piece.color == RED:
                 piece.make_king()
-                pygame.mixer.music.load('audio/capture.wav')
-                pygame.mixer.music.play()
+                CAPTURE_SOUND.play()
                 self.red_kings += 1
     
     def piece_skipped(self, piece, row, col, bool=False):

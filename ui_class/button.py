@@ -1,6 +1,7 @@
 from ui_class.constants import TXT_COLOR, BTN_COLOR, FONTSIZE, HOVER_SIZE
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from ui_class.fade import *
+from audio_constants import *
 import pygame
 
 class Button:
@@ -83,8 +84,7 @@ class Button:
 
     def play_audio(self):
         if self.play == 1:
-            pygame.mixer.music.load("audio/pop.wav")
-            pygame.mixer.music.play()
+            POP_SOUND.play()
 
     def hover_update(self, func=None, param=None, func2=None, _fade=True, delay=6):
         """
@@ -120,8 +120,7 @@ class Button:
             self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset
             self.y = self.pos[1]
             if self.clicked:
-                pygame.mixer.music.load("audio/sweep.wav")
-                pygame.mixer.music.play()               
+                SWEEP_SOUND.play()
                 self.reset()
                 if func is not None:
                     self.clicked = False

@@ -1,7 +1,7 @@
 import pygame
 from .board import Board
 from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
-#from .scoreboard import Scoreboard
+from audio_constants import *
 
 pygame.mixer.init()
 
@@ -48,8 +48,7 @@ class Game:
         if self.selected:
             result = self._move(row, col)
             if not result:
-                pygame.mixer.music.load('audio/invalid.mp3')
-                pygame.mixer.music.play()
+                INVALID_SOUND.play()
                 self.selected = None
                 self.select(row, col)
 
@@ -61,8 +60,8 @@ class Game:
         if piece.color != 0 and piece.color == self.turn:
 
             if self.moved_piece == None:
-                pygame.mixer.music.load('audio/select.wav')
-                pygame.mixer.music.play()
+                SELECT_SOUND.play()
+
             self.selected = piece
 
             self.valid_moves = self.board.get_valid_moves(piece)
@@ -75,8 +74,7 @@ class Game:
             return True
 
         if self.moved_piece == None and not self.selected and (piece.color == 0 or piece.color != self.turn):
-            pygame.mixer.music.load('audio/invalid.mp3')
-            pygame.mixer.music.play()     
+            INVALID_SOUND.play()
 
         return False
 
@@ -90,8 +88,7 @@ class Game:
             skipped_list = list(self.valid_moves)
             skipped = self.valid_moves[(row, col)]        
             if skipped:
-                pygame.mixer.music.load('audio\capture.wav')
-                pygame.mixer.music.play()
+                CAPTURE_SOUND.play()
                 self.board.piece_skipped(self.selected, row, col, True)
                 operations = []
                 if len(skipped) > 1:
@@ -102,8 +99,7 @@ class Game:
                 self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
                 self.board.remove(skipped)
             else:
-                pygame.mixer.music.load('audio//move.wav')
-                pygame.mixer.music.play()            
+                MOVE_SOUND.play()
 
             print("check: ", self.board.piece_had_skipped(self.selected, row, col))
 
