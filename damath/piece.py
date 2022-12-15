@@ -14,6 +14,7 @@ class Piece:
         self.number = number
         self.num = None
         self.king = False
+        self.IsOnPromotion = False
         self.HasSkipped = False
         self.x = 0
         self.y = 0
@@ -24,7 +25,11 @@ class Piece:
         self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 
     def make_king(self):
+        self.IsOnPromotion = True
         self.king = True
+
+    def done_promote(self):
+        self.IsOnPromotion = False
 
     def draw(self, surface, number, color):
         radius = SQUARE_SIZE//2 - self.PADDING

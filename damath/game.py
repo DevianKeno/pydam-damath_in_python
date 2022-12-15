@@ -63,14 +63,16 @@ class Game:
                 SELECT_SOUND.play()"""
 
             self.selected = piece
-            SELECT_SOUND.play()
             self.valid_moves = self.board.get_valid_moves(piece)
 
             if not self.valid_moves:
                 if not self.board.piece_had_skipped(self.selected, row, col):
+                    INVALID_SOUND.play()
                     return False
                 self.board.piece_skipped(self.selected, row, col, False)
                 self.change_turn()
+            else:
+                SELECT_SOUND.play()
             return True
 
         elif self.moved_piece == None and not self.selected and (piece.color == 0 or piece.color != self.turn):
@@ -104,7 +106,6 @@ class Game:
             print("check: ", self.board.piece_had_skipped(self.selected, row, col))
 
             if not self.board.piece_had_skipped(self.selected, row, col):
-                print("piece set to false")
                 self.board.piece_skipped(self.selected, row, col)
                 self.change_turn()
         else:

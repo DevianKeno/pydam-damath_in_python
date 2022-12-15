@@ -73,7 +73,11 @@ class Scoreboard:
             else:
                 result += op(piece.number, num.number)
                 if piece.king:
-                    result *= 2
+                    if piece.IsOnPromotion:
+                        piece.done_promote()
+                    else:
+                        result *= 2.
+                    
                     
             print("+", result)
 
