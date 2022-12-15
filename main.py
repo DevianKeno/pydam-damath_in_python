@@ -2,7 +2,8 @@ import pygame, sys, random
 
 from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
 SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
-BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED
+BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED, \
+    BOARD_COCO_MARTHEME
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
@@ -192,7 +193,7 @@ return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RE
 themes = ThemesList(screen)
 
 BOARDS = [BOARD_BLACK, BOARD_GREEN, BOARD_BROWN, BOARD_LIGHTBROWN,
-          BOARD_PINK, BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_RED]
+          BOARD_PINK, BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_RED, BOARD_COCO_MARTHEME]
 
 for idx, board in enumerate(BOARDS):
     themes.append(Themes(screen, board, idx))
@@ -297,6 +298,7 @@ def full_trans_is_finished():
 def main_menu() :
 
     game.reset()
+    full_trans_reset()
     main_play_trans = False
 
     while True:
@@ -338,7 +340,7 @@ def main_menu() :
             transition_in.play()
             if transition_in.get_finished():
                 start_game()
-
+        transition_out.play() 
         pygame.display.update()
         clock.tick(FPS)
 
@@ -346,7 +348,8 @@ def main_menu() :
 
 def pause():
     paused = True
-
+    restart_play_trans = False
+    pause_play_trans = False
     while paused:
         screen.fill(BG_COLOR)
         screen.blit(TITLE_BG, (0, 0))
@@ -376,8 +379,8 @@ def pause():
             quit_btn.reset()
         elif restart_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
             if pygame.mouse.get_pressed()[0]:
+                restart_play_trans = True
                 game.reset()
-                start_game()
             restart_btn.hover_update()
             pause_options_btn.reset()
             quit_btn.reset()
@@ -390,7 +393,9 @@ def pause():
             resume_btn.reset()
             restart_btn.reset()
             pause_options_btn.reset()   
-            quit_btn.hover_update(main_menu, delay=1)   
+            quit_btn.hover_update()  
+            if pygame.mouse.get_pressed()[0]:
+                pause_play_trans = True 
         else:
             quit_btn.reset()
             resume_btn.reset()
@@ -398,11 +403,20 @@ def pause():
             pause_options_btn.reset()           
 
         #pygame.draw.rect(paused_surface, BLACK, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
-
+        
         resume_btn.draw()
         restart_btn.draw()
         pause_options_btn.draw()
         quit_btn.draw() 
+        if restart_play_trans:
+            transition_in.play()
+            if transition_in.get_finished():
+                start_game()
+
+        if pause_play_trans:
+            transition_in.play()
+            if transition_in.get_finished():
+                main_menu()
         pygame.display.update()
         clock.tick(60)
 
@@ -437,7 +451,7 @@ def start_game():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     pause()
                     break
-            # test codes
+            # cheat codes
                 _keys = pygame.key.get_pressed()
 
                 if _keys[pygame.K_LSHIFT]:

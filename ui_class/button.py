@@ -120,6 +120,8 @@ class Button:
             self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset
             self.y = self.pos[1]
             if self.clicked:
+                pygame.mixer.music.load("audio/sweep.wav")
+                pygame.mixer.music.play()               
                 self.reset()
                 if func is not None:
                     self.clicked = False
