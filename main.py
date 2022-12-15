@@ -1,6 +1,6 @@
 import pygame, sys, random
 
-from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
+from damath.constants import BOARD_WIDTH, BOARD_HEIGHT, ROWS, COLS, BLACK, WHITE, SQUARE_SIZE, RED, LIGHT_BLUE, \
 SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, BOARD_BLACK, OFFSET, BOARD_OFFSET, BOARD_BROWN, BOARD_GREEN, BOARD_LIGHTBROWN, \
 BOARD_BROWN_2, BOARD_BROWN_3, BOARD_BLUE, BOARD_PINK, BLUE_PIECE, RED_PIECE, BLUE_PIECE_KING, RED_PIECE_KING, BOARD_RED, \
     BOARD_COCO_MARTHEME
@@ -452,6 +452,106 @@ def start_game():
                     break
             # cheat codes
                 _keys = pygame.key.get_pressed()
+                
+                if _keys[pygame.K_LCTRL]:
+
+                    if _keys[pygame.K_w]: # king pieces
+
+                        if _keys[pygame.K_1]: # blue pieces
+                            drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                            piece = game.board.get_piece(drow, dcol)
+                            if dcol % 2 == 1:
+                                if drow % 2 == 0:
+                                    if piece.color == RED:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left -= 1
+                                        game.board.white_left += 1
+                                    elif piece.color == 0:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.white_left += 1                                 
+                            else:
+                                if drow % 2 == 1:
+                                    if piece.color == RED:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left -= 1
+                                        game.board.white_left += 1
+                                    elif piece.color == 0:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.white_left += 1  
+
+                        if _keys[pygame.K_2]: # red pieces
+                            drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                            piece = game.board.get_piece(drow, dcol)
+                            if dcol % 2 == 1:
+                                if drow % 2 == 0:
+                                    if piece.color == LIGHT_BLUE:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left += 1
+                                        game.board.white_left -= 1
+                                    elif piece.color == 0:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left += 1                                 
+                            else:
+                                if drow % 2 == 1:
+                                    if piece.color == LIGHT_BLUE:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left += 1
+                                        game.board.white_left -= 1
+                                    elif piece.color == 0:
+                                        game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                        game.board.board[drow][dcol].king = True
+                                        game.board.red_left += 1  
+
+                    elif _keys[pygame.K_1]: # add normal blue piece
+                        drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                        piece = game.board.get_piece(drow, dcol)
+                        if dcol % 2 == 1:
+                            if drow % 2 == 0:
+                                if piece.color == RED:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                    game.board.red_left -= 1
+                                    game.board.white_left += 1
+                                elif piece.color == 0:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                    game.board.white_left += 1                                 
+                        else:
+                            if drow % 2 == 1:
+                                if piece.color == RED:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                    game.board.red_left -= 1
+                                    game.board.white_left += 1
+                                elif piece.color == 0:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 1)
+                                    game.board.white_left += 1  
+
+                    elif _keys[pygame.K_2]: # add normal red piece
+                        drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                        piece = game.board.get_piece(drow, dcol)
+                        if dcol % 2 == 1:
+                            if drow % 2 == 0:
+                                if piece.color == LIGHT_BLUE:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                    game.board.red_left += 1
+                                    game.board.white_left -= 1
+                                elif piece.color == 0:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                    game.board.red_left += 1                                 
+                        else:
+                            if drow % 2 == 1:
+                                if piece.color == LIGHT_BLUE:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                    game.board.red_left += 1
+                                    game.board.white_left -= 1
+                                elif piece.color == 0:
+                                    game.board.board[drow][dcol] = Piece(drow, dcol, RED, 1)
+                                    game.board.red_left += 1
 
                 if _keys[pygame.K_LSHIFT]:
                     if _keys[pygame.K_c]: # change turn
@@ -486,6 +586,10 @@ def start_game():
                         game.board.board[7][6] = Piece(7, 6, RED, 2)  
                         game.board.red_left = 1
                         game.board.white_left = 1
+                    if pygame.mouse.get_pressed()[2]: #removes the piece
+                        drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                        piece = [game.board.get_piece(drow, dcol)]
+                        game.board.remove(piece)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:
@@ -501,7 +605,8 @@ def start_game():
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 pygame.mixer.music.load('audio\invalid.mp3')
                                 pygame.mixer.music.play()
-                        game.select(row, col)
+                        if (-1 < row < ROWS) and (-1 < col < COLS):
+                            game.select(row, col)
 
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
