@@ -103,8 +103,6 @@ class Game:
             else:
                 MOVE_SOUND.play()
 
-            print("check: ", self.board.piece_had_skipped(self.selected, row, col))
-
             if not self.board.piece_had_skipped(self.selected, row, col):
                 self.board.piece_skipped(self.selected, row, col)
                 self.change_turn()
@@ -139,3 +137,5 @@ class Game:
             self.turn = LIGHT_BLUE
         else:
             self.turn = RED
+
+

@@ -5,11 +5,6 @@ from audio_constants import *
 
 pygame.mixer.init()
 
-NORTH_EAST = [-1, 1]
-NORTH_WEST = [-1, -1]
-SOUTH_EAST = [1, 1]
-SOUTH_WEST = [1, -1]
-
 class Board:
     
     def __init__(self, theme):
@@ -25,9 +20,13 @@ class Board:
     def draw_squares(self, surface):
         surface.fill(BLACK)
         SYMBOLS = ["x", "÷", "-", "+"]
+        SYMBOLS_ONE = ["x", "-", "x", "-"]
+        SYMBOLS_TWO = ["÷", "+", "÷", "+"]
         symbol_counter = 0
+        symbol_counter_reversed = 3
         global symbol_map
         symbol_map = {}
+
         for row in range(ROWS):
 
             """for col in range(row % 2, ROWS, 2):
@@ -36,24 +35,53 @@ class Board:
             
         surface.blit(self.theme, (1, -1))
 
-        for row in range(ROWS):
-            for col in range((row+1) % 2, ROWS, 2):
-                """font = pygame.font.Font(None, 48) 
-                text_surface = font.render(SYMBOLS[symbol_counter], True, WHITE) #FFFFFF
-                text_rect = text_surface.get_rect(center=(col*SQUARE_SIZE+(SQUARE_SIZE//2)+OFFSET, row * SQUARE_SIZE+(SQUARE_SIZE//2)+OFFSET))
-                surface.blit(text_surface, text_rect)"""
-                symbol_map.update({(row, col):SYMBOLS[symbol_counter]})
-                if symbol_counter < 3:
-                    symbol_counter+=1
-                else:
-                    symbol_counter = 0
-            if symbol_counter < 3:
-                symbol_counter+=1
-            else:
-                symbol_counter = 0
+        for col in range(COLS):
+            symbol_counter = 0
+            symbol_counter_reversed = 3
+
+            for row in range(0, ROWS, 2):
+                if (col % 2 == 2):
+                    row+1
+                match col:
+                    case 0:
+                        symbol_map.update({(row, col):SYMBOLS_ONE[symbol_counter]})
+                        symbol_counter += 1
+                    case 1:
+                        symbol_map.update({(row+1, col):SYMBOLS_TWO[symbol_counter]})
+                        symbol_counter += 1
+                    case 2:
+                        symbol_map.update({(row, col):SYMBOLS_TWO[symbol_counter]})
+                        symbol_counter += 1
+                    case 3:
+                        symbol_map.update({(row+1, col):SYMBOLS_ONE[symbol_counter]})
+                        symbol_counter += 1
+                    case 4:
+                        symbol_map.update({(row, col):SYMBOLS_ONE[symbol_counter_reversed]})
+                        symbol_counter_reversed -= 1
+                    case 5:
+                        symbol_map.update({(row+1, col):SYMBOLS_TWO[symbol_counter_reversed]})
+                        symbol_counter_reversed -= 1
+                    case 6:
+                        symbol_map.update({(row, col):SYMBOLS_TWO[symbol_counter_reversed]})
+                        symbol_counter_reversed -= 1
+                    case 7:
+                        symbol_map.update({(row+1, col):SYMBOLS_ONE[symbol_counter_reversed]})
+                        symbol_counter_reversed -= 1
+               
+        # for row in range(ROWS):
+        #     for col in range((row+1) % 2, ROWS, 2):
+        #         symbol_map.update({(row, col):SYMBOLS[symbol_counter]})
+        #         if symbol_counter < 3:
+        #             symbol_counter+=1
+        #         else:
+        #             symbol_counter = 0
+        #     if symbol_counter < 3:
+        #         symbol_counter+=1
+        #     else:
+        #         symbol_counter = 0
 
     def move(self, piece, row, col, number):
-        
+
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
         piece.move(row, col)
 
@@ -92,7 +120,7 @@ class Board:
         for row in range(ROWS):
             self.board.append([])
             for col in range(COLS):
-                if col % 2 == ((row+1) % 2):
+                if col % 2 == ((row) % 2):
                     if row < 3:                  
                         self.board[row].append(Piece(row, col, LIGHT_BLUE, num[num_counter]))
                         if num_counter < 11:
@@ -102,7 +130,6 @@ class Board:
                         num_counter-=1
                     else:
                         self.board[row].append(Piece(row, col, 0, 0))
-
                 else:
                     self.board[row].append(Piece(row, col, 0, 0))
 
