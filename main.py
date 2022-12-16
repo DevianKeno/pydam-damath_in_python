@@ -360,10 +360,13 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 
 # --------- main function ---------
 # (Main Menu)
-pygame.mixer.music.load('audio/DamPy.wav')
-pygame.mixer.music.play(-1)
-def main_menu() :
+"""pygame.mixer.music.load('audio/DamPy.wav')
+pygame.mixer.music.play(-1)"""
 
+def main_menu() :
+    
+    pygame.mixer.music.load('audio/DamPy.wav')
+    pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.5)
 
     full_trans_reset()
@@ -780,6 +783,8 @@ def options_menu(who_called_me):
 # --------- game end function ---------
 def game_ends():
 
+    pygame.mixer.music.load('audio\\ROUTE_209.wav')
+    pygame.mixer.music.play()
     winner_anim_frames = []
 
     # only load the frames of the winning color
@@ -838,16 +843,17 @@ def game_ends():
             if play_again_transition_in:
                 transition_in.play()
                 if transition_in.get_finished():
+                    pygame.mixer.music.stop()
                     game.reset()
                     start_game()
             
             if back_to_menu_transition_in:
                 transition_in.play()
                 if transition_in.get_finished():
+                    pygame.mixer.music.stop()
                     main_menu()
 
-            WINNER.finished = False
-            WINNER.delay_time = 0 
+            WINNER.reset()
 
         pygame.display.update()
         clock.tick(FPS)
@@ -859,6 +865,7 @@ class WinnerWindow:
         self.frame = 0
         self.finished = False
         
+        self.sound_played = False
         self.delay = 0
         self.delay_time = 0
         self.delay_finished = False
@@ -866,6 +873,9 @@ class WinnerWindow:
         self.y = 0
 
     def play(self):
+        if not self.sound_played:
+            self.sound_played = True
+
         if not self.finished:
             if self.frame == len(self.frames_list)-1:
                 self.finished = True
@@ -882,6 +892,10 @@ class WinnerWindow:
                 self.delay_time+=1
             elif self.delay == self.delay_time:
                 self.delay_finished = True
-        
+    
+    def reset(self):
+        self.finished = False
+        self.delay_time = 0
+        self.sound_played = False
 
 main_menu()
