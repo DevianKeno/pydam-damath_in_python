@@ -173,7 +173,9 @@ class Board:
             if left < 0:
                 break
 
+            # Assign the spot to a temporary variable
             piece_in_current_spot = self.board[r][left]
+            
             # Check if spot is empty
             if piece_in_current_spot.color == 0:
                 # Check if piece had captured previously
@@ -248,18 +250,24 @@ class Board:
                 break
 
             piece_in_current_spot = self.board[r][right]
+
             if piece_in_current_spot.color == 0:
+                # Check if piece had captured once
                 if HasSkipped:
                     if not can_capture:
+                        # King can move n tiles behind enemy pieces
                         if IsKing:
                             right += 1
                             continue
                         else:
                             break
                     else:
+                        #  Will not be able to chain capture if there's two pieces in succession
                         if next_piece >= 2:
                             break
                         moves[(r, right)] = can_capture
+                        
+                # Checks for backward movement
                 if color == RED:
                     if step == 1:
                         if can_capture:
@@ -267,7 +275,7 @@ class Board:
                         else:
                             if not IsKing:
                                 break
-                else:
+                else: # if LIGHT_BLUE
                     if step == -1:
                         if can_capture:
                             pass
@@ -277,28 +285,33 @@ class Board:
                             else:
                                 break
 
+                # Check for successive turns after capturing
                 if skipped and not can_capture:
                     break
-                elif skipped:
-                    moves[(r, right)] = can_capture + skipped
+                # If piece can capture
                 else:
+                    # However, will not be able to capture if there's two pieces in succession
                     if next_piece >= 2:
                         break
                     moves[(r, right)] = can_capture
+
                     if not IsKing:
                         break
+
+                # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
                     if IsKing:
                         pass
                     else:
                         break
-
+            # Piece is ally
             elif piece_in_current_spot.color == color:
                 break
+            # Piece is enemy
             else:
                 next_piece += 1
                 can_capture = [piece_in_current_spot]
-
+            # Move right by 1 tile
             right += 1
         
         return moves
