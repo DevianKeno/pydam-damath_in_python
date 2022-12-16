@@ -779,7 +779,7 @@ def options_menu(who_called_me):
 
 # --------- game end function ---------
 def game_ends():
-    
+
     winner_anim_frames = []
 
     # only load the frames of the winning color
@@ -787,14 +787,15 @@ def game_ends():
 
     if game.winner() == RED:
         for i in range(21):
-            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+21}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+18}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
             winner_anim_frames.append(frame)
     else:
         for i in range(20):
-            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\BLUE_WINS\{i+42}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\BLUE_WINS\{i+39}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
             winner_anim_frames.append(frame)
 
     WINNER = WinnerWindow(screen, winner_anim_frames)
+    WINNER.set_delay(60) # winner window will appear after 60 / fps (1 sec)
 
     play_again_transition_in = False
     back_to_menu_transition_in = False
@@ -809,7 +810,9 @@ def game_ends():
                 pygame.quit()
                 sys.exit()
         
-        WINNER.play()
+        WINNER.delay_start()
+        if WINNER.delay_finished:
+            WINNER.play()
         
         if WINNER.finished:
             show_score()
@@ -844,6 +847,7 @@ def game_ends():
                     main_menu()
 
             WINNER.finished = False
+            WINNER.delay_time = 0 
 
         pygame.display.update()
         clock.tick(FPS)
@@ -854,6 +858,10 @@ class WinnerWindow:
         self.screen = screen
         self.frame = 0
         self.finished = False
+        
+        self.delay = 0
+        self.delay_time = 0
+        self.delay_finished = False
         self.frames_list = frames_list
         self.y = 0
 
@@ -864,5 +872,16 @@ class WinnerWindow:
             else:
                 self.frame += 1
             self.screen.blit(self.frames_list[self.frame], (0, 0))
+
+    def set_delay(self, time):
+        self.delay = time
+
+    def delay_start(self):
+        if not self.delay_finished:
+            if self.delay != self.delay_time:
+                self.delay_time+=1
+            elif self.delay == self.delay_time:
+                self.delay_finished = True
+        
 
 main_menu()
