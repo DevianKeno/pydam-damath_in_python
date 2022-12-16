@@ -126,11 +126,13 @@ class Board:
 
     def get_valid_moves(self, piece):
         moves = {}
-        left  = piece.col - 1
-        right = piece.col + 1
+
         up = -1
         down = 1
+        left  = piece.col - 1
+        right = piece.col + 1
         row  = piece.row
+
         if piece.color == RED:
             if piece.king:
                 # Up
@@ -166,14 +168,12 @@ class Board:
     def _traverse_left(self, start, stop, step, color, left, IsKing, HasSkipped, skipped=[]):
         moves = {}
         can_capture = []
-        next_piece = 0
+        next_enemy_piece = 0
 
         for r in range(start, stop, step):
-            # Breaks if out of bounds of board
             if left < 0:
                 break
 
-            # Assign the spot to a temporary variable
             piece_in_current_spot = self.board[r][left]
             
             # Check if spot is empty
@@ -189,7 +189,7 @@ class Board:
                         else:
                             break
                     else:
-                        if next_piece >= 2:
+                        if next_enemy_piece >= 2:
                             break
                         moves[(r, left)] = can_capture
 
@@ -218,7 +218,7 @@ class Board:
                 elif skipped:
                     moves[(r, left)] = can_capture + skipped
                 else:
-                    if next_piece >= 2:
+                    if next_enemy_piece >= 2:
                         break
                     moves[(r, left)] = can_capture
                     if not IsKing:
@@ -233,7 +233,7 @@ class Board:
                 break
             # There's enemy piece
             else:
-                next_piece += 1
+                next_enemy_piece += 1
                 can_capture = [piece_in_current_spot]
 
             left -= 1
@@ -243,19 +243,22 @@ class Board:
     def _traverse_right(self, start, stop, step, color, right, IsKing, HasSkipped, skipped=[]):
         moves = {}
         can_capture = []
-        next_piece = 0
+        next_enemy_piece = 0
 
         for r in range(start, stop, step):
+            # Breaks if out of bounds of board
             if right >= COLS:
                 break
 
+            # Assign the spot to a temporary variable
             piece_in_current_spot = self.board[r][right]
 
+            # Check if spot is empty
             if piece_in_current_spot.color == 0:
                 # Check if piece had captured once
                 if HasSkipped:
                     if not can_capture:
-                        # King can move n tiles behind enemy pieces
+                        # King can see n tiles behind enemy pieces
                         if IsKing:
                             right += 1
                             continue
@@ -263,7 +266,7 @@ class Board:
                             break
                     else:
                         #  Will not be able to chain capture if there's two pieces in succession
-                        if next_piece >= 2:
+                        if next_enemy_piece >= 2:
                             break
                         moves[(r, right)] = can_capture
                         
@@ -291,8 +294,9 @@ class Board:
                 # If piece can capture
                 else:
                     # However, will not be able to capture if there's two pieces in succession
-                    if next_piece >= 2:
+                    if next_enemy_piece >= 2:
                         break
+                    # Store moves
                     moves[(r, right)] = can_capture
 
                     if not IsKing:
@@ -309,8 +313,9 @@ class Board:
                 break
             # Piece is enemy
             else:
-                next_piece += 1
+                next_enemy_piece += 1
                 can_capture = [piece_in_current_spot]
+                
             # Move right by 1 tile
             right += 1
         
