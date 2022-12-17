@@ -1,9 +1,0 @@
-TEST CODES
-
-Game Reset = LEFT SHIFT + 1
-Blue Wins = LEFT SHIFT + 2
-Red Wins = LEFT SHIFT + 3
-All King Pieces = LEFT SHIFT + 4
-No King Pieces = LEFT SHIFT + 5
-No Pieces = LEFT SHIFT + 6
-One Piece Each = LEFT SHIFT + 7
