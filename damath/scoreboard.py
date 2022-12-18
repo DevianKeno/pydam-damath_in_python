@@ -72,7 +72,7 @@ class Scoreboard:
                 continue
             else:
                 result += op(piece.number, num.number)
-                if piece.king:
+                if piece.IsKing:
                     if piece.IsOnPromotion:
                         piece.done_promote()
                     else:

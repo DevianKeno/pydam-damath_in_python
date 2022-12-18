@@ -13,7 +13,9 @@ class Piece:
         self.color = color
         self.number = number
         self.num = None
-        self.king = False
+        self.CanMove = True
+        self.HasPossibleCapture = False
+        self.IsKing = False
         self.IsOnPromotion = False
         self.HasSkipped = False
         self.x = 0
@@ -26,10 +28,13 @@ class Piece:
 
     def make_king(self):
         self.IsOnPromotion = True
-        self.king = True
+        self.IsKing = True
 
     def done_promote(self):
         self.IsOnPromotion = False
+
+    def can_capture(self, bool=True):
+        self.HasPossibleCapture = bool
 
     def draw(self, surface, number, color):
         radius = SQUARE_SIZE//2 - self.PADDING
@@ -41,20 +46,17 @@ class Piece:
         text_rect = text_surface.get_rect(center=(self.x+OFFSET, self.y+OFFSET))
 
         if color == RED:
-            if self.king:
+            if self.IsKing:
                 surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, (66, 66)), (self.x, self.y))
             else:
                 surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x, self.y))
         else:
-            if self.king:
+            if self.IsKing:
                 surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, (66, 66)), (self.x, self.y))   
             else:
                 surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x, self.y))           
         
         surface.blit(text_surface, text_rect)
-
-        """if self.king:
-            surface.blit(CROWN, (self.x - CROWN.get_width()//2, self.y-radius))"""
 
     def move(self, row, col):
         self.row = row

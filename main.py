@@ -31,7 +31,7 @@ SOUND_VOLUME = 0.8
 
 #BG_COLOR = '#FFE3C3'
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('DamPY') # window caption
+pygame.display.set_caption('Dampy') # window caption
 pygame.display.set_icon(LOGO)
 clock = pygame.time.Clock()
 

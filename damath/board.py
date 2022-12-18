@@ -9,6 +9,7 @@ class Board:
     
     def __init__(self, theme):
         self.board = [] #array representation of the board
+        self.IsMovable = {}
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
         self.create_board()
@@ -19,7 +20,6 @@ class Board:
 
     def draw_squares(self, surface):
         surface.fill(BLACK)
-        SYMBOLS = ["x", "÷", "-", "+"]
         SYMBOLS_ONE = ["x", "-", "x", "-"]
         SYMBOLS_TWO = ["÷", "+", "÷", "+"]
         symbol_counter = 0
@@ -27,11 +27,11 @@ class Board:
         global symbol_map
         symbol_map = {}
 
-        for row in range(ROWS):
+        # for row in range(ROWS):
 
-            """for col in range(row % 2, ROWS, 2):
-                pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
-                                 SQUARE_SIZE, SQUARE_SIZE))"""
+        #     """for col in range(row % 2, ROWS, 2):
+        #         pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
+        #                          SQUARE_SIZE, SQUARE_SIZE))"""
             
         surface.blit(self.theme, (1, -1))
 
@@ -67,22 +67,14 @@ class Board:
                     case 7:
                         symbol_map.update({(row+1, col):SYMBOLS_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
-               
-        # for row in range(ROWS):
-        #     for col in range((row+1) % 2, ROWS, 2):
-        #         symbol_map.update({(row, col):SYMBOLS[symbol_counter]})
-        #         if symbol_counter < 3:
-        #             symbol_counter+=1
-        #         else:
-        #             symbol_counter = 0
-        #     if symbol_counter < 3:
-        #         symbol_counter+=1
-        #     else:
-        #         symbol_counter = 0
 
     def move(self, piece, row, col, number):
+        print(f"Piece {piece.color} moved: {piece.col}, {piece.row} -> {col}, {row}")
 
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        self.IsMovable[(row), (col)] = self.IsMovable[(piece.row), (piece.col)]
+        del self.IsMovable[(piece.row), (piece.col)]
+
         piece.move(row, col)
 
         if row == ROWS - 1:
@@ -97,12 +89,13 @@ class Board:
                 self.red_kings += 1
     
     def piece_skipped(self, piece, row, col, bool=False):
-        piece.move(row, col)
         piece.HasSkipped = bool
 
     def piece_had_skipped(self, piece, row, col):
-        piece.move(row, col)
         return piece.HasSkipped
+        
+    def has_possible_capture(self, piece):
+        return piece.HasPossibleCapture
     
     def piece_landed(self, row, col):
         return symbol_map[(row, col)]
@@ -123,10 +116,12 @@ class Board:
                 if col % 2 == ((row) % 2):
                     if row < 3:                  
                         self.board[row].append(Piece(row, col, LIGHT_BLUE, num[num_counter]))
+                        self.IsMovable[(row, col)] = True
                         if num_counter < 11:
                             num_counter+=1
                     elif row > 4:
                         self.board[row].append(Piece(row, col, RED, num[num_counter]))
+                        self.IsMovable[(row, col)] = True
                         num_counter-=1
                     else:
                         self.board[row].append(Piece(row, col, 0, 0))
@@ -153,63 +148,49 @@ class Board:
 
     def get_valid_moves(self, piece):
         moves = {}
-
         up = -1
         down = 1
-        left  = piece.col - 1
-        right = piece.col + 1
-        row  = piece.row
+        above = piece.row-1
+        below = piece.row+1
 
         if piece.color == RED:
-            if piece.king:
-                # Up
-                moves.update(self._traverse_left(row-1, -1, up, piece.color, left, True, piece.HasSkipped))
-                moves.update(self._traverse_right(row-1, -1, up, piece.color, right, True, piece.HasSkipped))
-                # Down
-                moves.update(self._traverse_left(row+1, ROWS, down, piece.color, left, True, piece.HasSkipped))
-                moves.update(self._traverse_right(row+1, ROWS, down, piece.color, right, True, piece.HasSkipped))
-            else:
-                # Up
-                moves.update(self._traverse_left(row-1, max(row-3, -1), up, piece.color, left, False, piece.HasSkipped))
-                moves.update(self._traverse_right(row-1, max(row-3, -1), up, piece.color, right, False, piece.HasSkipped))
-                # Down (Capture only)
-                moves.update(self._traverse_left(row+1, min(row+3, ROWS), down, piece.color, left, False, piece.HasSkipped))
-                moves.update(self._traverse_right(row+1, min(row+3, ROWS), down, piece.color, right, False, piece.HasSkipped))
-        if piece.color == LIGHT_BLUE:
-            if piece.king:
-                # Up
-                moves.update(self._traverse_left(row-1, -1, up, piece.color, left, True, piece.HasSkipped))
-                moves.update(self._traverse_right(row-1, -1, up, piece.color, right, True, piece.HasSkipped))
-                # Down
-                moves.update(self._traverse_left(row+1, ROWS, down, piece.color, left, True, piece.HasSkipped))
-                moves.update(self._traverse_right(row+1, ROWS, down, piece.color, right, True, piece.HasSkipped))
-            else:
-                # Up (Capture only)
-                moves.update(self._traverse_left(row-1, max(row-3, -1), up, piece.color, left, False, piece.HasSkipped))
-                moves.update(self._traverse_right(row-1, max(row-3, -1), up, piece.color, right, False, piece.HasSkipped))
-                # Down
-                moves.update(self._traverse_left(row+1, min(row+3, ROWS), down, piece.color, left, False, piece.HasSkipped))
-                moves.update(self._traverse_right(row+1, min(row+3, ROWS), down, piece.color, right, False, piece.HasSkipped))
+            # Up    
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1))
+            # Down (Capture only)
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS))
+        else: # piece.color == LIGHT_BLUE:
+            # Up (Capture only)
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1))
+            # Down
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS))
+
         return moves
 
-    def _traverse_left(self, start, stop, step, color, left, IsKing, HasSkipped, skipped=[]):
+    def _check_left(self, piece, starting_row, direction, max_distance, skipped=[]):
         moves = {}
+        moves_capture = {}
         can_capture = []
         next_enemy_piece = 0
+        left = piece.col - 1
+        piece.can_capture(False)
 
-        for r in range(start, stop, step):
+        for r in range(starting_row, max_distance, direction):
             if left < 0:
                 break
 
-            piece_in_current_spot = self.board[r][left]
+            current_spot = self.board[r][left]
             
             # Check if spot is empty
-            if piece_in_current_spot.color == 0:
+            if current_spot.color == 0:
                 # Check if piece had captured previously
-                if HasSkipped:
+                if piece.HasSkipped:
                     # If there's nobody to capture, 
                     if not can_capture:
-                        if IsKing:
+                        if piece.IsKing:
                             left -= 1
                             continue
                         # Normal piece can't move to an empty spot after capturing
@@ -218,26 +199,26 @@ class Board:
                     else:
                         if next_enemy_piece >= 2:
                             break
+                        print("Piece can capture")
+                        piece.can_capture()
                         moves[(r, left)] = can_capture
 
                 # Check if the backward movement is for capturing
-                if color == RED:
-                    if step == 1: # Down
+                if piece.color == RED:
+                    if direction == 1: # Down
                         # Piece can capture, allow movement
                         if can_capture:
                             pass
                         # Piece is not capturing, only king pieces can move
                         else:
-                            if not IsKing:
+                            if not piece.IsKing:
                                 break
                 else: # if BLUE
-                    if step == -1: # Up
+                    if direction == -1: # Up
                         if can_capture:
                             pass
                         else:
-                            if IsKing:
-                                pass
-                            else:
+                            if piece.IsKing:
                                 break
 
                 if skipped and not can_capture:
@@ -248,45 +229,50 @@ class Board:
                     if next_enemy_piece >= 2:
                         break
                     moves[(r, left)] = can_capture
-                    if not IsKing:
+
+                    if not piece.IsKing:
                         break
+                    
                 if can_capture:
-                    if IsKing:
+                    print("Piece can capture")
+                    piece.can_capture()
+                    if piece.IsKing:
                         pass
                     else:
                         break
             
-            elif piece_in_current_spot.color == color:
+            elif current_spot.color == piece.color:
                 break
             # There's enemy piece
             else:
                 next_enemy_piece += 1
-                can_capture = [piece_in_current_spot]
+                can_capture = [current_spot]
 
             left -= 1
 
         return moves
 
-    def _traverse_right(self, start, stop, step, color, right, IsKing, HasSkipped, skipped=[]):
+    def _check_right(self, piece, starting_row, direction, max_distance, skipped=[]):
         moves = {}
         can_capture = []
         next_enemy_piece = 0
+        right = piece.col + 1
+        piece.can_capture(False)
 
-        for r in range(start, stop, step):
-            # Breaks if out of bounds of board
+
+        for r in range(starting_row, max_distance, direction):
             if right >= COLS:
                 break
 
-            # Assign the spot to a temporary variable
-            piece_in_current_spot = self.board[r][right]
+            current_spot = self.board[r][right]
 
             # Check if spot is empty
-            if piece_in_current_spot.color == 0:
+            if current_spot.color == 0:
                 # Check if piece had captured once
-                if HasSkipped:
+                if piece.HasSkipped:
                     if not can_capture:
                         # King can see n tiles behind enemy pieces
-                        if IsKing:
+                        if piece.IsKing:
                             right += 1
                             continue
                         else:
@@ -295,53 +281,53 @@ class Board:
                         #  Will not be able to chain capture if there's two pieces in succession
                         if next_enemy_piece >= 2:
                             break
-                        moves[(r, right)] = can_capture
+                        print("Piece can capture")
+                        piece.can_capture()
+                        moves[(r, right)] = can_capture + skipped
                         
                 # Checks for backward movement
-                if color == RED:
-                    if step == 1:
+                if piece.color == RED:
+                    if direction == 1:
                         if can_capture:
                             pass
                         else:
-                            if not IsKing:
+                            if not piece.IsKing:
                                 break
                 else: # if LIGHT_BLUE
-                    if step == -1:
+                    if direction == -1:
                         if can_capture:
                             pass
                         else:
-                            if IsKing:
-                                pass
-                            else:
+                            if not piece.IsKing:
                                 break
 
-                # Check for successive turns after capturing
                 if skipped and not can_capture:
                     break
-                # If piece can capture
+                elif skipped:
+                    moves[(r, right)] = can_capture + skipped
                 else:
-                    # However, will not be able to capture if there's two pieces in succession
                     if next_enemy_piece >= 2:
                         break
-                    # Store moves
                     moves[(r, right)] = can_capture
 
-                    if not IsKing:
+                    if not piece.IsKing:
                         break
 
                 # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
-                    if IsKing:
+                    print("Piece can capture")
+                    piece.can_capture()
+                    if piece.IsKing:
                         pass
                     else:
                         break
             # Piece is ally
-            elif piece_in_current_spot.color == color:
+            elif current_spot.color == piece.color:
                 break
             # Piece is enemy
             else:
                 next_enemy_piece += 1
-                can_capture = [piece_in_current_spot]
+                can_capture = [current_spot]
                 
             # Move right by 1 tile
             right += 1

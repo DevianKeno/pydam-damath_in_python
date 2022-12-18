@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
+from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 from audio_constants import *
 
 pygame.mixer.init()
@@ -36,7 +36,6 @@ class Game:
                 return LIGHT_BLUE
             else:
                 return "TIE"
-        
         return None
 
     def reset(self):
@@ -57,11 +56,7 @@ class Game:
         else:
             piece = self.moved_piece
 
-        if piece.color != 0 and piece.color == self.turn:
-
-            """if self.moved_piece == None:
-                SELECT_SOUND.play()"""
-
+        if piece.color != 0 and piece.color == self.turn and (row, col) in self.board.IsMovable:
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
 
@@ -118,19 +113,21 @@ class Game:
             else:
                 circle_color = LIGHT_BLUE
 
-            for move in moves:
-                row, col = move
-                """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-                self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
-                alpha_circle.set_alpha(50)
-                alpha_circle.fill(WHITE)
-                pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-                pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
-                #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            if moves:
+                for move in moves:
+                    row, col = move
+                    """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+                    self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    alpha_circle.set_alpha(50)
+                    alpha_circle.fill(WHITE)
+                    pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
+                    pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
+                    #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         else:
             pass
 
     def change_turn(self):
+        print("Changed turns")
         self.moved_piece = None
         self.valid_moves = {}
         if self.turn == RED:
@@ -138,4 +135,37 @@ class Game:
         else:
             self.turn = RED
 
+        self.check_for_captures()
 
+    def check_for_captures(self):
+        print(f"Checking for possible captures for {self.turn}")
+        red_count = self.board.red_left + self.board.red_kings
+        blue_count = self.board.white_left + self.board.white_kings
+        moveable_pieces = self.board.IsMovable
+        self.board.IsMovable = {}
+        capturing_pieces = 0
+        
+        for row in range(ROWS-1):
+            if red_count or blue_count == 0:
+                break
+
+            for col in range(COLS-1):
+
+                if self.board[row][col] != 0:
+
+                    if self.board[row][col] == self.turn:
+                        piece = self.board.get_piece(row, col)
+
+                        if self.board.get_valid_moves(piece):
+                            if self.board.has_possible_capture(piece):
+                                print(f"Possible capture by {row}, {col}")
+                                self.board.IsMovable[(row, col)] = True
+
+                        if self.turn == RED:
+                            red_count -= 1
+                        else:
+                            blue_count -= 1
+
+        if capturing_pieces == 0:
+            print(f"No possible captures for {self.turn}")
+            self.board.IsMovable = moveable_pieces
