@@ -5,6 +5,8 @@ from audio_constants import *
 
 pygame.mixer.init()
 
+MANDATORY_CAPTURE = True
+
 class Game:
 
     def __init__(self, surface, scoreboard, theme):
@@ -24,6 +26,8 @@ class Game:
         self.moved_piece = None
         self.selected = None
         self.board = Board(self.theme)
+        self.moveable_pieces = list(self.board.moveables)
+        self.RequiresCapture = False
         self.turn = RED
         self.valid_moves = {}
 
@@ -56,15 +60,22 @@ class Game:
         else:
             piece = self.moved_piece
 
-        if piece.color != 0 and piece.color == self.turn and (row, col) in self.board.IsMovable:
+        if piece.color != 0 and piece.color == self.turn:
+            get_moves = "both"
+            if MANDATORY_CAPTURE:
+                if not (piece.row, piece.col) in self.moveable_pieces:
+                    return False
+                if self.RequiresCapture:
+                    get_moves = "capture"
+
             self.selected = piece
-            self.valid_moves = self.board.get_valid_moves(piece)
+            self.valid_moves = self.board.get_valid_moves(piece, get_moves)
 
             if not self.valid_moves:
                 if not self.board.piece_had_skipped(self.selected, row, col):
                     INVALID_SOUND.play()
                     return False
-                self.board.piece_skipped(self.selected, row, col, False)
+                self.board.piece_skipped(self.selected, row, col, bool=False)
                 self.change_turn()
             else:
                 SELECT_SOUND.play()
@@ -81,12 +92,14 @@ class Game:
 
         if self.selected and piece.color == 0 and (row, col) in self.valid_moves:
             self.board.move(self.selected, row, col, piece.number)
+            self.moveable_pieces.append((row, col))
             self.moved_piece = self.board.get_piece(row, col)
             skipped_list = list(self.valid_moves)
-            skipped = self.valid_moves[(row, col)]        
+            skipped = self.valid_moves[(row, col)] 
+
             if skipped:
                 CAPTURE_SOUND.play()
-                self.board.piece_skipped(self.selected, row, col, True)
+                self.board.piece_skipped(self.selected, row, col, bool=True)
                 operations = []
                 if len(skipped) > 1:
                     for i in range(len(skipped_list)-1, (len(skipped_list)-1)-len(skipped), -1):
@@ -99,7 +112,7 @@ class Game:
                 MOVE_SOUND.play()
 
             if not self.board.piece_had_skipped(self.selected, row, col):
-                self.board.piece_skipped(self.selected, row, col)
+                self.board.piece_skipped(self.selected, row, col, bool=False)
                 self.change_turn()
         else:
             return False
@@ -135,37 +148,43 @@ class Game:
         else:
             self.turn = RED
 
-        self.check_for_captures()
+        if MANDATORY_CAPTURE:
+            self.moveable_pieces.clear()
+            self.moveable_pieces = self.check_for_captures()
 
     def check_for_captures(self):
+        print(self.board.moveables)
         print(f"Checking for possible captures for {self.turn}")
         red_count = self.board.red_left + self.board.red_kings
         blue_count = self.board.white_left + self.board.white_kings
-        moveable_pieces = self.board.IsMovable
-        self.board.IsMovable = {}
+        moveables = []
         capturing_pieces = 0
         
         for row in range(ROWS-1):
-            if red_count or blue_count == 0:
+            if red_count == 0 or blue_count == 0:
                 break
 
-            for col in range(COLS-1):
+            for col in range(7):
+                if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
+                    piece = self.board.get_piece(row, col)
 
-                if self.board[row][col] != 0:
+                    if self.board.get_valid_moves(piece, "capture"):
+                        if self.board.has_possible_capture(piece):
+                            print(f"Possible capture by {row}, {col}")
+                            moveables.append((piece.row, piece.col))
+                            capturing_pieces += 1
 
-                    if self.board[row][col] == self.turn:
-                        piece = self.board.get_piece(row, col)
-
-                        if self.board.get_valid_moves(piece):
-                            if self.board.has_possible_capture(piece):
-                                print(f"Possible capture by {row}, {col}")
-                                self.board.IsMovable[(row, col)] = True
-
-                        if self.turn == RED:
-                            red_count -= 1
-                        else:
-                            blue_count -= 1
+                    if self.turn == RED:
+                        red_count -= 1
+                    else:
+                        blue_count -= 1
 
         if capturing_pieces == 0:
             print(f"No possible captures for {self.turn}")
-            self.board.IsMovable = moveable_pieces
+            self.RequiresCapture = False
+            return self.board.moveables.copy()
+        self.RequiresCapture = True
+        return moveables
+
+    def reset_moveables(self):
+        self.moveable_pieces = self.board.all_moveables

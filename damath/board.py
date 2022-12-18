@@ -9,7 +9,7 @@ class Board:
     
     def __init__(self, theme):
         self.board = [] #array representation of the board
-        self.IsMovable = {}
+        self.moveables = []
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
         self.create_board()
@@ -69,11 +69,11 @@ class Board:
                         symbol_counter_reversed -= 1
 
     def move(self, piece, row, col, number):
-        print(f"Piece {piece.color} moved: {piece.col}, {piece.row} -> {col}, {row}")
-
+        print(f"Piece {piece.color} moved: {piece.row}, {piece.col} -> {row}, {col}")
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
-        self.IsMovable[(row), (col)] = self.IsMovable[(piece.row), (piece.col)]
-        del self.IsMovable[(piece.row), (piece.col)]
+
+        self.moveables.append((row, col))
+        del self.moveables[self.moveables.index((piece.row, piece.col))]
 
         piece.move(row, col)
 
@@ -88,7 +88,7 @@ class Board:
                 CAPTURE_SOUND.play()
                 self.red_kings += 1
     
-    def piece_skipped(self, piece, row, col, bool=False):
+    def piece_skipped(self, piece, row, col, bool):
         piece.HasSkipped = bool
 
     def piece_had_skipped(self, piece, row, col):
@@ -116,12 +116,12 @@ class Board:
                 if col % 2 == ((row) % 2):
                     if row < 3:                  
                         self.board[row].append(Piece(row, col, LIGHT_BLUE, num[num_counter]))
-                        self.IsMovable[(row, col)] = True
+                        self.moveables.append((row, col))
                         if num_counter < 11:
                             num_counter+=1
                     elif row > 4:
                         self.board[row].append(Piece(row, col, RED, num[num_counter]))
-                        self.IsMovable[(row, col)] = True
+                        self.moveables.append((row, col))
                         num_counter-=1
                     else:
                         self.board[row].append(Piece(row, col, 0, 0))
@@ -146,40 +146,45 @@ class Board:
                 else:
                     self.white_left -= 1
 
-    def get_valid_moves(self, piece):
+    def get_valid_moves(self, piece, type="both"):
         moves = {}
         up = -1
         down = 1
         above = piece.row-1
         below = piece.row+1
+        
+        if piece.HasPossibleCapture:
+            piece.can_capture(False)
 
         if piece.color == RED:
             # Up    
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1))
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type))
             # Down (Capture only)
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS))
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS, type=type))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS, type=type))
         else: # piece.color == LIGHT_BLUE:
             # Up (Capture only)
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1))
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type))
             # Down
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS))
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS, type=type))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS, type=type))
 
         return moves
 
-    def _check_left(self, piece, starting_row, direction, max_distance, skipped=[]):
+    def _check_left(self, piece, starting_row, direction, max_distance, type, skipped=[]):
         moves = {}
         moves_capture = {}
         can_capture = []
         next_enemy_piece = 0
         left = piece.col - 1
-        piece.can_capture(False)
 
         for r in range(starting_row, max_distance, direction):
             if left < 0:
+                break
+
+            if next_enemy_piece >= 2:
                 break
 
             current_spot = self.board[r][left]
@@ -221,21 +226,27 @@ class Board:
                             if piece.IsKing:
                                 break
 
-                if skipped and not can_capture:
-                    break
-                elif skipped:
+                # if skipped and not can_capture:
+                #     break
+                # el
+                if skipped:
                     moves[(r, left)] = can_capture + skipped
                 else:
                     if next_enemy_piece >= 2:
                         break
-                    moves[(r, left)] = can_capture
+                    if can_capture:
+                        print("Piece can capture")
+                        piece.can_capture(bool=True)
+                        moves_capture[(r, left)] = can_capture
+                    else:
+                        moves[(r, left)] = can_capture
 
                     if not piece.IsKing:
                         break
                     
                 if can_capture:
                     print("Piece can capture")
-                    piece.can_capture()
+                    piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass
                     else:
@@ -250,18 +261,26 @@ class Board:
 
             left -= 1
 
-        return moves
+        if type == "move":
+            return moves
+        elif type == "capture":
+            return moves_capture
+        elif type == "both":
+            moves.update(moves_capture)
+            return moves
 
-    def _check_right(self, piece, starting_row, direction, max_distance, skipped=[]):
+    def _check_right(self, piece, starting_row, direction, max_distance, type, skipped=[]):
         moves = {}
+        moves_capture = {}
         can_capture = []
         next_enemy_piece = 0
         right = piece.col + 1
-        piece.can_capture(False)
-
 
         for r in range(starting_row, max_distance, direction):
             if right >= COLS:
+                break
+
+            if next_enemy_piece >= 2:
                 break
 
             current_spot = self.board[r][right]
@@ -281,7 +300,6 @@ class Board:
                         #  Will not be able to chain capture if there's two pieces in succession
                         if next_enemy_piece >= 2:
                             break
-                        print("Piece can capture")
                         piece.can_capture()
                         moves[(r, right)] = can_capture + skipped
                         
@@ -308,7 +326,12 @@ class Board:
                 else:
                     if next_enemy_piece >= 2:
                         break
-                    moves[(r, right)] = can_capture
+                    if can_capture:
+                        print("Piece can capture")
+                        piece.can_capture(bool=True)
+                        moves_capture[(r, right)] = can_capture
+                    else:
+                        moves[(r, right)] = can_capture
 
                     if not piece.IsKing:
                         break
@@ -316,7 +339,7 @@ class Board:
                 # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
                     print("Piece can capture")
-                    piece.can_capture()
+                    piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass
                     else:
@@ -331,5 +354,11 @@ class Board:
                 
             # Move right by 1 tile
             right += 1
-        
-        return moves
+
+        if type == "move":
+            return moves
+        elif type == "capture":
+            return moves_capture
+        elif type == "both":
+            moves.update(moves_capture)
+            return moves
