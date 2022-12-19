@@ -2,7 +2,7 @@ import pygame, sys, random
 
 from damath.constants import *
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
-from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
+from display_constants import *
 from ui_class.button import Button
 from ui_class.fade import *
 from damath.piece import Piece
@@ -62,131 +62,136 @@ def change_volume(vol):
 change_volume(SOUND_VOLUME)
 
 # --------- Falling Spinning Chip Animation assets ---------
+chip_animation = False
 
-class FallingSpinningChip:
+if chip_animation:
+    class FallingSpinningChip:
 
-    def __init__(self, screen, color):
-        self.screen = screen
-        self.color = color
-        self._init()
-        self.frame = 0
-        self.delay = 0
-        self.delayed = False
+        def __init__(self, screen, color):
+            self.screen = screen
+            self.color = color
+            self._init()
+            self.frame = 0
+            self.delay = 0
+            self.delayed = False
 
-    def _init(self):
-        self.width, self.height = anim_dim()
+        def _init(self):
+            self.width, self.height = anim_dim()
 
-    def next_frame(self):
-        if self.height == -180 and not self.delayed:
-            self.delay = random.randint(1, 300)
-            self.height = self.height - self.delay
-            self.delayed = True
+        def next_frame(self):
+            if self.height == -180 and not self.delayed:
+                self.delay = random.randint(1, 300)
+                self.height = self.height - self.delay
+                self.delayed = True
+            
+            if self.height > SCREEN_HEIGHT:
+                self.reset()
+
+            if self.delay:
+                self.height += 1
+                self.delay -= 1
+            else:
+                self.height += ANIM_SPEED
+
+                if self.frame == len(frames_blue)-1:
+                    self.frame =  0
+                else:
+                    self.frame += 1
+
+                if self.color == 'blue':
+                    frames_blue[self.frame].set_alpha(ANIM_ALPHA)
+                    self.screen.blit(frames_blue[self.frame], (self.width, self.height))
+                else:
+                    frames_red[self.frame].set_alpha(ANIM_ALPHA)
+                    self.screen.blit(frames_red[self.frame], (self.width, self.height))
         
-        if self.height > SCREEN_HEIGHT:
-            self.reset()
+        def reset(self):
+            self._init()
 
-        if self.delay:
-            self.height += 1
-            self.delay -= 1
-        else:
-            self.height += ANIM_SPEED
+    # --------- In-Place Spinning Chip Animation assets ---------
 
-            if self.frame == len(frames_blue)-1:
-                self.frame =  0
+    class SpinningChip:
+        
+        def __init__(self, screen, color):
+            self.screen = screen
+            self.color = color
+            self.frame = 0
+
+        def play(self):
+
+            if self.frame == len(frames_blue_big)-1:
+                self.frame = 0
             else:
                 self.frame += 1
 
-            if self.color == 'blue':
-                frames_blue[self.frame].set_alpha(ANIM_ALPHA)
-                self.screen.blit(frames_blue[self.frame], (self.width, self.height))
+            if self.color == 'red':
+                frames_red_big[self.frame].set_alpha(ANIM_ALPHA)
+                self.screen.blit(frames_red_big[self.frame], (SCREEN_WIDTH//3-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))
             else:
-                frames_red[self.frame].set_alpha(ANIM_ALPHA)
-                self.screen.blit(frames_red[self.frame], (self.width, self.height))
-    
-    def reset(self):
-        self._init()
+                frames_blue_big[self.frame].set_alpha(ANIM_ALPHA)
+                self.screen.blit(frames_blue_big[self.frame], (SCREEN_WIDTH//3.-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))           
 
-# --------- In-Place Spinning Chip Animation assets ---------
+    # --------- loading chip frames ---------
 
-class SpinningChip:
-    
-    def __init__(self, screen, color):
-        self.screen = screen
-        self.color = color
-        self.frame = 0
+    blue_chips = []
+    red_chips = []
 
-    def play(self):
-
-        if self.frame == len(frames_blue_big)-1:
-            self.frame = 0
+    for i in range(8):
+        if (i%2 == 0):
+            blue_chips.append(FallingSpinningChip(screen, 'blue'))
         else:
-            self.frame += 1
+            red_chips.append(FallingSpinningChip(screen, 'red'))
 
-        if self.color == 'red':
-            frames_red_big[self.frame].set_alpha(ANIM_ALPHA)
-            self.screen.blit(frames_red_big[self.frame], (SCREEN_WIDTH//3-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))
+    # --------- animation assets ---------
+    frames_blue = []
+    for i in range(1, 462):
+        if i < 10:
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/000{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))
+        elif i < 100:
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/00{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
         else:
-            frames_blue_big[self.frame].set_alpha(ANIM_ALPHA)
-            self.screen.blit(frames_blue_big[self.frame], (SCREEN_WIDTH//3.-(frames_red_big[self.frame].get_width()//2), SCREEN_HEIGHT//2-(frames_red_big[self.frame].get_height()//2)))           
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/0{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
 
-# --------- loading chip frames ---------
+        frames_blue.append(frame)
 
-blue_chips = []
-red_chips = []
+    frames_red = []
 
-for i in range(8):
-    if (i%2 == 0):
-        blue_chips.append(FallingSpinningChip(screen, 'blue'))
-    else:
-        red_chips.append(FallingSpinningChip(screen, 'red'))
+    for i in range(1, 462):
+        if i < 10:
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/000{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))
+        elif i < 100:
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/00{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
+        else:
+            frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/0{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
 
-# --------- animation assets ---------
-frames_blue = []
-for i in range(1, 462):
-    if i < 10:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/000{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))
-    elif i < 100:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/00{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
-    else:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/blue/0{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
+        frames_red.append(frame)
 
-    frames_blue.append(frame)
+    frames_blue_big = []
 
-frames_red = []
+    for i in range(1, 462):
+        if i < 10:
+            frame = pygame.image.load(f'assets/anim_lowres/blue/000{i}.png')
+        elif i < 100:
+            frame = pygame.image.load(f'assets/anim_lowres/blue/00{i}.png') 
+        else:
+            frame = pygame.image.load(f'assets/anim_lowres/blue/0{i}.png')
 
-for i in range(1, 462):
-    if i < 10:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/000{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))
-    elif i < 100:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/00{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
-    else:
-        frame = pygame.transform.smoothscale(pygame.image.load(f'assets/anim_lowres/red/0{i}.png'), (CHIP_WIDTH, CHIP_HEIGHT))  
+        frames_blue_big.append(frame)   
 
-    frames_red.append(frame)
+    frames_red_big = []
 
-frames_blue_big = []
+    for i in range(1, 462):
+        if i < 10:
+            frame = pygame.image.load(f'assets/anim_lowres/red/000{i}.png')
+        elif i < 100:
+            frame = pygame.image.load(f'assets/anim_lowres/red/00{i}.png') 
+        else:
+            frame = pygame.image.load(f'assets/anim_lowres/red/0{i}.png')
 
-for i in range(1, 462):
-    if i < 10:
-        frame = pygame.image.load(f'assets/anim_lowres/blue/000{i}.png')
-    elif i < 100:
-        frame = pygame.image.load(f'assets/anim_lowres/blue/00{i}.png') 
-    else:
-        frame = pygame.image.load(f'assets/anim_lowres/blue/0{i}.png')
+        frames_red_big.append(frame)   
 
-    frames_blue_big.append(frame)   
-
-frames_red_big = []
-
-for i in range(1, 462):
-    if i < 10:
-        frame = pygame.image.load(f'assets/anim_lowres/red/000{i}.png')
-    elif i < 100:
-        frame = pygame.image.load(f'assets/anim_lowres/red/00{i}.png') 
-    else:
-        frame = pygame.image.load(f'assets/anim_lowres/red/0{i}.png')
-
-    frames_red_big.append(frame)   
+# --------- SIDE MENU ON THE MAIN MENU ---------
+side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.29, SCREEN_HEIGHT))
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
@@ -216,14 +221,15 @@ BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
 board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
-board_rect = pygame.Rect(375, 25, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
+board_rect = pygame.Rect(SCREEN_WIDTH*0.71//2+(SCREEN_WIDTH*0.29)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
-scoreboard_rect = pygame.Rect(68, 125, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
+scoreboard_rect = pygame.Rect(SIDE_MENU_RECT.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
 scoreboard = Scoreboard(scoreboard_surface)
 
-big_blue_chip = SpinningChip(screen, 'blue')
-big_red_chip = SpinningChip(screen, 'red')
+if chip_animation:
+    big_blue_chip = SpinningChip(screen, 'blue')
+    big_red_chip = SpinningChip(screen, 'red')
 
 game = Game(board_surface, scoreboard, BOARD_DEFAULT_THEME)  
 # --------- instantiating Pause objects ---------
@@ -326,9 +332,9 @@ class TitleAnimation:
         self.img = img
         self.height = height
         
-        self.speed = 1
-        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
-        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
+        self.speed = 0.25
+        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//2)
+        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//2)
         self.finished = False #finished reaching height
         self.reversed = False #reversed after reaching height
 
@@ -338,21 +344,21 @@ class TitleAnimation:
                 self.reversed = True
                 self.pos -= self.speed
             elif self.pos == self.height + self.start - 12 or self.pos == self.height + self.start - 4:
-                self.pos += 4
+                self.pos += 2
             else:
                 self.pos += self.speed
-            self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
+            self.surface.blit(self.img, ((SCREEN_WIDTH*0.71)//2+(SCREEN_WIDTH*0.29)-(TITLE.get_width()//2), self.pos))
         if self.reversed:
             if self.pos == self.start - self.height:
                 self.reversed = False
                 self.pos += self.speed
             elif self.pos == self.start - self.height + 12 or self.pos == self.height + self.start + 4:
-                self.pos -= 4
+                self.pos -= 2
             else:
                 self.pos -= self.speed
-            self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
+            self.surface.blit(self.img, ((SCREEN_WIDTH*0.71)//2+(SCREEN_WIDTH*0.29)-(TITLE.get_width()//2), self.pos))
 
-TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
+TITLE_ANIMATED = TitleAnimation(screen, TITLE, 5)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
@@ -363,6 +369,7 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 """pygame.mixer.music.load('audio/DamPy.wav')
 pygame.mixer.music.play(-1)"""
 
+
 def main_menu() :
     
     pygame.mixer.music.load('audio/DamPy.wav')
@@ -372,16 +379,17 @@ def main_menu() :
     full_trans_reset()
     game.reset()
     main_play_trans = False
-
     while True:
-        #screen.fill(BG_COLOR) # window color
         screen.fill(BG_COLOR)
-        screen.blit(TITLE_BG, (0, 0))
+        screen.blit(side_menu_surface, (0, 0))
+        side_menu_surface.fill(SIDE_MENU_COLOR)
+        side_menu_surface.blit(LOGO, (side_menu_surface.get_width()//2-LOGO.get_width()//2, side_menu_surface.get_height()*0.075))
+        #screen.blit(TITLE_BG, (0, 0))
 
-
-        for i in range(len(red_chips)):
-            red_chips[i].next_frame()
-            blue_chips[i].next_frame()
+        if chip_animation:
+            for i in range(len(red_chips)):
+                red_chips[i].next_frame()
+                blue_chips[i].next_frame()
 
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
         # button hover effect
@@ -431,10 +439,11 @@ def pause():
         screen.fill(BG_COLOR)
         screen.blit(TITLE_BG, (0, 0))
 
-        if game.turn == RED:
-            big_red_chip.play()
-        else:
-            big_blue_chip.play()
+        if chip_animation:
+            if game.turn == RED:
+                big_red_chip.play()
+            else:
+                big_blue_chip.play()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -510,8 +519,11 @@ def start_game():
 
         change_volume(SOUND_VOLUME)
 
-        screen.blit(CLEAR_BG, (0, 0))     
-        
+        #screen.blit(CLEAR_BG, (0, 0)) 
+        screen.fill(BG_COLOR)    
+        screen.blit(side_menu_surface, (0, 0))
+        side_menu_surface.fill(SIDE_MENU_COLOR)       
+
         if game.winner() != None:
             print(game.winner()) 
             running = False
@@ -690,6 +702,8 @@ def start_game():
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
+        font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
+        screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
         screen.blit(board_surface, (board_rect.x, board_rect.y))     
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
         return_btn.display_image() 
@@ -707,7 +721,7 @@ def options_menu(who_called_me):
     
     print("Options Button: Clicked")
 
-    running = True
+    running = False
 
     while running:
 
@@ -717,9 +731,10 @@ def options_menu(who_called_me):
         for idx, theme in enumerate(themes.list):
             themes.rect_list[idx] = pygame.Rect(theme.x, theme.y, theme.theme.get_width(), theme.theme.get_height())
 
-        for i in range(3):
-            red_chips[i].next_frame()
-            blue_chips[i].next_frame()
+        if chip_animation:
+            for i in range(3):
+                red_chips[i].next_frame()
+                blue_chips[i].next_frame()
         
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
 
