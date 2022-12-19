@@ -35,14 +35,11 @@ class Move:
         if pos[1] != object.y and pos[1] != 0:
             self.anim_y = True
 
-
         self.step = 0
-        self.max_steps = DEFAULT_FPS * time_in_seconds
-        # self.start_time = t.time()
-        # self.time_end = t.time() + time_in_seconds
-
-        # print(elapsed_time)
-        # self.object = object
+        if time_in_seconds != 0:
+            self.max_steps = DEFAULT_FPS * time_in_seconds
+        else:
+            self.max_steps = 1
     
     def update(self):
         """
@@ -71,7 +68,6 @@ class Move:
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
-
 
         if self.anim_x:
             offset_x = self.distance_x * (self.ease_type(self.step/self.max_steps))
