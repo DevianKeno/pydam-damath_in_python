@@ -1,6 +1,6 @@
 import pygame, time
 from display_constants import SIDE_MENU_COLOR, BG_COLOR
-class MainMenuOptions:
+class MainMenu:
     
     def __init__ (self, surface, pos, width, height, text, color, fontsize, target, args=[], hover_text=[]):
         self.x, self.y = pos

@@ -10,7 +10,7 @@ from damath.game import Game
 from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
 from audio_constants import * 
-from ui_class.main_menu import MainMenuOptions
+from ui_class.main_menu import MainMenu
 
 # --------- initialization ---------
 pygame.init()
@@ -195,11 +195,11 @@ if chip_animation:
 mainmenu_opt_gap = 85
 menu_fontsize = 42
 side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.29, SCREEN_HEIGHT))
-play_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
-online_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
-help_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
-options_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Options', WHITE, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
-exit_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Exit', WHITE, menu_fontsize, None, None, ['Quit the Game :<'])
+play_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
+online_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
+help_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
+options_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Options', WHITE, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
+exit_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Exit', WHITE, menu_fontsize, None, None, ['Quit the Game :<'])
 print(play_menu_text.height)
 
 # --------- instantiating Start button ---------
