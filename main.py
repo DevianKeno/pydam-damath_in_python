@@ -10,6 +10,7 @@ from damath.game import Game
 from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
 from audio_constants import * 
+from ui_class.main_menu import MainMenuOptions
 
 # --------- initialization ---------
 pygame.init()
@@ -191,7 +192,15 @@ if chip_animation:
         frames_red_big.append(frame)   
 
 # --------- SIDE MENU ON THE MAIN MENU ---------
+mainmenu_opt_gap = 85
+menu_fontsize = 42
 side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.29, SCREEN_HEIGHT))
+play_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
+online_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
+help_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
+options_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Options', WHITE, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
+exit_menu_text = MainMenuOptions(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Exit', WHITE, menu_fontsize, None, None, ['Quit the Game :<'])
+print(play_menu_text.height)
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
@@ -366,10 +375,6 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 
 # --------- main function ---------
 # (Main Menu)
-"""pygame.mixer.music.load('audio/DamPy.wav')
-pygame.mixer.music.play(-1)"""
-
-
 def main_menu() :
     
     pygame.mixer.music.load('audio/DamPy.wav')
@@ -379,48 +384,75 @@ def main_menu() :
     full_trans_reset()
     game.reset()
     main_play_trans = False
+
     while True:
         screen.fill(BG_COLOR)
         screen.blit(side_menu_surface, (0, 0))
         side_menu_surface.fill(SIDE_MENU_COLOR)
         side_menu_surface.blit(LOGO, (side_menu_surface.get_width()//2-LOGO.get_width()//2, side_menu_surface.get_height()*0.075))
-        #screen.blit(TITLE_BG, (0, 0))
+        
+        play_menu_text.display()
+        online_menu_text.display()
+        help_menu_text.display()
+        options_menu_text.display()
+        exit_menu_text.display()
 
         if chip_animation:
             for i in range(len(red_chips)):
                 red_chips[i].next_frame()
                 blue_chips[i].next_frame()
 
-        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
-        # button hover effect
-        # if the cursor is inside the button
-        if start_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            start_btn.hover_update()
-            option_btn.reset() 
-            if pygame.mouse.get_pressed()[0]:
-                main_play_trans = True
-        elif option_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            start_btn.reset()
-            option_btn.hover_update(options_menu, param='main')
+        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
+
+        if play_menu_text.rect.collidepoint((mx, my)):
+            play_menu_text.hover_update()
+            online_menu_text.reset()
+            help_menu_text.reset()
+            options_menu_text.reset()
+            exit_menu_text.reset()
+        elif online_menu_text.rect.collidepoint((mx, my)):
+            online_menu_text.hover_update()
+            play_menu_text.reset()
+            help_menu_text.reset()
+            options_menu_text.reset()
+            exit_menu_text.reset()
+        elif help_menu_text.rect.collidepoint((mx, my)):
+            help_menu_text.hover_update()
+            play_menu_text.reset()
+            online_menu_text.reset()
+            options_menu_text.reset()
+            exit_menu_text.reset()
+        elif options_menu_text.rect.collidepoint((mx, my)):
+            options_menu_text.hover_update()
+            play_menu_text.reset()
+            online_menu_text.reset()
+            help_menu_text.reset()
+
+            exit_menu_text.reset()
+        elif exit_menu_text.rect.collidepoint((mx, my)):
+            exit_menu_text.hover_update()
+            play_menu_text.reset()
+            online_menu_text.reset()
+            help_menu_text.reset()
+            options_menu_text.reset()
         else:
-            start_btn.reset()
-            option_btn.reset() 
+            play_menu_text.reset()
+            online_menu_text.reset()
+            help_menu_text.reset()
+            options_menu_text.reset()
+            exit_menu_text.reset()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()   
-        
-        start_btn.draw()
-        option_btn.display_image()
 
         TITLE_ANIMATED.play()
-        #screen.blit(TITLE, (SCREEN_WIDTH//2-(TITLE.get_width()//2), SCREEN_HEIGHT//2-(TITLE.get_height()//(1.25))))
 
-        if main_play_trans:
-            transition_in.play()
-            if transition_in.get_finished():
-                start_game()
+        # if main_play_trans:
+        #     transition_in.play()
+        #     if transition_in.get_finished():
+        #         start_game()
 
         transition_out.play() 
         pygame.display.update()

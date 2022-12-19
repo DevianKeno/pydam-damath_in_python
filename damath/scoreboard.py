@@ -9,7 +9,7 @@ class Scoreboard:
     TXT_OFFSET = 10
 
     def __init__(self, surface):
-        self.width = SCOREBOARD_WIDTH
+        self.width = SCOREBOARD_WIDTH   
         self.height = SCOREBOARD_HEIGHT
         self.surface = surface
 
