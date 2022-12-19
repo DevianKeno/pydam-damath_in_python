@@ -5,11 +5,13 @@ from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, LOGO, TITLE, BG_COLOR, TITLE_BG, CLEAR_BG
 from ui_class.button import Button
 from ui_class.fade import *
+from ui_class.tween import *
 from damath.piece import Piece
 from damath.game import Game
 from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
 from audio_constants import * 
+import ui_class.tween as tween
 
 # --------- initialization ---------
 pygame.init()
@@ -241,7 +243,6 @@ quit_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5
 
 # --------- instantiating Options objects ---------
 
-
 # sliders
 music_slider = pygame.transform.smoothscale(BLUE_PIECE_KING, (50, 50))
 
@@ -329,6 +330,7 @@ class TitleAnimation:
         self.speed = 1
         self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
         self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//(1.75))
+
         self.finished = False #finished reaching height
         self.reversed = False #reversed after reaching height
 
@@ -353,6 +355,8 @@ class TitleAnimation:
             self.surface.blit(self.img, (SCREEN_WIDTH//2-(TITLE.get_width()//2), self.pos))
 
 TITLE_ANIMATED = TitleAnimation(screen, TITLE, 10)
+
+anim_start_btn = tween.Move(start_btn, (start_btn.x, start_btn.y+40), 0.5, ease_type=easeInSine, loop=ping_pong)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
@@ -395,7 +399,7 @@ def main_menu() :
             start_btn.reset()
             option_btn.hover_update(options_menu, param='main')
         else:
-            start_btn.reset()
+            # start_btn.reset()
             option_btn.reset() 
 
         for event in pygame.event.get():
@@ -414,7 +418,8 @@ def main_menu() :
             if transition_in.get_finished():
                 start_game()
 
-        transition_out.play() 
+        transition_out.play()
+        tween.Move.play(anim_start_btn)
         pygame.display.update()
         clock.tick(FPS)
 
@@ -532,6 +537,7 @@ def start_game():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     pause()
                     break
+
             # cheat codes
                 if CHEAT_CODES:
                     _keys = pygame.key.get_pressed()

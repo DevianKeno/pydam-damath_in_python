@@ -1,6 +1,7 @@
 from ui_class.constants import TXT_COLOR, BTN_COLOR, FONTSIZE, HOVER_SIZE
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from ui_class.fade import *
+from ui_class.tween import *
 from audio_constants import *
 from damath.constants import LIGHT_BLUE, RED
 import pygame
@@ -23,6 +24,7 @@ class Button:
         self.image_surface = image
         self.text = text
         self.init_radius = radius
+        self.IsHovered = False
 
         if image_size != None:
             self.image_width, self.image_height = image_size
@@ -91,6 +93,7 @@ class Button:
         """
         Updates if mouse hovered or clicked the button
         """
+
         # updates the button rectangle and text
         self.top_rect.update((self.x-(HOVER_SIZE/2), self.y-(HOVER_SIZE/2)), 
                                 (self.width+HOVER_SIZE, self.height+HOVER_SIZE))
@@ -100,6 +103,7 @@ class Button:
         self.play+=1
         self.play_audio()
         self.delay = delay
+
 
         # updates image if it contains one
         if self.image_surface is not None:
@@ -146,6 +150,7 @@ class Button:
         self.top_small_circle[1] = self.y+self.smallcircle_y_offset
         self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset
         self.y = self.pos[1]
+        self.IsHovered = False
 
         if self.image_surface is not None:
             self.image_surface = self.image
