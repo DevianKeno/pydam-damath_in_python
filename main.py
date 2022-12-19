@@ -544,7 +544,7 @@ def start_game():
                                 drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                                 piece = game.board.get_piece(drow, dcol)
                                 if dcol % 2 == 1:
-                                    if drow % 2 == 0:
+                                    if drow % 2 == 1:
                                         if piece.color == RED:
                                             game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                             game.board.board[drow][dcol].king = True
@@ -555,7 +555,7 @@ def start_game():
                                             game.board.board[drow][dcol].king = True
                                             game.board.white_left += 1                                 
                                 else:
-                                    if drow % 2 == 1:
+                                    if drow % 2 == 0:
                                         if piece.color == RED:
                                             game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                             game.board.board[drow][dcol].king = True
@@ -570,7 +570,7 @@ def start_game():
                                 drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                                 piece = game.board.get_piece(drow, dcol)
                                 if dcol % 2 == 1:
-                                    if drow % 2 == 0:
+                                    if drow % 2 == 1:
                                         if piece.color == LIGHT_BLUE:
                                             game.board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
                                             game.board.board[drow][dcol].king = True
@@ -581,7 +581,7 @@ def start_game():
                                             game.board.board[drow][dcol].king = True
                                             game.board.red_left += 1                                 
                                 else:
-                                    if drow % 2 == 1:
+                                    if drow % 2 == 0:
                                         if piece.color == LIGHT_BLUE:
                                             game.board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
                                             game.board.board[drow][dcol].king = True
@@ -596,7 +596,7 @@ def start_game():
                             drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                             piece = game.board.get_piece(drow, dcol)
                             if dcol % 2 == 1:
-                                if drow % 2 == 0:
+                                if drow % 2 == 1:
                                     if piece.color == RED:
                                         game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         game.board.red_left -= 1
@@ -605,7 +605,7 @@ def start_game():
                                         game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         game.board.white_left += 1                                 
                             else:
-                                if drow % 2 == 1:
+                                if drow % 2 == 0:
                                     if piece.color == RED:
                                         game.board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         game.board.red_left -= 1
@@ -618,7 +618,7 @@ def start_game():
                             drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                             piece = game.board.get_piece(drow, dcol)
                             if dcol % 2 == 1:
-                                if drow % 2 == 0:
+                                if drow % 2 == 1:
                                     if piece.color == LIGHT_BLUE:
                                         game.board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         game.board.red_left += 1
@@ -627,7 +627,7 @@ def start_game():
                                         game.board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         game.board.red_left += 1                                 
                             else:
-                                if drow % 2 == 1:
+                                if drow % 2 == 0:
                                     if piece.color == LIGHT_BLUE:
                                         game.board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         game.board.red_left += 1
