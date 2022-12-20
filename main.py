@@ -197,11 +197,11 @@ side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 title_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 
-play_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Play', '#7697B9', menu_fontsize, None, None, ['Play Damath!'])
-online_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Online', '#7697B9', menu_fontsize, None, None, ['Play Online!'])
-help_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Help', '#7697B9', menu_fontsize, None, None, ['Start learning Damath!'])
-options_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Options', '#7697B9', menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
-exit_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Exit', '#7697B9', menu_fontsize, None, None, ['Quit the Game :<'])
+play_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
+online_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Online', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Online!'])
+help_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Help', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Start learning Damath!'])
+options_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Options', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
+exit_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Exit', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Quit the Game :<'])
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text

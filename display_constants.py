@@ -9,6 +9,7 @@ SCREEN_HEIGHT =  reso.current_h
 #SCREEN_WIDTH = 1368
 #SCREEN_HEIGHT = 768
 BG_COLOR = ('#627E9B') # lighter shade of blue
+MAIN_TXT_COLOR = ('#7697B9')
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Dampy') # window caption
