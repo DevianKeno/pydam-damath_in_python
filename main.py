@@ -1,12 +1,14 @@
 import pygame, sys, random
 
-from damath.constants import *
-from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from display_constants import *
+from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
+from ui_class.title import Title
 from ui_class.button import Button
 from ui_class.fade import *
-from damath.piece import Piece
+from ui_class.tween import *
+from damath.constants import *
 from damath.game import Game
+from damath.piece import Piece
 from damath.scoreboard import Scoreboard
 from ui_class.themes_option import Themes, ThemesList
 from audio_constants import * 
@@ -31,9 +33,6 @@ CHIP_HEIGHT = 240
 SOUND_VOLUME = 0.8
 
 #BG_COLOR = '#FFE3C3'
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Dampy') # window caption
-pygame.display.set_icon(LOGO)
 clock = pygame.time.Clock()
 
 CHEAT_CODES = True
@@ -192,9 +191,12 @@ if chip_animation:
         frames_red_big.append(frame)   
 
 # --------- SIDE MENU ON THE MAIN MENU ---------
+
 mainmenu_opt_gap = 85
 menu_fontsize = 42
 side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.29, SCREEN_HEIGHT))
+title_surface = pygame.Surface((SCREEN_WIDTH*0.71, SCREEN_HEIGHT))
+
 play_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
 online_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
 help_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
@@ -332,42 +334,8 @@ def full_trans_reset():
 def full_trans_is_finished():
     return (transition_in.get_finished() and transition_out.get_finished())
 
-# --------- title animation function ---------
-class TitleAnimation:
-
-
-    def __init__ (self, surface, img, height):
-        self.surface = surface
-        self.img = img
-        self.height = height
-        
-        self.speed = 0.25
-        self.start = SCREEN_HEIGHT//2-(TITLE.get_height()//2)
-        self.pos = SCREEN_HEIGHT//2-(TITLE.get_height()//2)
-        self.finished = False #finished reaching height
-        self.reversed = False #reversed after reaching height
-
-    def play(self):
-        if not self.reversed:
-            if self.pos == self.height + self.start:
-                self.reversed = True
-                self.pos -= self.speed
-            elif self.pos == self.height + self.start - 12 or self.pos == self.height + self.start - 4:
-                self.pos += 2
-            else:
-                self.pos += self.speed
-            self.surface.blit(self.img, ((SCREEN_WIDTH*0.71)//2+(SCREEN_WIDTH*0.29)-(TITLE.get_width()//2), self.pos))
-        if self.reversed:
-            if self.pos == self.start - self.height:
-                self.reversed = False
-                self.pos += self.speed
-            elif self.pos == self.start - self.height + 12 or self.pos == self.height + self.start + 4:
-                self.pos -= 2
-            else:
-                self.pos -= self.speed
-            self.surface.blit(self.img, ((SCREEN_WIDTH*0.71)//2+(SCREEN_WIDTH*0.29)-(TITLE.get_width()//2), self.pos))
-
-TITLE_ANIMATED = TitleAnimation(screen, TITLE, 5)
+title = Title(title_surface, (title_surface.get_width()//2-TITLE.get_width()//2, title_surface.get_height()//2-TITLE.get_height()//2))
+anim_title = Move(title, (title.x, title.y + 50), 1, ease_type=easeInOutSine, loop=ping_pong)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
@@ -377,6 +345,7 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 # (Main Menu)
 def main_menu() :
     
+
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.5)
@@ -386,8 +355,16 @@ def main_menu() :
     main_play_trans = False
 
     while True:
+        
         screen.fill(BG_COLOR)
         screen.blit(side_menu_surface, (0, 0))
+        screen.blit(title_surface, (side_menu_surface.get_width(), 0))
+
+
+        title_surface.fill(BG_COLOR)
+        title.display()
+        anim_title.play()
+
         side_menu_surface.fill(SIDE_MENU_COLOR)
         side_menu_surface.blit(LOGO, (side_menu_surface.get_width()//2-LOGO.get_width()//2, side_menu_surface.get_height()*0.075))
         
@@ -435,19 +412,17 @@ def main_menu() :
             online_menu_text.reset()
             help_menu_text.reset()
             options_menu_text.reset()
-        else:
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
+        # else:
+        #     # play_menu_text.reset()
+        #     # online_menu_text.reset()
+        #     # help_menu_text.reset()
+        #     # options_menu_text.reset()
+        #     # exit_menu_text.reset()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()   
-
-        TITLE_ANIMATED.play()
 
         # if main_play_trans:
         #     transition_in.play()
@@ -455,6 +430,7 @@ def main_menu() :
         #         start_game()
 
         transition_out.play() 
+        anim_title.update()
         pygame.display.update()
         clock.tick(FPS)
 
