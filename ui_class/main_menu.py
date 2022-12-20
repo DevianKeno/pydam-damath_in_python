@@ -3,6 +3,7 @@ import pytweening
 from ui_class import tween as tween
 from ui_class.ease_funcs import *
 from display_constants import SIDE_MENU_COLOR, BG_COLOR, SCREEN_WIDTH
+from damath.constants import WHITE
 
 class SideMenu:
     
@@ -46,14 +47,16 @@ class MainMenu:
         if self.is_hovered:
             hover_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(0.42*self.fontsize))
             for idx, hovertext in enumerate(self.hover_text):
-                self.frame.blit(hover_font.render(str(hovertext), True, self.color), (0, (self.fontsize+(self.fontsize*0.14))+(int(0.42*self.fontsize)*idx)))
+                self.frame.blit(hover_font.render(str(hovertext), True, WHITE), (0, (self.fontsize+(self.fontsize*0.14))+(int(0.42*self.fontsize)*idx)))
 
     def hover_update(self, target=None):
 
         # self.hover_anim = tween.Move(self, (self.x, self.y+40), 0.1, ease_type=easeInSine)
         # self.hover_anim.play()
         # self.hover_anim.update()
-
+        self.text_surface = self.font.render(self.text, True, WHITE)
+        self.frame.blit(self.text_surface, (0, 0))
+        
         self.is_hovered = True
         self.hover_height = self.height + int(self.height/2)
         time_now = pygame.time.get_ticks()
