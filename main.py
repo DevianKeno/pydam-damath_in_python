@@ -191,18 +191,17 @@ if chip_animation:
         frames_red_big.append(frame)   
 
 # --------- SIDE MENU ON THE MAIN MENU ---------
+menu_fontsize = int(SIDE_MENU_RECT.height*0.045)
+mainmenu_opt_gap = menu_fontsize * 2.1
+side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
+title_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 
-mainmenu_opt_gap = 85
-menu_fontsize = 42
-side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.29, SCREEN_HEIGHT))
-title_surface = pygame.Surface((SCREEN_WIDTH*0.71, SCREEN_HEIGHT))
-
-play_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
-online_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
-help_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
-options_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Options', WHITE, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
-exit_menu_text = MainMenu(screen, (side_menu_surface.get_width()//2-LOGO.get_width()//2 + (side_menu_surface.get_width()//2-LOGO.get_width()//2)*0.25, SIDE_MENU_RECT.height/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//2, mainmenu_opt_gap, 'Exit', WHITE, menu_fontsize, None, None, ['Quit the Game :<'])
-print(play_menu_text.height)
+play_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Play', WHITE, menu_fontsize, None, None, ['Play Damath!'])
+online_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Online', WHITE, menu_fontsize, None, None, ['Play Online!'])
+help_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Help', WHITE, menu_fontsize, None, None, ['Start learning Damath!'])
+options_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Options', WHITE, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
+exit_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT.width/3, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT.width//1.5, mainmenu_opt_gap, 'Exit', WHITE, menu_fontsize, None, None, ['Quit the Game :<'])
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
@@ -232,7 +231,7 @@ BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
 board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
-board_rect = pygame.Rect(SCREEN_WIDTH*0.71//2+(SCREEN_WIDTH*0.29)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
+board_rect = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect = pygame.Rect(SIDE_MENU_RECT.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
@@ -352,7 +351,6 @@ def main_menu() :
 
     full_trans_reset()
     game.reset()
-    main_play_trans = False
 
     while True:
         
@@ -360,64 +358,21 @@ def main_menu() :
         screen.blit(side_menu_surface, (0, 0))
         screen.blit(title_surface, (side_menu_surface.get_width(), 0))
 
-
         title_surface.fill(BG_COLOR)
         title.display()
         anim_title.play()
 
-        side_menu_surface.fill(SIDE_MENU_COLOR)
-        side_menu_surface.blit(LOGO, (side_menu_surface.get_width()//2-LOGO.get_width()//2, side_menu_surface.get_height()*0.075))
-        
-        play_menu_text.display()
-        online_menu_text.display()
-        help_menu_text.display()
-        options_menu_text.display()
-        exit_menu_text.display()
+        side_menu_surface.fill(BG_COLOR)
+        pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT)
+        side_menu_surface.blit(LOGO, (SIDE_MENU_RECT.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
 
         if chip_animation:
             for i in range(len(red_chips)):
                 red_chips[i].next_frame()
                 blue_chips[i].next_frame()
 
-        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
-
-        if play_menu_text.rect.collidepoint((mx, my)):
-            play_menu_text.hover_update()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif online_menu_text.rect.collidepoint((mx, my)):
-            online_menu_text.hover_update()
-            play_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif help_menu_text.rect.collidepoint((mx, my)):
-            help_menu_text.hover_update()
-            play_menu_text.reset()
-            online_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif options_menu_text.rect.collidepoint((mx, my)):
-            options_menu_text.hover_update()
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-
-            exit_menu_text.reset()
-        elif exit_menu_text.rect.collidepoint((mx, my)):
-            exit_menu_text.hover_update()
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-        # else:
-        #     # play_menu_text.reset()
-        #     # online_menu_text.reset()
-        #     # help_menu_text.reset()
-        #     # options_menu_text.reset()
-        #     # exit_menu_text.reset()
+        menu_btn_display()
+        hover_detect(main_menu)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -430,6 +385,96 @@ def main_menu() :
         #         start_game()
 
         transition_out.play() 
+        anim_title.update()
+        pygame.display.update()
+        clock.tick(FPS)
+
+def menu_btn_display():
+
+    play_menu_text.display()
+    online_menu_text.display()
+    help_menu_text.display()
+    options_menu_text.display()
+    exit_menu_text.display()    
+
+def hover_detect(func_called):
+    mx, my = pygame.mouse.get_pos() # gets the curent mouse position
+
+    play_target = select_mode
+    online_target = None
+    options_target = None
+    exit_target = None
+
+    if func_called == select_mode:
+        play_target = None
+
+    if play_menu_text.rect.collidepoint((mx, my)):
+        play_menu_text.hover_update(play_target)
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif online_menu_text.rect.collidepoint((mx, my)):
+        online_menu_text.hover_update()
+        play_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif help_menu_text.rect.collidepoint((mx, my)):
+        help_menu_text.hover_update()
+        play_menu_text.reset()
+        online_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif options_menu_text.rect.collidepoint((mx, my)):
+        options_menu_text.hover_update()
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        exit_menu_text.reset()
+    elif exit_menu_text.rect.collidepoint((mx, my)):
+        exit_menu_text.hover_update()
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+    else:
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+
+# --------- select mode function ---------
+def select_mode():
+    
+    running = True
+    
+
+    while running:
+        screen.fill(BG_COLOR)
+        screen.blit(side_menu_surface, (0, 0))
+        screen.blit(selected_menu_surface, (SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
+        screen.blit(title_surface, (side_menu_surface.get_width(), 0))
+
+        side_menu_surface.fill(BG_COLOR)
+        selected_menu_surface.fill(BG_COLOR)
+        
+        title_surface.fill(BG_COLOR)
+        title.display()
+        anim_title.play()
+
+        pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT)
+        side_menu_surface.blit(LOGO, (SIDE_MENU_RECT.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
+        
+        menu_btn_display()
+        hover_detect(select_mode)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
         anim_title.update()
         pygame.display.update()
         clock.tick(FPS)
