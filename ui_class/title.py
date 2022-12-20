@@ -16,7 +16,7 @@ class Title:
         self.h = size[1] * TITLE.get_height()
 
     def display(self):
-        self.img = pygame.transform.smoothscale(self.img, (self.w, self.h))
+        self.img = pygame.transform.scale(TITLE, (self.w, self.h))
         self.surface.blit(self.img, (self.x, self.y))
         
     # self.speed = 0.25
