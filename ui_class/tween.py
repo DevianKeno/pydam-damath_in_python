@@ -98,4 +98,73 @@ class Move:
         pass
 
 class Scale:
-    pass
+    """
+    Scale animation.
+    """
+    
+    def update(self):
+        """
+        Updates the animation.
+        """
+        if not self.IsPlaying:
+            return
+        self.play()
+
+    def __init__(self, object, size=(), time_in_seconds=0, percentage=False, ease_type=linear, loop=none):
+        self.object = object
+        self.size_w = object.w
+        self.size_h = object.h
+        self.new_size = size
+        self.distance_w = object.w * size[0]
+        self.distance_h = object.h * size[1]
+        self.time_in_seconds = time_in_seconds
+        self.ease_type = ease_type
+        self.loop = loop
+        self.anim_x = False
+        self.anim_y = False
+        self.IsPlaying = False
+        self.IsReversed = False
+        
+        if size[0] != object.x and size[0] != 1:
+            self.anim_x = True
+        if size[1] != object.y and size[1] != 1:
+            self.anim_y = True
+
+        self.step = 0
+        if time_in_seconds != 0:
+            self.max_steps = DEFAULT_FPS * time_in_seconds
+        else:
+            self.max_steps = 1
+
+    def play(self):
+        """
+        Plays animation.
+        """
+        
+        if not self.IsPlaying:
+            self.IsPlaying = True
+
+        if self.step > self.max_steps:
+            if self.loop == none:
+                return
+            if self.loop == clamp:
+                self.step = 0
+            elif self.loop == ping_pong:
+                self.IsReversed = True
+                self.step = self.max_steps
+        elif self.step < 0:
+            self.IsReversed = False
+            self.step = 0
+
+        if self.anim_x:
+            offset_x = self.distance_w * (self.ease_type(self.step/self.max_steps))
+            self.object.w = self.size_w + offset_x
+            
+        if self.anim_y:
+            offset_y = self.distance_h * (self.ease_type(self.step/self.max_steps))
+            self.object.h = self.size_h + offset_y
+
+        if self.IsReversed:
+            self.step -= 1
+        else:
+            self.step += 1

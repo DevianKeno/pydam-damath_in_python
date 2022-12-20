@@ -334,8 +334,20 @@ def full_trans_reset():
 def full_trans_is_finished():
     return (transition_in.get_finished() and transition_out.get_finished())
 
-title = Title(title_surface, (title_surface.get_width()//2-TITLE.get_width()//2, title_surface.get_height()//2-TITLE.get_height()//2))
-anim_title = Move(title, (title.x, title.y + 50), 1, ease_type=easeInOutSine, loop=ping_pong)
+# title = Title(title_surface,
+#               (title_surface.get_width()//2-TITLE.get_width()//2*TITLE_SIZE[0],     # pos_x
+#                title_surface.get_height()//2-TITLE.get_height()//2*TITLE_SIZE[1]),  # pos_y
+#               (TITLE.get_width()*TITLE_SIZE[0],                                     # size_x
+#                TITLE.get_height()*TITLE_SIZE[1]))                                   # size_y
+               
+title = Title(title_surface,
+              (title_surface.get_width()//2,     # pos_x
+               title_surface.get_height()//2),  # pos_y
+              (TITLE_SIZE[0],                                     # size_x
+               TITLE_SIZE[1]))                                   # size_y
+
+anim_title_breathe = Move(title, (title.x, title.y + 50), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 0.2), 1, ease_type=easeInOutSine, loop=ping_pong)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
@@ -344,7 +356,6 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 # --------- main function ---------
 # (Main Menu)
 def main_menu() :
-    
 
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
@@ -352,7 +363,9 @@ def main_menu() :
 
     full_trans_reset()
     game.reset()
-    main_play_trans = False
+    
+    anim_title_breathe.play()
+    anim_title_squeeze.play()
 
     while True:
         
@@ -360,10 +373,8 @@ def main_menu() :
         screen.blit(side_menu_surface, (0, 0))
         screen.blit(title_surface, (side_menu_surface.get_width(), 0))
 
-
         title_surface.fill(BG_COLOR)
         title.display()
-        anim_title.play()
 
         side_menu_surface.fill(SIDE_MENU_COLOR)
         side_menu_surface.blit(LOGO, (side_menu_surface.get_width()//2-LOGO.get_width()//2, side_menu_surface.get_height()*0.075))
@@ -430,7 +441,8 @@ def main_menu() :
         #         start_game()
 
         transition_out.play() 
-        anim_title.update()
+        anim_title_breathe.update()
+        anim_title_squeeze.update()
         pygame.display.update()
         clock.tick(FPS)
 
