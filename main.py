@@ -333,15 +333,24 @@ def full_trans_reset():
 def full_trans_is_finished():
     return (transition_in.get_finished() and transition_out.get_finished())
 
-title = Title(title_surface, (title_surface.get_width()//2-TITLE.get_width()//2, title_surface.get_height()//2-TITLE.get_height()//2))
-anim_title = Move(title, (title.x, title.y + 50), 1, ease_type=easeInOutSine, loop=ping_pong)
+# --------- Main Menu --------- 
+
+title = Title(title_surface,
+              (title_surface.get_width()//2,    # pos_x
+               title_surface.get_height()//2),  # pos_y
+              (TITLE_SIZE[0],                   # size_w
+               TITLE_SIZE[1]))                  # size_h
+
+anim_title_breathe = Move(title, (title.x, title.y+40), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 2), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_to_header = Move(title, (title.x, 20), 1, ease_type=easeInOutSine, loop=none)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
 back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=18)
 
 # --------- main function ---------
-# (Main Menu)
+
 def main_menu() :
     
 
@@ -351,6 +360,9 @@ def main_menu() :
 
     full_trans_reset()
     game.reset()
+    
+    anim_title_breathe.play()
+    # anim_title_squeeze.play()
 
     while True:
         
@@ -360,7 +372,6 @@ def main_menu() :
 
         title_surface.fill(BG_COLOR)
         title.display()
-        anim_title.play()
 
         side_menu_surface.fill(BG_COLOR)
         pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT)
@@ -384,8 +395,9 @@ def main_menu() :
         #     if transition_in.get_finished():
         #         start_game()
 
-        transition_out.play() 
-        anim_title.update()
+        # transition_out.play() 
+        anim_title_breathe.update()
+        anim_title_squeeze.update()
         pygame.display.update()
         clock.tick(FPS)
 
@@ -449,7 +461,6 @@ def hover_detect(func_called):
 def select_mode():
     
     running = True
-    
 
     while running:
         screen.fill(BG_COLOR)
@@ -462,7 +473,7 @@ def select_mode():
         
         title_surface.fill(BG_COLOR)
         title.display()
-        anim_title.play()
+        anim_title_breathe.play()
 
         pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT)
         side_menu_surface.blit(LOGO, (SIDE_MENU_RECT.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
@@ -475,7 +486,6 @@ def select_mode():
                 pygame.quit()
                 sys.exit()
 
-        anim_title.update()
         pygame.display.update()
         clock.tick(FPS)
 
