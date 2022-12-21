@@ -195,7 +195,7 @@ if chip_animation:
 menu_fontsize = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
 mainmenu_opt_gap = menu_fontsize * 2.1
 side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
-title_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+title_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
 selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 
 play_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
@@ -390,6 +390,7 @@ def main_menu() :
                 side_menu_anim.reverse_play()
                 side_menu_is_hovered = False
 
+        side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_NORMAL.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
 
         title.display()
 
@@ -442,14 +443,11 @@ def hover_detect(func_called, mx, my):
             side_menu_is_hovered = True
             #SIDE_MENU_RECT_NORMAL.update(SIDE_MENU_RECT_ACTIVE)
             #pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT_NORMAL)  
-            side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_ACTIVE.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
     else:
         if SIDE_MENU_RECT_NORMAL.collidepoint((mx, my)):
             if side_menu_anim.is_finished:
                 menu_btn_display()
                 #pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT_NORMAL)  
-            side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_ACTIVE.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
-
         else:
             side_menu_surface.fill(SIDE_MENU_COLOR)
             side_menu_is_hovered = False
