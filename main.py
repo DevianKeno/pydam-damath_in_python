@@ -341,6 +341,7 @@ title = Title(title_surface,
               (TITLE_SIZE[0],                   # size_w
                TITLE_SIZE[1]))                  # size_h
 
+anim_title_move_up = Move(title, (title.x, SCREEN_HEIGHT/8), 1, ease_type=easeInQuad)
 anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_to_header = Move(title, (title.x, 20), 1, ease_type=easeInOutSine, loop=none)
@@ -352,8 +353,7 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 # --------- main function ---------
 side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_NORMAL, SIDE_MENU_RECT_ACTIVE)
 
-def main_menu() :
-
+def main_menu():
     global side_menu_is_hovered
     side_menu_is_hovered = False
 
@@ -370,10 +370,10 @@ def main_menu() :
     while True:
         
         screen.fill(BG_COLOR)
-    
         mx, my = pygame.mouse.get_pos() # gets the curent mouse position
 
         screen.blit(side_menu_surface, (0, 0))
+        side_menu_surface.fill(SIDE_MENU_COLOR)
         screen.blit(title_surface, (SIDE_MENU_RECT_NORMAL.width, 0))
         title_surface.fill(BG_COLOR)
 
@@ -426,6 +426,7 @@ def menu_btn_display():
     exit_menu_text.display()    
 
 def hover_detect(func_called, mx, my):
+
     global side_menu_is_hovered
 
     play_target = select_mode
@@ -495,32 +496,46 @@ def hover_detect(func_called, mx, my):
 def select_mode():
     
     running = True
+    global side_menu_is_hovered
 
     while running:
+
         screen.fill(BG_COLOR)
         screen.blit(side_menu_surface, (0, 0))
-        screen.blit(selected_menu_surface, (SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
-        screen.blit(title_surface, (side_menu_surface.get_width(), 0))
-
         side_menu_surface.fill(BG_COLOR)
-        selected_menu_surface.fill(BG_COLOR)
-        
-        title_surface.fill(BG_COLOR)
-        title.display()
-        anim_title_breathe.play()
 
-        pygame.draw.rect(side_menu_surface, SIDE_MENU_COLOR, SIDE_MENU_RECT_ACTIVE)
-        side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_ACTIVE.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
+        screen.blit(selected_menu_surface, (SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
+        screen.blit(title_surface, (SIDE_MENU_RECT_NORMAL.width, 0))
+        title_surface.fill(BG_COLOR)
+        selected_menu_surface.fill(BG_COLOR)
 
         mx, my = pygame.mouse.get_pos()
 
-        #menu_btn_display()
+        if not side_menu_is_hovered:
+            if SIDE_MENU_RECT_NORMAL.collidepoint((mx, my)):
+                side_menu_anim.play()
+                side_menu_is_hovered = True
+            else:
+                side_menu_anim.reverse_play()
+        else:
+            if SIDE_MENU_RECT_NORMAL.collidepoint((mx, my)):
+                side_menu_anim.play()
+            else:
+                side_menu_anim.reverse_play()
+                side_menu_is_hovered = False
+
+        side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_NORMAL.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
+        
+        title.display()
+
         hover_detect(select_mode, mx, my)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+        anim_title_move_up.play()
 
         pygame.display.update()
         clock.tick(FPS)
