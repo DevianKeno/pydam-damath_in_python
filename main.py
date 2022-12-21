@@ -341,8 +341,8 @@ title = Title(title_surface,
               (TITLE_SIZE[0],                   # size_w
                TITLE_SIZE[1]))                  # size_h
 
-anim_title_breathe = Move(title, (title.x, title.y+40), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_squeeze = Scale(title, (1, 2), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 1), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_to_header = Move(title, (title.x, 20), 1, ease_type=easeInOutSine, loop=none)
 
 # --------- end game options ---------

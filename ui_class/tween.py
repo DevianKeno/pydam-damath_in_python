@@ -27,9 +27,9 @@ class Move:
         self.IsPlaying = False
         self.IsReversed = False
 
-        if pos[0] != object.x and pos[0] != 0:
+        if pos[0] != object.x:
             self.anim_x = True
-        if pos[1] != object.y and pos[1] != 0:
+        if pos[1] != object.y:
             self.anim_y = True
 
         self.step = 0
