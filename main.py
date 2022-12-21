@@ -196,7 +196,7 @@ menu_fontsize = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
 mainmenu_opt_gap = menu_fontsize * 2.1
 side_menu_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 title_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
-selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
 
 play_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
 online_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2, mainmenu_opt_gap, 'Online', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Online!'])
@@ -341,7 +341,7 @@ title = Title(title_surface,
               (TITLE_SIZE[0],                   # size_w
                TITLE_SIZE[1]))                  # size_h
 
-anim_title_move_up = Move(title, (title.x, SCREEN_HEIGHT/8), 1, ease_type=easeInQuad)
+anim_title_move_up = Move(title, (title.x, SCREEN_HEIGHT/10), 1, ease_type=easeInQuad)
 anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_to_header = Move(title, (title.x, 20), 1, ease_type=easeInOutSine, loop=none)
@@ -493,21 +493,27 @@ def hover_detect(func_called, mx, my):
         exit_menu_text.reset()
 
 # --------- select mode function ---------
+
+classic_btn = Button(selected_menu_surface, 225, 55, (selected_menu_surface.get_width()/11, selected_menu_surface.get_height()/2), 1, None, None, 'Classic', 28)
+speed_btn = Button(selected_menu_surface, 225, 55, (selected_menu_surface.get_width()/2.75, selected_menu_surface.get_height()/2), 1, None, None, 'Speed', 28)
+custom_btn = Button(selected_menu_surface, 225, 55, (selected_menu_surface.get_width()/1.5, selected_menu_surface.get_height()/2), 1, None, None, 'Custom', 28)
+
 def select_mode():
     
+    font = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))
+
     running = True
     global side_menu_is_hovered
 
     while running:
-
-        screen.fill(BG_COLOR)
         screen.blit(side_menu_surface, (0, 0))
         side_menu_surface.fill(BG_COLOR)
 
-        screen.blit(selected_menu_surface, (SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
-        screen.blit(title_surface, (SIDE_MENU_RECT_NORMAL.width, 0))
-        title_surface.fill(BG_COLOR)
+        screen.blit(selected_menu_surface, (SIDE_MENU_RECT_NORMAL.width, 0))       
         selected_menu_surface.fill(BG_COLOR)
+
+        selected_menu_surface.blit(title_surface, (0, 0))
+        title_surface.fill(BG_COLOR)
 
         mx, my = pygame.mouse.get_pos()
 
@@ -524,8 +530,16 @@ def select_mode():
                 side_menu_anim.reverse_play()
                 side_menu_is_hovered = False
 
+        anim_title_move_up.play()
+
         side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_NORMAL.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
         
+        if anim_title_move_up.IsFinished:
+            selected_menu_surface.blit(font.render('Mode', True, WHITE), (selected_menu_surface.get_width()/11, selected_menu_surface.get_height()/2.5))
+            classic_btn.draw()
+            speed_btn.draw()
+            custom_btn.draw()
+
         title.display()
 
         hover_detect(select_mode, mx, my)
@@ -534,8 +548,6 @@ def select_mode():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-        anim_title_move_up.play()
 
         pygame.display.update()
         clock.tick(FPS)

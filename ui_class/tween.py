@@ -26,6 +26,7 @@ class Move:
         self.anim_y = False
         self.IsPlaying = False
         self.IsReversed = False
+        self.IsFinished = False
 
         if pos[0] != object.x:
             self.anim_x = True
@@ -56,6 +57,7 @@ class Move:
 
         if self.step > self.max_steps:
             if self.loop == none:
+                self.IsFinished = True
                 return
             if self.loop == clamp:
                 self.step = 0

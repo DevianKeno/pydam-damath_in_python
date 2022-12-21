@@ -38,7 +38,7 @@ class Button:
         self.bottom_big_circle = [self.x+self.width-self.bigcircle_x_offset, self.y+self.height-self.bigcircle_y_offset]
         self.bottom_small_circle = [self.x+self.width-self.smallcircle_x_offset, self.y+self.height-self.smallcircle_y_offset]
         self.radius = self.init_radius 
-        self.top_color = LIGHT_BLUE
+        self.top_color = BTN_COLOR
         self.text_color = TXT_COLOR
         self.text_fontsize = self.fontsize
         self.play = 0
@@ -51,11 +51,11 @@ class Button:
         # if an image is passed in the initialization
         if self.image_surface != None:
             self.image_rect = self.image_surface.get_rect(center=self.top_rect.center)
-            pygame.draw.rect(self.screen , self.top_color, self.top_rect, border_radius=8)
-            pygame.draw.circle(self.screen , 'white', self.top_big_circle, self.radius)
-            pygame.draw.circle(self.screen , 'white', self.top_small_circle,self.radius//2)
-            pygame.draw.circle(self.screen , 'white', self.bottom_big_circle, self.radius)
-            pygame.draw.circle(self.screen , 'white', self.bottom_small_circle, self.radius//2)
+            pygame.draw.rect(self.screen , self.top_color, self.top_rect, border_radius=12)
+            # pygame.draw.circle(self.screen , 'white', self.top_big_circle, self.radius)
+            # pygame.draw.circle(self.screen , 'white', self.top_small_circle,self.radius//2)
+            # pygame.draw.circle(self.screen , 'white', self.bottom_big_circle, self.radius)
+            # pygame.draw.circle(self.screen , 'white', self.bottom_small_circle, self.radius//2)
             self.screen.blit(self.image_surface, self.image_rect)
 
     def render(self):
@@ -64,7 +64,7 @@ class Button:
         (The text/image in the button Object)
         """
         # for text
-        font = pygame.font.Font('font\CookieRun_Bold.ttf', self.text_fontsize)
+        font = pygame.font.Font('font\CookieRun_Regular.ttf', self.text_fontsize)
         self.text_surface = font.render(self.text, True, self.text_color) #FFFFFF
         self.text_rect = self.text_surface.get_rect(center=self.top_rect.center)
             
@@ -76,11 +76,11 @@ class Button:
         (Shows the rectangle and text in the screen)
         """
         self.render()
-        pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=8)
-        pygame.draw.circle(self.screen, 'white', self.top_big_circle, self.radius)
-        pygame.draw.circle(self.screen, 'white', self.top_small_circle,self.radius//2)
-        pygame.draw.circle(self.screen, 'white', self.bottom_big_circle, self.radius)
-        pygame.draw.circle(self.screen, 'white', self.bottom_small_circle, self.radius//2)
+        pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=12)
+        # pygame.draw.circle(self.screen, 'white', self.top_big_circle, self.radius)
+        # pygame.draw.circle(self.screen, 'white', self.top_small_circle,self.radius//2)
+        # pygame.draw.circle(self.screen, 'white', self.bottom_big_circle, self.radius)
+        # pygame.draw.circle(self.screen, 'white', self.bottom_small_circle, self.radius//2)
         self.screen.blit(self.text_surface, self.text_rect)
 
     def play_audio(self):
@@ -104,21 +104,21 @@ class Button:
         # updates image if it contains one
         if self.image_surface is not None:
             self.image_surface = pygame.transform.smoothscale(self.image_surface, (self.image_width+(self.image_width*0.2), self.image_height+(self.image_height*0.2))).convert_alpha()
-            pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=8)
+            pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=12)
 
         # checks for clicks
         if pygame.mouse.get_pressed()[0]:
-            self.top_big_circle[1] = self.y+self.bigcircle_y_offset + 2
-            self.bottom_big_circle[1] = self.y+self.height-self.bigcircle_y_offset + 2
-            self.top_small_circle[1] = self.y+self.smallcircle_y_offset + 2
-            self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset + 2
+            # self.top_big_circle[1] = self.y+self.bigcircle_y_offset + 2
+            # self.bottom_big_circle[1] = self.y+self.height-self.bigcircle_y_offset + 2
+            # self.top_small_circle[1] = self.y+self.smallcircle_y_offset + 2
+            # self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset + 2
             self.y = self.pos[1] + 5
             self.clicked = True
         else:
-            self.top_big_circle[1] = self.y+self.bigcircle_y_offset
-            self.bottom_big_circle[1] = self.y+self.height-self.bigcircle_y_offset
-            self.top_small_circle[1] = self.y+self.smallcircle_y_offset
-            self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset
+            # self.top_big_circle[1] = self.y+self.bigcircle_y_offset
+            # self.bottom_big_circle[1] = self.y+self.height-self.bigcircle_y_offset
+            # self.top_small_circle[1] = self.y+self.smallcircle_y_offset
+            # self.bottom_small_circle[1] = self.y+self.height-self.smallcircle_y_offset
             self.y = self.pos[1]
             if self.clicked:
                 SWEEP_SOUND.play()
@@ -137,7 +137,7 @@ class Button:
         """
         self.top_rect.update((self.x, self.y), (self.width, self.height))
         self.radius = self.init_radius 
-        self.top_color = LIGHT_BLUE
+        self.top_color = BTN_COLOR
         self.text_color = TXT_COLOR
         self.text_fontsize = self.fontsize
         self.play = 0
