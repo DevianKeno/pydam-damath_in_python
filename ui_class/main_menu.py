@@ -5,11 +5,103 @@ from ui_class.ease_funcs import *
 from display_constants import SIDE_MENU_COLOR, BG_COLOR, SCREEN_WIDTH
 from damath.constants import WHITE
 
-class SideMenu:
-    
-    def __init__(self):
-        pass
+class SideMenuAnim:
 
+    def __init__(self, surface, initial_rect, updated_rect):
+        self.surface = surface
+        self.initial_rect = initial_rect
+        self.updated_rect = updated_rect
+
+        #self.diff = self.updated_rect.width - self.initial_rect.width
+        self.init_width = self.initial_rect.width
+        self.max_width = self.init_width
+
+        self.next_anim = 0
+        self.anim_idx = 0
+        self.reversed_anim_idx = 0
+        self.is_finished = False
+        self.reversed_is_finished = False
+        self.added_width = 0
+        self.subtracted_width = 0
+        self.ease = []
+
+        self.play_has_easing_list = False
+        self.reverse_has_easing_list= False
+
+    def easing(self, diff):
+        for i in range (0, int(diff), 25):
+            self.ease.append(pytweening.easeInOutSine(i/diff)*(diff))
+
+    def play(self):
+        
+        if not self.play_has_easing_list:
+            self.ease.clear()
+            self.easing(self.updated_rect.width - (self.init_width + self.added_width))
+            self.play_has_easing_list = True
+        
+        self.reverse_has_easing_list = False
+        time_now = pygame.time.get_ticks()
+        self.reversed_anim_idx = 0
+        self.reversed_is_finished = False
+        #self.subtracted_width = 0
+
+        if not self.is_finished:
+            if time_now > self.next_anim:
+                if len(self.ease) > 0:
+                    if self.added_width < (self.updated_rect.width - (self.init_width)):
+                        self.next_anim = time_now + 1
+                        self.added_width = self.ease[self.anim_idx]
+                        self.max_width = self.init_width + self.added_width
+
+                if self.anim_idx <= len(self.ease) - 2:
+                    self.anim_idx += 1
+                else:
+                    self.is_finished = True
+                    self.anim_idx = 0
+
+        self.initial_rect.update(self.initial_rect.x, self.initial_rect.y, self.max_width, self.initial_rect.height)
+        pygame.draw.rect(self.surface, SIDE_MENU_COLOR, self.initial_rect)
+
+    def reverse_play(self):
+
+        if not self.reverse_has_easing_list:
+            self.ease.clear()
+            self.easing(self.added_width)
+            self.reverse_has_easing_list = True
+
+        self.play_has_easing_list = False
+        self.is_finished = False
+        self.anim_idx = 0
+        #self.added_width = 0
+        time_now = pygame.time.get_ticks()
+
+        if not self.reversed_is_finished:
+            if time_now > self.next_anim:
+                if len(self.ease) > 0:
+                    if self.subtracted_width < self.added_width:
+                        self.next_anim = time_now + 1
+                        self.subtracted_width = self.ease[self.reversed_anim_idx]
+                        self.max_width = (self.init_width + self.added_width) - self.subtracted_width            
+            if self.reversed_anim_idx <= len(self.ease) - 2:
+                self.reversed_anim_idx += 1
+            else:
+                self.reversed_is_finished = True
+                self.added_width = 0
+                self.reversed_anim_idx = 0
+
+        self.initial_rect.update(self.initial_rect.x, self.initial_rect.y, self.max_width, self.initial_rect.height)
+        pygame.draw.rect(self.surface, SIDE_MENU_COLOR, self.initial_rect)
+
+    def display(self):    
+        pygame.draw.rect(self.surface, SIDE_MENU_COLOR, self.initial_rect)
+
+    def reset(self):
+        self.initial_rect.update(self.initial_rect.x, self.initial_rect.y, self.init_width, self.initial_rect.height)
+        self.added_width = 0
+        self.next_anim = 0
+        self.anim_idx = 0
+        self.is_finished = False
+        pygame.draw.rect(self.surface, SIDE_MENU_COLOR, self.initial_rect)
 
 class MainMenu:
     
