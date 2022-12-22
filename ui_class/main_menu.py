@@ -1,5 +1,6 @@
 import pygame, time
 import pytweening
+from .constants import BTN_PRESSED_COLOR
 from ui_class import tween as tween
 from ui_class.ease_funcs import *
 from display_constants import SIDE_MENU_COLOR, BG_COLOR, SCREEN_WIDTH
@@ -19,6 +20,7 @@ class SideMenuAnim:
         self.next_anim = 0
         self.anim_idx = 0
         self.reversed_anim_idx = 0
+        self.reversed_is_playing = False
         self.is_finished = False
         self.reversed_is_finished = False
         self.added_width = 0
@@ -29,7 +31,7 @@ class SideMenuAnim:
         self.reverse_has_easing_list= False
 
     def easing(self, diff):
-        for i in range (0, int(diff), 25):
+        for i in range (0, int(diff), 35):
             self.ease.append(pytweening.easeInOutSine(i/diff)*(diff))
 
     def play(self):
@@ -38,7 +40,7 @@ class SideMenuAnim:
             self.ease.clear()
             self.easing(self.updated_rect.width - (self.init_width + self.added_width))
             self.play_has_easing_list = True
-        
+        self.reversed_is_playing = False
         self.reverse_has_easing_list = False
         time_now = pygame.time.get_ticks()
         self.reversed_anim_idx = 0
@@ -76,6 +78,7 @@ class SideMenuAnim:
         time_now = pygame.time.get_ticks()
 
         if not self.reversed_is_finished:
+            self.reversed_is_playing = True
             if time_now > self.next_anim:
                 if len(self.ease) > 0:
                     if self.subtracted_width < self.added_width:
@@ -85,6 +88,7 @@ class SideMenuAnim:
             if self.reversed_anim_idx <= len(self.ease) - 2:
                 self.reversed_anim_idx += 1
             else:
+                self.reversed_is_playing = False
                 self.reversed_is_finished = True
                 self.added_width = 0
                 self.reversed_anim_idx = 0
@@ -123,6 +127,7 @@ class MainMenu:
         self.hover_y = 1
         self.text_surface = None
         self.is_hovered = False
+        self.selected = False 
         self._init()
 
     def _init(self):
@@ -131,22 +136,39 @@ class MainMenu:
         self.font = pygame.font.Font('font/CookieRun_Regular.ttf', self.fontsize)
 
     def display(self):
-        self.text_surface = self.font.render(self.text, True, self.color)
+        if not self.selected:
+            self.text_surface = self.font.render(self.text, True, self.color)
+        else:
+            self.text_surface = self.font.render(self.text, True, BTN_PRESSED_COLOR)
+
         self.surface.blit(self.frame, (self.rect.x, self.rect.y))
         self.frame.fill(SIDE_MENU_COLOR)
         self.frame.blit(self.text_surface, (0, 0))
 
         if self.is_hovered:
             hover_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(0.42*self.fontsize))
+
             for idx, hovertext in enumerate(self.hover_text):
-                self.frame.blit(hover_font.render(str(hovertext), True, WHITE), (0, (self.fontsize+(self.fontsize*0.14))+(int(0.42*self.fontsize)*idx)))
+                if self.selected:
+                    self.frame.blit(hover_font.render(str(hovertext), True, BTN_PRESSED_COLOR), (0, (self.fontsize+(self.fontsize*0.14))+(int(0.42*self.fontsize)*idx)))
+                else:
+                    self.frame.blit(hover_font.render(str(hovertext), True, WHITE), (0, (self.fontsize+(self.fontsize*0.14))+(int(0.42*self.fontsize)*idx)))
+
+    def select(self):
+        self.selected = True
+
+    def unselect(self):
+        self.selected = False
 
     def hover_update(self, target=None):
 
         # self.hover_anim = tween.Move(self, (self.x, self.y+40), 0.1, ease_type=easeInSine)
         # self.hover_anim.play()
         # self.hover_anim.update()
-        self.text_surface = self.font.render(self.text, True, WHITE)
+        if self.selected:
+            self.text_surface = self.font.render(self.text, True, BTN_PRESSED_COLOR)
+        else:
+            self.text_surface = self.font.render(self.text, True, WHITE)
         self.frame.blit(self.text_surface, (0, 0))
         
         self.is_hovered = True
@@ -170,7 +192,10 @@ class MainMenu:
 
         if target is not None:
             if pygame.mouse.get_pressed()[0]:
+                self.select()
                 target()
+            else:
+                self.unselect()
 
     def reset(self):
         self.anim_idx = 0
