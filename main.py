@@ -2,7 +2,7 @@ import pygame, sys, random
 import pytweening as twn
 from display_constants import *
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
-from ui_class.title import Title
+from ui_class.title import *
 from ui_class.button import Button, ButtonList
 from ui_class.fade import *
 from ui_class.tween import *
@@ -334,22 +334,27 @@ def full_trans_is_finished():
 
 # --------- Main Menu --------- 
 
-title = Title(title_surface,
-              (title_surface.get_width()//2,    # pos_x
-               title_surface.get_height()//2),  # pos_y
-              (TITLE_SIZE[0],                   # size_w
-               TITLE_SIZE[1]))                  # size_h
+title = Image(TITLE, title_surface,
+              (title_surface.get_width()//2, title_surface.get_height()//2),
+              (0.65, 0.65))
 
-anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_squeeze = Scale(title, (1, 1), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_to_header = Move(title, (title.x, 20), 1, ease_type=easeInOutSine, loop=none)
+anim_title_breathe = Move(title, (title.x,title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 0.5), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_rotate = Rotate(title, 90, 1, ease_type=easeInOutSine, loop=ping_pong)
+
+side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_NORMAL, SIDE_MENU_RECT_ACTIVE)
+
+# --------- Side menu rect tweenable --------- 
+TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
+
+anim_TEST_side_menu_breathe = Move_Rect(TEST_side_menu, (TEST_side_menu.x+200, TEST_side_menu.y), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_TEST_side_menu_scale = Scale_Rect(TEST_side_menu, (0.5, 0.5), 1, along_center=True, ease_type=easeInOutSine, loop=ping_pong)
 
 # --------- end game options ---------
 play_again_btn = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
 back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=18)
 
 # --------- main function ---------
-side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_NORMAL, SIDE_MENU_RECT_ACTIVE)
 
 def main_menu():
     global side_menu_is_hovered
@@ -364,6 +369,10 @@ def main_menu():
     
     anim_title_breathe.play()
     # anim_title_squeeze.play()
+    # anim_title_rotate.play()
+    
+    anim_TEST_side_menu_scale.play()
+    anim_TEST_side_menu_breathe.play()
 
     while True:
         
@@ -389,7 +398,7 @@ def main_menu():
                 side_menu_is_hovered = False
 
         side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_NORMAL.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
-
+        # pygame.draw.rect(screen, BLACK, TEST_side_menu)
         title.display()
 
         hover_detect(main_menu, mx, my)
@@ -412,7 +421,10 @@ def main_menu():
 
         # transition_out.play() 
         anim_title_breathe.update()
-        anim_title_squeeze.update()
+        # anim_title_squeeze.update()
+        # anim_title_rotate.update()
+        # anim_TEST_side_menu_scale.update()
+        # anim_TEST_side_menu_breathe.update()
         pygame.display.update()
         clock.tick(FPS)
 
