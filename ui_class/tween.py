@@ -3,6 +3,7 @@
 Implements tweening animations in Python.
 """
 
+from pygame import transform
 from ui_class.ease_funcs import *
 from display_constants import FPS
 
@@ -25,17 +26,21 @@ class Move:
         self.IsPlaying = False
         self.IsReversed = False
         self.IsFinished = False
+        self.step = 0
+        self.values = []
 
         if pos[0] != object.x:
             self.anim_x = True
         if pos[1] != object.y:
             self.anim_y = True
 
-        self.step = 0
         if time_in_seconds != 0:
             self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
+
+        for i in range(self.max_steps):
+            self.values.append(self.ease_type(i/self.max_steps))
     
     def update(self):
         """
@@ -52,7 +57,7 @@ class Move:
         if not self.IsPlaying:
             self.IsPlaying = True
 
-        if self.step > self.max_steps:
+        if self.step >= self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
                 self.IsPlaying = False
@@ -61,17 +66,17 @@ class Move:
                 self.step = 0
             elif self.loop == ping_pong:
                 self.IsReversed = True
-                self.step = self.max_steps
+                self.step = self.max_steps - 1
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
 
         if self.anim_x:
-            offset_x = self.distance_x * (self.ease_type(self.step/self.max_steps))
+            offset_x = self.distance_x * (self.values[self.step])
             self.object.x = self.pos_x + offset_x
             
         if self.anim_y:
-            offset_y = self.distance_y * (self.ease_type(self.step/self.max_steps))
+            offset_y = self.distance_y * (self.values[self.step])
             self.object.y = self.pos_y + offset_y
 
         if self.IsReversed:
@@ -119,17 +124,21 @@ class Scale:
         self.IsPlaying = False
         self.IsReversed = False
         self.object.anim_scale = True
+        self.step = 0
+        self.values = []
         
         if size[0] != 1:
             self.anim_w = True
         if size[1] != 1:
             self.anim_h = True
 
-        self.step = 0
         if time_in_seconds != 0:
             self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
+
+        for i in range(self.max_steps):
+            self.values.append(self.ease_type(i/self.max_steps))
             
     def update(self):
         """
@@ -146,7 +155,7 @@ class Scale:
         if not self.IsPlaying:
             self.IsPlaying = True
 
-        if self.step > self.max_steps:
+        if self.step >= self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
                 self.IsPlaying = False
@@ -155,19 +164,19 @@ class Scale:
                 self.step = 0
             elif self.loop == ping_pong:
                 self.IsReversed = True
-                self.step = self.max_steps
+                self.step = self.max_steps - 1
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
 
         if self.anim_w:
-            offset_x = self.distance_w * (self.ease_type(self.step/self.max_steps))
+            offset_x = self.distance_w * (self.values[self.step])
             self.object.w = self.size_w + offset_x
             if self.along_center:
                 self.object.x = self.pos_x - offset_x/2
             
         if self.anim_h:
-            offset_y = self.distance_h * (self.ease_type(self.step/self.max_steps))
+            offset_y = self.distance_h * (self.values[self.step])
             self.object.h = self.size_h + offset_y
             if self.along_center:
                 self.object.y = self.pos_y - offset_y/2
@@ -214,11 +223,15 @@ class Rotate:
         self.IsReversed = False
         self.object.anim_rot = True
         self.step = 0
+        self.values = []
 
         if time_in_seconds != 0:
             self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
+
+        for i in range(self.max_steps):
+            self.values.append(self.ease_type(i/self.max_steps))
     
     def update(self):
         """
@@ -235,7 +248,7 @@ class Rotate:
         if not self.IsPlaying:
             self.IsPlaying = True
 
-        if self.step > self.max_steps:
+        if self.step >= self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
                 self.IsPlaying = False
@@ -244,12 +257,12 @@ class Rotate:
                 self.step = 0
             elif self.loop == ping_pong:
                 self.IsReversed = True
-                self.step = self.max_steps
+                self.step = self.max_steps - 1
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
 
-        offset = self.distance * (self.ease_type(self.step/self.max_steps))
+        offset = self.distance * (self.values[self.step])
         self.object.rotation = self.rotation + offset
 
         if self.IsReversed:
@@ -293,17 +306,21 @@ class Move_Rect:
         self.IsPlaying = False
         self.IsFinished = False
         self.IsReversed = False
+        self.step = 0
+        self.values = []
 
         if pos[0] != rect.x:
             self.anim_x = True
         if pos[1] != rect.y:
             self.anim_y = True
 
-        self.step = 0
         if time_in_seconds != 0:
             self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
+
+        for i in range(self.max_steps):
+            self.values.append(self.ease_type(i/self.max_steps))
     
     def update(self):
         """
@@ -321,7 +338,7 @@ class Move_Rect:
         if not self.IsPlaying:
             self.IsPlaying = True
 
-        if self.step > self.max_steps:
+        if self.step >= self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
                 return
@@ -329,17 +346,17 @@ class Move_Rect:
                 self.step = 0
             elif self.loop == ping_pong:
                 self.IsReversed = True
-                self.step = self.max_steps
+                self.step = self.max_steps - 1
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
 
         if self.anim_x:
-            offset_x = self.distance_x * (self.ease_type(self.step/self.max_steps))
+            offset_x = self.distance_x * (self.values[self.step])
             self.rect.x = self.pos_x + offset_x
             
         if self.anim_y:
-            offset_y = self.distance_y * (self.ease_type(self.step/self.max_steps))
+            offset_y = self.distance_y * (self.values[self.step])
             self.rect.y = self.pos_y + offset_y
 
         if self.IsReversed:
@@ -384,17 +401,21 @@ class Scale_Rect:
         self.IsPlaying = False
         self.InFinished = False
         self.IsReversed = False
+        self.step = 0
+        self.values = []
         
         if size[0] != 1:
             self.anim_w = True
         if size[1] != 1:
             self.anim_h = True
 
-        self.step = 0
         if time_in_seconds != 0:
             self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
+
+        for i in range(self.max_steps):
+            self.values.append(self.ease_type(i/self.max_steps))
             
     def update(self):
         """
@@ -411,7 +432,7 @@ class Scale_Rect:
         if not self.IsPlaying:
             self.IsPlaying = True
 
-        if self.step > self.max_steps:
+        if self.step >= self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
                 return
@@ -419,19 +440,19 @@ class Scale_Rect:
                 self.step = 0
             elif self.loop == ping_pong:
                 self.IsReversed = True
-                self.step = self.max_steps
+                self.step = self.max_steps - 1
         elif self.step < 0:
             self.IsReversed = False
             self.step = 0
 
         if self.anim_w:
-            offset_w = self.distance_w * (self.ease_type(self.step/self.max_steps))
+            offset_w = self.distance_w * (self.values[self.step])
             self.rect.w = self.size_w + offset_w
             if self.along_center:
                 self.rect.x = self.pos_x - offset_w/2
             
         if self.anim_h:
-            offset_h = self.distance_h * (self.ease_type(self.step/self.max_steps))
+            offset_h = self.distance_h * (self.values[self.step])
             self.rect.h = self.size_h + offset_h
             if self.along_center:
                 self.rect.y = self.pos_y - offset_h/2
