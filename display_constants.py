@@ -6,6 +6,7 @@ reso = pygame.display.Info() # gets the video display information object
 
 SCREEN_WIDTH =  reso.current_w 
 SCREEN_HEIGHT =  reso.current_h 
+FPS = 60
 #SCREEN_WIDTH = 1368
 #SCREEN_HEIGHT = 768
 BG_COLOR = ('#627E9B') # lighter shade of blue

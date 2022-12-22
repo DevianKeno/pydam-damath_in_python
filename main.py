@@ -22,7 +22,6 @@ pygame.mixer.init(44100, -16, 2, 2048)
 # --------- defining constants / objects for screen  ---------
 
 reso = pygame.display.Info() # gets the video display information object
-FPS = 60
 
 ANIM_SPEED = 20
 ANIM_ALPHA = 255 # opacity (0 - transparent, 255 - opaque)
@@ -339,8 +338,8 @@ title = Image(TITLE, title_surface,
               (0.65, 0.65))
 
 anim_title_breathe = Move(title, (title.x,title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_squeeze = Scale(title, (1, 0.5), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_rotate = Rotate(title, 90, 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_rotate = Rotate(title, 360, 4, ease_type=linear, loop=clamp)
 
 side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_NORMAL, SIDE_MENU_RECT_ACTIVE)
 
@@ -367,9 +366,9 @@ def main_menu():
     full_trans_reset()
     game.reset()
     
-    anim_title_breathe.play()
+    # anim_title_breathe.play()
     # anim_title_squeeze.play()
-    # anim_title_rotate.play()
+    anim_title_rotate.play()
     
     anim_TEST_side_menu_scale.play()
     anim_TEST_side_menu_breathe.play()
@@ -414,15 +413,9 @@ def main_menu():
                 pygame.quit()
                 sys.exit()   
 
-        # if main_play_trans:
-        #     transition_in.play()
-        #     if transition_in.get_finished():
-        #         start_game()
-
-        # transition_out.play() 
-        anim_title_breathe.update()
+        # anim_title_breathe.update()
         # anim_title_squeeze.update()
-        # anim_title_rotate.update()
+        anim_title_rotate.update()
         # anim_TEST_side_menu_scale.update()
         # anim_TEST_side_menu_breathe.update()
         pygame.display.update()

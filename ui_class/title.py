@@ -26,6 +26,6 @@ class Image:
         """
         if self.anim_rot:
             self.img = pygame.transform.rotate(self.source, self.rotation)
-        if self.anim_scale:
-            self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
+        # if self.anim_scale:
+        #     self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
         self.surface.blit(self.img, (self.x, self.y))

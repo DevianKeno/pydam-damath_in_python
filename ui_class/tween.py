@@ -4,8 +4,7 @@ Implements tweening animations in Python.
 """
 
 from ui_class.ease_funcs import *
-
-DEFAULT_FPS = 60
+from display_constants import FPS
 
 class Move:
     """
@@ -34,7 +33,7 @@ class Move:
 
         self.step = 0
         if time_in_seconds != 0:
-            self.max_steps = DEFAULT_FPS * time_in_seconds
+            self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
     
@@ -56,6 +55,7 @@ class Move:
         if self.step > self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
+                self.IsPlaying = False
                 return
             if self.loop == clamp:
                 self.step = 0
@@ -127,7 +127,7 @@ class Scale:
 
         self.step = 0
         if time_in_seconds != 0:
-            self.max_steps = DEFAULT_FPS * time_in_seconds
+            self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
             
@@ -148,6 +148,8 @@ class Scale:
 
         if self.step > self.max_steps:
             if self.loop == none:
+                self.IsFinished = True
+                self.IsPlaying = False
                 return
             if self.loop == clamp:
                 self.step = 0
@@ -201,6 +203,7 @@ class Rotate:
         self.object = object
         self.rotation = object.rotation
         self.distance = object.rotation + angle
+        self.along_center = along_center
         self.pos_x = object.x
         self.pos_y = object.y
         self.time_in_seconds = time_in_seconds
@@ -209,10 +212,11 @@ class Rotate:
         self.IsPlaying = False
         self.InFinished = False
         self.IsReversed = False
-
+        self.object.anim_rot = True
         self.step = 0
+
         if time_in_seconds != 0:
-            self.max_steps = DEFAULT_FPS * time_in_seconds
+            self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
     
@@ -234,6 +238,7 @@ class Rotate:
         if self.step > self.max_steps:
             if self.loop == none:
                 self.IsFinished = True
+                self.IsPlaying = False
                 return
             if self.loop == clamp:
                 self.step = 0
@@ -245,7 +250,7 @@ class Rotate:
             self.step = 0
 
         offset = self.distance * (self.ease_type(self.step/self.max_steps))
-        self.object.rotation = self.rotation - offset
+        self.object.rotation = self.rotation + offset
 
         if self.IsReversed:
             self.step -= 1
@@ -296,7 +301,7 @@ class Move_Rect:
 
         self.step = 0
         if time_in_seconds != 0:
-            self.max_steps = DEFAULT_FPS * time_in_seconds
+            self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
     
@@ -387,7 +392,7 @@ class Scale_Rect:
 
         self.step = 0
         if time_in_seconds != 0:
-            self.max_steps = DEFAULT_FPS * time_in_seconds
+            self.max_steps = FPS * time_in_seconds
         else:
             self.max_steps = 1
             
