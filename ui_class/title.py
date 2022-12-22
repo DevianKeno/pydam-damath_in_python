@@ -1,20 +1,31 @@
 import pygame
-from display_constants import TITLE, TITLE_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT
 
-class Title:
+class Image:
 
-    def __init__ (self, surface, pos, size):
+    def __init__(self, img, surface, pos, size):
         """
-        Title object.
+        Tweenable image object.
         """
-        self.img = TITLE
+        self.source = img
+        self.img = self.source
         self.surface = surface
-        self.pos = pos
-        self.x = pos[0] - TITLE.get_width() // 2 * TITLE_SIZE[0]
-        self.y = pos[1] - TITLE.get_height() // 2 * TITLE_SIZE[1]
-        self.w = size[0] * TITLE.get_width()
-        self.h = size[1] * TITLE.get_height()
+        self.rect = img.get_rect()
+        self.w = self.source.get_width() * size[0]
+        self.h = self.source.get_height() * size[1]
+        self.x = pos[0] - self.w // 2
+        self.y = pos[1] - self.h // 2
+        self.rotation = 0
+        self.anim_scale = False
+        self.anim_rot = False
+        
+        self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
 
     def display(self):
-        self.img = pygame.transform.smoothscale(TITLE, (self.w, self.h))
+        """
+        Displays the image or updates if already displayed.
+        """
+        if self.anim_rot:
+            self.img = pygame.transform.rotate(self.source, self.rotation)
+        if self.anim_scale:
+            self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
         self.surface.blit(self.img, (self.x, self.y))

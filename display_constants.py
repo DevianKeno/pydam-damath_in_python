@@ -21,8 +21,10 @@ SIDE_MENU_RECT_ACTIVE = pygame.Rect(0, 0, SCREEN_WIDTH*0.3, SCREEN_HEIGHT) #(313
 SIDE_MENU_RECT_DEFAULT = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
 SIDE_MENU_RECT_NORMAL = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
 
-TITLE = pygame.image.load('assets//title.png').convert_alpha()
+TITLE = pygame.image.load('assets/title.png').convert_alpha()
 TITLE_SIZE = (0.65, 0.65)
+
+TEST = pygame.image.load('assets/piece_blue.png').convert_alpha()
 
 TITLE_BG = pygame.transform.smoothscale(pygame.image.load('assets//title_bg.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
 CLEAR_BG = pygame.transform.smoothscale(pygame.image.load('assets//CLEAR_BG.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
