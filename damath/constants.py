@@ -2,8 +2,8 @@ import pygame
 from ui_class.constants import BTN_COLOR
 from display_constants import SIDE_MENU_RECT_ACTIVE
 
-BOARD_WIDTH = 640
-BOARD_HEIGHT = 640
+BOARD_WIDTH = 800
+BOARD_HEIGHT = 800
 
 BOARD_THEME_W = 700
 BOARD_THEME_H = 720
@@ -41,6 +41,8 @@ RED_PIECE = pygame.image.load('assets\piece_red.png')
 
 BLUE_PIECE_KING = pygame.image.load('assets\piece_blue_king.png')
 RED_PIECE_KING = pygame.image.load('assets\piece_red_king.png')
+
+BOARD = pygame.image.load('new_assets\\board_default.png').convert_alpha()
 
 #BOARD_1 = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))
 BOARD_BLACK = pygame.transform.smoothscale(pygame.image.load('new_assets\\board_default_copy.png'), (BOARD_THEME_W, BOARD_THEME_H)).convert_alpha()

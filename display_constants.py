@@ -6,6 +6,8 @@ reso = pygame.display.Info() # gets the video display information object
 
 SCREEN_WIDTH =  reso.current_w 
 SCREEN_HEIGHT =  reso.current_h 
+# SCREEN_WIDTH =  1280
+# SCREEN_HEIGHT =  720
 FPS = 60
 #SCREEN_WIDTH = 1080
 #SCREEN_HEIGHT = 768

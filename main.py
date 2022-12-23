@@ -197,7 +197,7 @@ if chip_animation:
 menu_fontsize         = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
 mainmenu_opt_gap      = menu_fontsize * 2.1
 side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
-title_surface         = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
+title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
 
 play_menu_text    = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
@@ -235,11 +235,22 @@ for idx, board in enumerate(BOARDS):
 BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
+game_side_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
+board_area_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+
+board = Image(BOARD, board_area_surface,
+              (board_area_surface.get_width()//2, board_area_surface.get_height()//2),
+              (board_area_surface.get_width()*0.744, board_area_surface.get_height()*0.926))
+
 board_theme_surface = pygame.Surface((BOARD_THEME_W, BOARD_THEME_H))
-board_theme_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_theme_surface.get_width()//2, SCREEN_HEIGHT//2-board_theme_surface.get_height()//2+10, BOARD_WIDTH, BOARD_HEIGHT)
+board_theme_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_theme_surface.get_width()//2,
+                                  SCREEN_HEIGHT//2-board_theme_surface.get_height()//2+10,
+                                  BOARD_WIDTH, BOARD_HEIGHT)
 
 board_surface = pygame.Surface((BOARD_WIDTH, BOARD_HEIGHT)) # creating a Surface object where the board will be placed
-board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
+board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface.get_width()//2,
+                            SCREEN_HEIGHT//2-board_surface.get_height()//2,
+                            BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface  = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect     = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
@@ -345,7 +356,7 @@ def full_trans_is_finished():
 
 title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
-              (0.65, 0.65))
+              (title_surface.get_width()*0.942, title_surface.get_height()*0.261))
 
 anim_title_breathe = Move(title, (title.x,title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
@@ -380,7 +391,7 @@ def main_menu():
     
     # anim_title_breathe.play()
     # anim_title_squeeze.play()
-    anim_title_rotate.play()
+    # anim_title_rotate.play()
     
     anim_TEST_side_menu_scale.play()
     anim_TEST_side_menu_breathe.play()
@@ -409,9 +420,15 @@ def main_menu():
                 pygame.quit()
                 sys.exit()   
 
+            # Debug
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    start_game()
+                    break
+
         # anim_title_breathe.update()
         # anim_title_squeeze.update()
-        anim_title_rotate.update()
+        # anim_title_rotate.update()
         # anim_TEST_side_menu_scale.update()
         # anim_TEST_side_menu_breathe.update()
         pygame.display.update()
@@ -934,16 +951,23 @@ def start_game():
                             game.select(row, col)
 
         font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
-        screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
-        screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
-        board_theme_surface.blit(BOARD_BLACK, (0, 0))
+        screen.blit(game_side_surface, (0, 0))
+        game_side_surface.fill(SIDE_MENU_COLOR)
+        screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
+        board_area_surface.fill(BG_COLOR)
+        # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
+        board.display()
+        # board_theme_surface.blit(BOARD_BLACK, (0, 0))
+        tiles_surface = pygame.Rect(0, 0, board.w*0.765, board.h*0.765)
+        tiles_surface.center = (board_area_surface.get_width()//2, board_area_surface.get_height()//2)
 
-        screen.blit(board_surface, (board_rect.x, board_rect.y)) 
-        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
-        return_btn.display_image() 
-        scoreboard.draw()
-        game.board.update_theme(themes.list[themes.focused].board)
-        transition_out.play() 
+        screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
+        # screen.blit(board_surface, (board_rect.x, board_rect.y)) 
+        # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
+        # return_btn.display_image() 
+        # scoreboard.draw()
+        # game.board.update_theme(themes.list[themes.focused].board)
+        # transition_out.play() 
         game.update()
 
         clock.tick(FPS)
