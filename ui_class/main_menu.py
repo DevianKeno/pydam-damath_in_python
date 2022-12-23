@@ -31,7 +31,7 @@ class SideMenuAnim:
         self.reverse_has_easing_list= False
 
     def easing(self, diff):
-        for i in range (0, int(diff), 35):
+        for i in range (0, int(diff), 25):
             self.ease.append(pytweening.easeInOutSine(i/diff)*(diff))
 
     def play(self):
@@ -169,6 +169,7 @@ class MainMenu:
             self.text_surface = self.font.render(self.text, True, BTN_PRESSED_COLOR)
         else:
             self.text_surface = self.font.render(self.text, True, WHITE)
+            
         self.frame.blit(self.text_surface, (0, 0))
         
         self.is_hovered = True
@@ -196,6 +197,9 @@ class MainMenu:
                 target()
             else:
                 self.unselect()
+
+    def get_text_rect(self):
+        return self.text_surface.get_rect(left=self.rect.x, top=self.rect.y, height=self.rect.h/1.65)
 
     def reset(self):
         self.anim_idx = 0
