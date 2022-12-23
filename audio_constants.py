@@ -2,7 +2,7 @@ import pygame
 pygame.mixer.init()
 
 CAPTURE_SOUND = pygame.mixer.Sound('audio\capture.wav')
-INVALID_SOUND = pygame.mixer.Sound('audio\invalid.mp3')
+INVALID_SOUND = pygame.mixer.Sound('audio\pop.wav')
 MOVE_SOUND = pygame.mixer.Sound('audio\move.wav')
 POP_SOUND = pygame.mixer.Sound('audio\pop.wav')
 SELECT_SOUND = pygame.mixer.Sound('audio\select.wav')

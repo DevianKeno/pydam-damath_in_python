@@ -17,6 +17,7 @@ class Image:
         self.rotation = 0
         self.anim_scale = False
         self.anim_rot = False
+        self.surface_center = (self.surface.get_width()//2, self.surface.get_height()//2)
         
         self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
 
@@ -24,8 +25,10 @@ class Image:
         """
         Displays the image or updates if already displayed.
         """
+        rotated_image_rect = self.img.get_rect(center = self.surface_center)
+        
         if self.anim_rot:
             self.img = pygame.transform.rotate(self.source, self.rotation)
         # if self.anim_scale:
         #     self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
-        self.surface.blit(self.img, (self.x, self.y))
+        self.surface.blit(self.img, rotated_image_rect)
