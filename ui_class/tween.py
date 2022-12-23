@@ -123,7 +123,6 @@ class Scale:
         self.anim_h = False
         self.IsPlaying = False
         self.IsReversed = False
-        self.object.anim_scale = True
         self.step = 0
         self.values = []
         
@@ -154,6 +153,7 @@ class Scale:
         """
         if not self.IsPlaying:
             self.IsPlaying = True
+            self.object.anim_scale = True
 
         if self.step >= self.max_steps:
             if self.loop == none:
@@ -192,6 +192,7 @@ class Scale:
         """
         if self.IsPlaying:
             self.IsPlaying = False
+            self.object.anim_scale = False
         return
 
     def reset(self):
@@ -202,6 +203,8 @@ class Scale:
         self.object.h = self.size_h
         self.step = 0
         self.IsFinished = False
+        self.IsPlaying = False
+        self.object.anim_scale = False
         pass
 
 class Rotate:
@@ -221,7 +224,6 @@ class Rotate:
         self.IsPlaying = False
         self.InFinished = False
         self.IsReversed = False
-        self.object.anim_rot = True
         self.step = 0
         self.values = []
 
@@ -247,6 +249,7 @@ class Rotate:
         """
         if not self.IsPlaying:
             self.IsPlaying = True
+            self.object.anim_rot = True
 
         if self.step >= self.max_steps:
             if self.loop == none:
@@ -276,6 +279,7 @@ class Rotate:
         """
         if self.IsPlaying:
             self.IsPlaying = False
+            self.object.anim_rot = False
         return
 
     def reset(self):
@@ -285,6 +289,8 @@ class Rotate:
         self.object.rotation = self.rotation
         self.step = 0
         self.IsFinished = False
+        self.IsPlaying = False
+        self.object.anim_rot = False
 
 class Move_Rect:
     """

@@ -25,11 +25,12 @@ class Image:
         """
         Displays the image or updates if already displayed.
         """
-        
-        # self.rotated_image_rect = self.img.get_rect(center = self.surface_center)
-        # if self.anim_rot:
-        #     self.img = pygame.transform.rotate(self.source, self.rotation)
-        #     self.rotated_image_rect = self.img.get_rect(center = self.surface_center)
-        # if self.anim_scale:
-        #     self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
+        if self.anim_scale:
+            self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
+        if self.anim_rot:
+            self.img = pygame.transform.rotozoom(self.source, self.rotation, 0.75)
+            self.rotated_image_rect = self.img.get_rect(center = self.surface_center)
+            self.surface.blit(self.img, self.rotated_image_rect)
+            return
+            
         self.surface.blit(self.img, (self.x, self.y))
