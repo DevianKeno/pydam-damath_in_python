@@ -20,7 +20,7 @@ pygame.display.set_icon(LOGO)
 SIDE_MENU_COLOR = ('#2C455E') # darker shade of blue
 SIDE_MENU_RECT_ACTIVE = pygame.Rect(0, 0, SCREEN_WIDTH*0.3, SCREEN_HEIGHT) #(313, 720) original = 0.29
 SIDE_MENU_RECT_DEFAULT = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
-SIDE_MENU_RECT_NORMAL = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
+SIDE_MENU_RECT_CURRENT = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
 
 TITLE = pygame.image.load('assets/title.png').convert_alpha()
 TITLE_SIZE = (0.65, 0.65)
