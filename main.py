@@ -565,7 +565,7 @@ def select_mode():
                 custom_btn.ddraw((SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - btn_size[0]), SCREEN_HEIGHT/2)
 
         fade_screen.full_fade()     
-        screen.blit(pygame.transform.smoothscale(TITLE, (TITLE.get_width()*0.5, TITLE.get_height()*0.5)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (TITLE.get_width()*0.5)/2), SCREEN_HEIGHT/10))  
+        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -593,7 +593,7 @@ def online_menu():
             screen.blit(font.render('Online', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
 
         fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (TITLE.get_width()*0.5, TITLE.get_height()*0.5)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (TITLE.get_width()*0.5)/2), SCREEN_HEIGHT/10))
+        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -620,7 +620,7 @@ def help_menu():
             screen.blit(font.render('Help', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
  
         fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (TITLE.get_width()*0.5, TITLE.get_height()*0.5)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (TITLE.get_width()*0.5)/2), SCREEN_HEIGHT/10))
+        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -647,7 +647,7 @@ def options_menu():
             screen.blit(font.render('Options', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
 
         fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (TITLE.get_width()*0.5, TITLE.get_height()*0.5)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (TITLE.get_width()*0.5)/2), SCREEN_HEIGHT/10))
+        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
