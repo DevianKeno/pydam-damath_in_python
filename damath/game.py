@@ -16,7 +16,6 @@ class Game:
         self.scoreboard = scoreboard
 
     def update(self):
-        
         self.board.draw(self.surface)
         self.scoreboard.update(self.turn)
         self.draw_valid_moves(self.valid_moves)
@@ -134,7 +133,7 @@ class Game:
                     alpha_circle.set_alpha(50)
                     alpha_circle.fill(WHITE)
                     pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-                    pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
+                    pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), 16)
                     #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
         else:
             pass

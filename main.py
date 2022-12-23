@@ -38,8 +38,8 @@ CHEAT_CODES = True
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
     x, y = pos
-    row = (y-board_rect.y-OFFSET) // SQUARE_SIZE
-    col = (x-board_rect.x-OFFSET) // SQUARE_SIZE
+    row = (y-board_rect.y) // SQUARE_SIZE
+    col = (x-board_rect.x) // SQUARE_SIZE
     return row, col
 
 def anim_dim():
@@ -229,8 +229,11 @@ for idx, board in enumerate(BOARDS):
 BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
-board_surface = pygame.Surface((BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET)) # creating a Surface object where the board will be placed
-board_rect = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET) #creating a Rect object to save the position & size of the board
+board_theme_surface = pygame.Surface((BOARD_THEME_W, BOARD_THEME_H))
+board_theme_rect = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_theme_surface.get_width()//2, SCREEN_HEIGHT//2-board_theme_surface.get_height()//2+10, BOARD_WIDTH, BOARD_HEIGHT)
+
+board_surface = pygame.Surface((BOARD_WIDTH, BOARD_HEIGHT)) # creating a Surface object where the board will be placed
+board_rect = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface.get_width()//2, SCREEN_HEIGHT//2-board_surface.get_height()//2, BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
 
 scoreboard_surface = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
@@ -502,7 +505,10 @@ def hover_detect(func_called, mx, my):
         else:
             side_menu_is_hovered = False
             side_menu_surface.fill(SIDE_MENU_COLOR)
-            
+
+
+
+font = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))           
 # --------- select mode function ---------
 
 def select_mode():
@@ -510,7 +516,6 @@ def select_mode():
     global side_menu_is_hovered
     
     sm_title_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
-    font = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))
     og_title_surf = pygame.Surface.copy(sm_title_surface)
     
     btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
@@ -532,7 +537,7 @@ def select_mode():
 
         if not side_menu_is_hovered:
             if SIDE_MENU_RECT_NORMAL.collidepoint((mx, my)):
-                sm_title_surface = pygame.transform.smoothscale(og_title_surf, (SCREEN_WIDTH*0.71, SCREEN_HEIGHT))
+                sm_title_surface = pygame.transform.smoothscale(og_title_surf, (SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
                 side_menu_anim.play()
                 side_menu_is_hovered = True
             else:
@@ -540,7 +545,7 @@ def select_mode():
                 side_menu_anim.reverse_play()
         else:   
             if SIDE_MENU_RECT_NORMAL.collidepoint((mx, my)):
-                sm_title_surface = pygame.transform.smoothscale(og_title_surf, (SCREEN_WIDTH*0.71, SCREEN_HEIGHT))
+                sm_title_surface = pygame.transform.smoothscale(og_title_surf, (SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
                 side_menu_anim.play()
             else:
                 sm_title_surface = pygame.transform.smoothscale(og_title_surf, (SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
@@ -598,6 +603,8 @@ def options_menu():
                 side_menu_is_hovered = False
 
         side_menu_surface.blit(LOGO, (SIDE_MENU_RECT_NORMAL.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075)) 
+        screen.blit(pygame.transform.smoothscale(TITLE, (TITLE.get_width()*0.5, TITLE.get_height()*0.5)), (SIDE_MENU_RECT_NORMAL.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_NORMAL.width)/2 - (TITLE.get_width()*0.5)/2), SCREEN_HEIGHT/10))
+        screen.blit(font.render('Options', True, WHITE), (SIDE_MENU_RECT_NORMAL.width + (SCREEN_WIDTH-SIDE_MENU_RECT_NORMAL.width)/11, SCREEN_HEIGHT/2.5))
 
         title.display()
 
@@ -610,8 +617,6 @@ def options_menu():
 
         pygame.display.update()
         clock.tick(FPS)
-
-
 
 # --------- pause function ---------
 
@@ -709,7 +714,7 @@ def start_game():
         #screen.blit(CLEAR_BG, (0, 0)) 
         screen.fill(BG_COLOR)    
         screen.blit(side_menu_surface, (0, 0))
-        side_menu_surface.fill(SIDE_MENU_COLOR)       
+        side_menu_surface.fill(SIDE_MENU_COLOR)      
 
         if game.winner() != None:
             print(game.winner()) 
@@ -891,10 +896,12 @@ def start_game():
 
         font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
         screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
-        screen.blit(board_surface, (board_rect.x, board_rect.y))     
+        screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
+        board_theme_surface.blit(BOARD_BLACK, (0, 0))
+
+        screen.blit(board_surface, (board_rect.x, board_rect.y)) 
         screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
         return_btn.display_image() 
-
         scoreboard.draw()
         game.board.update_theme(themes.list[themes.focused].board)
         transition_out.play() 
@@ -905,11 +912,9 @@ def start_game():
 
 # --------- themes menu function ---------
 
-def themes_menu(who_called_me):
+def themes_menu(who_called_me=None):
     
-    print("Options Button: Clicked")
-
-    running = False
+    running = True
 
     while running:
 
@@ -961,21 +966,21 @@ def themes_menu(who_called_me):
                         if pygame.mouse.get_pressed()[0]:
                             themes.move('right')
 
-        if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
-            if 'main' is who_called_me:
-                return_btn.hover_update(main_menu)
-            elif 'pause' is who_called_me:
-                return_btn.hover_update(start_game)
+        # if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        #     if 'main' is who_called_me:
+        #         return_btn.hover_update(main_menu)
+        #     elif 'pause' is who_called_me:
+        #         return_btn.hover_update(start_game)
 
-        elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
-            return_btn.reset()
-            if pygame.mouse.get_pressed()[0]:
-                THEME_SELECTED_SOUND.play()
-                game.board.update_theme(themes.list[themes.focused].board)
-                if 'main' is who_called_me:
-                    main_menu()
-                elif 'pause' is who_called_me:
-                    pause()
+        # elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
+        #     return_btn.reset()
+        #     if pygame.mouse.get_pressed()[0]:
+        #         THEME_SELECTED_SOUND.play()
+        #         game.board.update_theme(themes.list[themes.focused].board)
+        #         if 'main' is who_called_me:
+        #             main_menu()
+        #         elif 'pause' is who_called_me:
+        #             pause()
         else:
             return_btn.reset()
 

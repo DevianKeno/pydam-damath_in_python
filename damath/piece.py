@@ -41,20 +41,21 @@ class Piece:
         #pygame.draw.circle(surface, BLACK, (self.x, self.y), radius+ self.OUTLINE)
         #pygame.draw.circle(surface, self.color, (self.x, self.y), radius)
 
-        font = pygame.font.Font('font\CookieRun_Bold.ttf', 20) #18 = fontsize
+        font = pygame.font.Font('font\CookieRun_Bold.ttf', 18) #18 = fontsize
         text_surface = font.render(str(number), True, BLACK) #FFFFFF
-        text_rect = text_surface.get_rect(center=(self.x+OFFSET, self.y+OFFSET))
+        text_rect = text_surface.get_rect(center=(self.x, self.y))
 
+        PIECE_SIZE = (62, 62)
         if color == RED:
             if self.IsKing:
-                surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, (66, 66)), (self.x, self.y))
+                surface.blit(pygame.transform.smoothscale(RED_PIECE_KING, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))
             else:
-                surface.blit(pygame.transform.smoothscale(RED_PIECE, (66, 66)), (self.x, self.y))
+                surface.blit(pygame.transform.smoothscale(RED_PIECE, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))
         else:
             if self.IsKing:
-                surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, (66, 66)), (self.x, self.y))   
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))   
             else:
-                surface.blit(pygame.transform.smoothscale(BLUE_PIECE, (66, 66)), (self.x, self.y))           
+                surface.blit(pygame.transform.smoothscale(BLUE_PIECE, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))           
         
         surface.blit(text_surface, text_rect)
 

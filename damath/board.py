@@ -2,6 +2,7 @@ import pygame
 from .piece import Piece
 from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
 from audio_constants import *
+from display_constants import BG_COLOR
 
 pygame.mixer.init()
 
@@ -19,7 +20,8 @@ class Board:
         self.theme = theme
 
     def draw_squares(self, surface):
-        surface.fill(BLACK)
+        surface.fill(WHITE)
+        surface.set_colorkey(WHITE)
         SYMBOLS_ONE = ["x", "-", "x", "-"]
         SYMBOLS_TWO = ["÷", "+", "÷", "+"]
         symbol_counter = 0
@@ -29,12 +31,12 @@ class Board:
 
         # for row in range(ROWS):
 
-        #     """for col in range(row % 2, ROWS, 2):
+        #     for col in range(row % 2, ROWS, 2):
         #         pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
-        #                          SQUARE_SIZE, SQUARE_SIZE))"""
-            
-        surface.blit(self.theme, (1, -1))
+        #                         SQUARE_SIZE, SQUARE_SIZE))
 
+        #surface.blit(self.theme, (0, 0))
+        
         for col in range(COLS):
             symbol_counter = 0
             symbol_counter_reversed = 3

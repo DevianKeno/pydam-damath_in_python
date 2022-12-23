@@ -2,8 +2,11 @@ import pygame
 from ui_class.constants import BTN_COLOR
 from display_constants import SIDE_MENU_RECT_ACTIVE
 
-BOARD_WIDTH = 580
-BOARD_HEIGHT = 580
+BOARD_WIDTH = 640
+BOARD_HEIGHT = 640
+
+BOARD_THEME_W = 700
+BOARD_THEME_H = 720
 
 SCOREBOARD_WIDTH = SIDE_MENU_RECT_ACTIVE.w//1.35
 SCOREBOARD_HEIGHT = SIDE_MENU_RECT_ACTIVE.h//2
@@ -18,8 +21,8 @@ SCOREBOARD_BLUE_ACTIVE = pygame.transform.smoothscale(pygame.image.load('assets\
 ROWS, COLS = 8, 8
 SQUARE_SIZE = BOARD_WIDTH//COLS
 
-OFFSET = 33
-BOARD_OFFSET = 58
+OFFSET = 0 # 33
+BOARD_OFFSET = 0  #58
 
 #RGB
 RED = '#F93535'
@@ -40,7 +43,7 @@ BLUE_PIECE_KING = pygame.image.load('assets\piece_blue_king.png')
 RED_PIECE_KING = pygame.image.load('assets\piece_red_king.png')
 
 #BOARD_1 = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))
-BOARD_BLACK = pygame.transform.smoothscale(pygame.image.load('new_assets\\board_default.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
+BOARD_BLACK = pygame.transform.smoothscale(pygame.image.load('new_assets\\board_default_copy.png'), (BOARD_THEME_W, BOARD_THEME_H)).convert_alpha()
 BOARD_BROWN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_BROWN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
 BOARD_GREEN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_GREEN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
 BOARD_LIGHTBROWN = pygame.transform.smoothscale(pygame.image.load('assets\\BOARD_LIGHTBROWN.png'), (BOARD_WIDTH+BOARD_OFFSET, BOARD_HEIGHT+BOARD_OFFSET))
