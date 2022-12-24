@@ -41,8 +41,8 @@ CHEAT_CODES = True
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
     x, y = pos
-    row = (y-board_rect.y) // SQUARE_SIZE
-    col = (x-board_rect.x) // SQUARE_SIZE
+    row = (y-selection_guide_rect.h) // SQUARE_SIZE
+    col = (x-selection_guide_rect.w) // SQUARE_SIZE
     return row, col
 
 def anim_dim():
@@ -758,6 +758,8 @@ def start_game():
     pygame.mixer.music.stop()
     full_trans_reset()
     running = True
+
+    font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
     
     while running:
 
@@ -946,15 +948,16 @@ def start_game():
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
-        font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
         screen.blit(game_side_surface, (0, 0))
         game_side_surface.fill(SIDE_MENU_COLOR)
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(BG_COLOR)
 
         damath_board.display()
-
+        
+        # # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
+        
         # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
         # board_theme_surface.blit(BOARD_BLACK, (0, 0))
         screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))

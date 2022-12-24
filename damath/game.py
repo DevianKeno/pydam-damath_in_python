@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
+from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, LIME, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 from audio_constants import *
 from objects import SQUARE_SIZE
 
@@ -38,6 +38,16 @@ class Game:
             piece = self.selected
             selected_piece_rect = pygame.Rect((piece.col*SQUARE_SIZE, piece.row*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))
             pygame.draw.rect(surface, YELLOW, selected_piece_rect)
+        
+        if MANDATORY_CAPTURE:
+            if self.RequiresCapture:
+                for i in range(len(self.moveable_pieces)):
+                    capturing_pieces_rect = []
+                    capturing_piece_rect = pygame.Rect((self.moveable_pieces[i][1]*SQUARE_SIZE, self.moveable_pieces[i][0]*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))   
+                    capturing_pieces_rect.append(capturing_piece_rect)
+                    pygame.draw.rect(surface, LIME, capturing_piece_rect)
+                pass
+            pass
 
     def winner(self):   
         if (self.board.red_left <=0 or self.board.white_left <= 0):
@@ -128,10 +138,14 @@ class Game:
         return True
 
     def draw_valid_moves(self, moves):
-        if moves:
-            for move in moves:
-                row, col = move
-                pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE*0.25)
+        if self.selected:
+            color = YELLOW
+            if self.RequiresCapture:
+                color = LIME
+            if moves:
+                for move in moves:
+                    row, col = move
+                    pygame.draw.circle(self.surface, color, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE*0.25)
 
     def change_turn(self):
         print("Changed turns")

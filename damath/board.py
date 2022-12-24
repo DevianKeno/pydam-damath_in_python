@@ -29,14 +29,6 @@ class Board:
         symbol_counter_reversed = 3
         global symbol_map
         symbol_map = {}
-
-        # for row in range(ROWS):
-
-        #     for col in range(row % 2, ROWS, 2):
-        #         pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
-        #                         SQUARE_SIZE, SQUARE_SIZE))
-
-        #surface.blit(self.theme, (0, 0))
         
         for col in range(COLS):
             symbol_counter = 0
@@ -228,7 +220,7 @@ class Board:
                         if can_capture:
                             pass
                         else:
-                            if piece.IsKing:
+                            if not piece.IsKing:
                                 break
 
                 # if skipped and not can_capture:

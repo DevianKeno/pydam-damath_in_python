@@ -1,9 +1,7 @@
 import pygame
 from .constants import *
-from objects import chips_surface
+from objects import SQUARE_SIZE
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
-
-SQUARE_SIZE = chips_surface.get_width()/8
 
 class Piece:
 
@@ -23,8 +21,8 @@ class Piece:
         self.w = SQUARE_SIZE * 0.874
         self.h = SQUARE_SIZE
 
-        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', 18) #18 = fontsize
-        self.text_surface = self.font.render(str(number), True, BLACK) #FFFFFF
+        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', 18)
+        self.text_surface = self.font.render(str(number), True, BLACK)
         self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
 
         if self.color == RED:
@@ -51,14 +49,13 @@ class Piece:
         self.HasPossibleCapture = bool
 
     def draw(self, surface, number, color):
-        
         if not self.IsKing:
             surface.blit(self.image, (self.x, self.y))
             return
         else:
             surface.blit(self.image_king, (self.x, self.y))
 
-        surface.blit(self.text_surface, self.text_rect)       
+        surface.blit(self.text_surface, self.text_rect) 
 
     def move(self, row, col):
         self.row = row
