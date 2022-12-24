@@ -358,7 +358,7 @@ title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
               (title_surface.get_width()*0.942, title_surface.get_height()*0.261))
 
-anim_title_breathe = Move(title, (0, 0), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
 side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_CURRENT, SIDE_MENU_RECT_ACTIVE)

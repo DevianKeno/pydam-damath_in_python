@@ -165,11 +165,11 @@ class Game:
         moveables = []
         capturing_pieces = 0
         
-        for row in range(ROWS-1):
+        for row in range(ROWS):
             if red_count == 0 or blue_count == 0:
                 break
 
-            for col in range(7):
+            for col in range(COLS):
                 if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
                     piece = self.board.get_piece(row, col)
 
