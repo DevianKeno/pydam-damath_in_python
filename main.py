@@ -973,8 +973,6 @@ def start_game():
         # game.board.update_theme(themes.list[themes.focused].board)
         # transition_out.play() 
         game.update()
-        if game.board.anim:
-            game.board.anim.update()
         pygame.display.update()
         clock.tick(FPS)
  

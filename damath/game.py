@@ -24,6 +24,8 @@ class Game:
         self.valid_moves = {}
 
     def update(self):
+        if self.board.anim:
+            self.board.anim.update()
         self.board.draw_contents(self.surface)
         self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
