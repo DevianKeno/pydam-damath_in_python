@@ -101,14 +101,14 @@ class Board:
         self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
         self.anim.play()
 
-        # swap (not ideal)
-        self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]        
+        self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
+        _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
-        piece.move(row, col)
-
-        print(f"(x:{piece.x}), (y:{piece.y})")
         self.moveables.append((row, col))
         del self.moveables[self.moveables.index((piece.row, piece.col))]
+        
+        piece.move(row, col)
 
 
         if row == ROWS - 1:

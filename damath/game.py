@@ -1,9 +1,9 @@
 import pygame
 from .board import Board
-from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, LIME, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
+from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, LIME, WHITE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 from audio_constants import *
 from ui_class.tween import *
-from objects import SQUARE_SIZE
+from objects import square_size
 
 pygame.mixer.init()
 
@@ -34,14 +34,14 @@ class Game:
     def draw_indicators(self, surface):
         if self.selected:
             piece = self.selected
-            selected_piece_rect = pygame.Rect((piece.col*SQUARE_SIZE, piece.row*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))
+            selected_piece_rect = pygame.Rect((piece.col*square_size, piece.row*square_size), (square_size, square_size))
             pygame.draw.rect(surface, YELLOW, selected_piece_rect)
         
         if MANDATORY_CAPTURE:
             if self.RequiresCapture:
                 for i in range(len(self.moveable_pieces)):
                     capturing_pieces_rect = []
-                    capturing_piece_rect = pygame.Rect((self.moveable_pieces[i][1]*SQUARE_SIZE, self.moveable_pieces[i][0]*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))   
+                    capturing_piece_rect = pygame.Rect((self.moveable_pieces[i][1]*square_size, self.moveable_pieces[i][0]*square_size), (square_size, square_size))   
                     capturing_pieces_rect.append(capturing_piece_rect)
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
@@ -141,7 +141,7 @@ class Game:
             if moves:
                 for move in moves:
                     row, col = move
-                    pygame.draw.circle(self.surface, color, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE*0.25)
+                    pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
 
     def change_turn(self):
         print("Changed turns")

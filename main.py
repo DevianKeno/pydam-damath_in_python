@@ -41,8 +41,12 @@ CHEAT_CODES = True
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
     x, y = pos
-    row = (y-selection_guide_rect.h) // SQUARE_SIZE
-    col = (x-selection_guide_rect.w) // SQUARE_SIZE
+    row = (y-selection_guide_rect.h) // square_size
+    col = (x-selection_guide_rect.w) // square_size
+    print(f"{chips_surface.get_width()}, {chips_surface.get_height()}")
+    print(square_size)
+    print(pygame.mouse.get_pos())
+    print(f"board: {row}, {col}")
     return row, col
 
 def anim_dim():
@@ -956,6 +960,8 @@ def start_game():
         damath_board.display()
         # # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
+
+        pygame.draw.rect(screen, BLACK, selection_guide_rect)
 
         # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
         # board_theme_surface.blit(BOARD_BLACK, (0, 0))

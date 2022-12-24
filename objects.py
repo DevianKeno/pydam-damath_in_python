@@ -22,4 +22,4 @@ chips_surface = pygame.Surface((tiles_rect.w, tiles_rect.h+tiles_rect.h))
 
 selection_guide_rect = pygame.Rect((0, 0), (SCREEN_WIDTH*0.433, SCREEN_HEIGHT*0.111))
 
-SQUARE_SIZE = chips_surface.get_width()//8
+square_size = chips_surface.get_width()//8
