@@ -1,7 +1,9 @@
 import pygame
 from .constants import *
-from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
 from objects import chips_surface
+from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
+
+SQUARE_SIZE = chips_surface.get_width()/8
 
 class Piece:
 
@@ -18,28 +20,25 @@ class Piece:
         self.HasSkipped = False
         self.x = 0
         self.y = 0
+        self.w = SQUARE_SIZE * 0.874
+        self.h = SQUARE_SIZE
 
-        self.calc_pos()
+        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', 18) #18 = fontsize
+        self.text_surface = self.font.render(str(number), True, BLACK) #FFFFFF
+        self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
 
         if self.color == RED:
-            self.image = ORANGE_PIECE
-            self.image_king = ORANGE_PIECE_KING
+            self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
+            self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
         else:
-            self.image = BLUE_PIECE
-            self.image_king = BLUE_PIECE_KING
-
-        # self.image_size = (chips_surface.get_width()/8, chips_surface.get_height()/8)
-        self.w = 50
-        self.h = 50
-
-        # pygame.transform.smoothscale(self.image, self.image_size)
-        # pygame.transform.smoothscale(self.image_king, self.image_size)
-        pygame.transform.smoothscale(self.image, (self.w, self.h))
-        pygame.transform.smoothscale(self.image_king, (self.w, self.h))
+            self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
+            self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
+            
+        self.calc_pos()
 
     def calc_pos(self):
-        self.x = SQUARE_SIZE *  self.col + SQUARE_SIZE // 2
-        self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
+        self.x = SQUARE_SIZE * self.col + SQUARE_SIZE//2 - self.w//2
+        self.y = SQUARE_SIZE * self.row
 
     def make_king(self):
         self.IsOnPromotion = True
@@ -52,10 +51,6 @@ class Piece:
         self.HasPossibleCapture = bool
 
     def draw(self, surface, number, color):
-
-        font = pygame.font.Font('font\CookieRun_Bold.ttf', 18) #18 = fontsize
-        text_surface = font.render(str(number), True, BLACK) #FFFFFF
-        text_rect = text_surface.get_rect(center=(self.x, self.y))
         
         if not self.IsKing:
             surface.blit(self.image, (self.x, self.y))
@@ -63,20 +58,7 @@ class Piece:
         else:
             surface.blit(self.image_king, (self.x, self.y))
 
-        surface.blit(text_surface, text_rect)
-        
-        # PIECE_SIZE = (62, 62)
-        # if color == RED:
-        #     if self.IsKing:
-        #         surface.blit(pygame.transform.smoothscale(ORANGE_PIECE_KING, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))
-        #     else:
-        #         surface.blit(pygame.transform.smoothscale(ORANGE_PIECE, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))
-        # else:
-        #     if self.IsKing:
-        #         surface.blit(pygame.transform.smoothscale(BLUE_PIECE_KING, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))   
-        #     else:
-        #         surface.blit(pygame.transform.smoothscale(BLUE_PIECE, PIECE_SIZE), (self.x-(PIECE_SIZE[0]/2), self.y-(PIECE_SIZE[0]/2)))           
-        
+        surface.blit(self.text_surface, self.text_rect)       
 
     def move(self, row, col):
         self.row = row

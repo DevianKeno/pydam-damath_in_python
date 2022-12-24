@@ -2,6 +2,7 @@ import pygame
 from .board import Board
 from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 from audio_constants import *
+from objects import SQUARE_SIZE
 
 pygame.mixer.init()
 
@@ -17,6 +18,7 @@ class Game:
 
     def update(self):
         self.board.draw_contents(self.surface)
+        self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
         self.scoreboard.update(self.turn)
         self.draw_valid_moves(self.valid_moves)
@@ -30,6 +32,12 @@ class Game:
         self.RequiresCapture = False
         self.turn = RED
         self.valid_moves = {}
+    
+    def draw_indicators(self, surface):
+        if self.selected:
+            piece = self.selected
+            selected_piece_rect = pygame.Rect((piece.col*SQUARE_SIZE, piece.row*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))
+            pygame.draw.rect(surface, YELLOW, selected_piece_rect)
 
     def winner(self):   
         if (self.board.red_left <=0 or self.board.white_left <= 0):
@@ -47,7 +55,6 @@ class Game:
         self._init()
 
     def select(self, row, col):
-
         if self.selected:
             result = self._move(row, col)
             if not result:
@@ -115,29 +122,16 @@ class Game:
                 self.board.piece_skipped(self.selected, row, col, bool=False)
                 self.change_turn()
         else:
+            self.selected = None
             return False
+        self.selected = None
         return True
-    
+
     def draw_valid_moves(self, moves):
-
-        if self.selected:
-            if self.selected.color == RED:
-                circle_color = RED
-            else:
-                circle_color = LIGHT_BLUE
-
-            if moves:
-                for move in moves:
-                    row, col = move
-                    """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-                    self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
-                    alpha_circle.set_alpha(50)
-                    alpha_circle.fill(WHITE)
-                    pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-                    pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), 16)
-                    #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-        else:
-            pass
+        if moves:
+            for move in moves:
+                row, col = move
+                pygame.draw.circle(self.surface, YELLOW, (col * SQUARE_SIZE + SQUARE_SIZE//2, row * SQUARE_SIZE + SQUARE_SIZE//2), SQUARE_SIZE*0.25)
 
     def change_turn(self):
         print("Changed turns")

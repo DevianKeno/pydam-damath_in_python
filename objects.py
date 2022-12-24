@@ -18,3 +18,5 @@ tiles_rect = pygame.Rect((0, 0), (damath_board.w*0.765, damath_board.h*0.765))
 tiles_rect.center = (board_area_surface.get_width()//2, board_area_surface.get_height()//2)
 
 chips_surface = pygame.Surface((tiles_rect.w, tiles_rect.h))
+
+SQUARE_SIZE = chips_surface.get_width()//8
