@@ -354,10 +354,9 @@ title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
               (title_surface.get_width()*0.942, title_surface.get_height()*0.261))
 
-anim_title_breathe = Move(title, (title.x,title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_breathe = Move(title, (0, 0), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
-
 side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_CURRENT, SIDE_MENU_RECT_ACTIVE)
 
 # --------- Side menu rect tweenable --------- 
@@ -385,9 +384,9 @@ def main_menu():
     full_trans_reset()
     game.reset()
     
-    # anim_title_breathe.play()
+    anim_title_breathe.play()
     # anim_title_squeeze.play()
-    anim_title_rotate.play()
+    # anim_title_rotate.play()
     
     anim_TEST_side_menu_scale.play()
     anim_TEST_side_menu_breathe.play()
@@ -948,16 +947,16 @@ def start_game():
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
+
         screen.blit(game_side_surface, (0, 0))
         game_side_surface.fill(SIDE_MENU_COLOR)
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(BG_COLOR)
 
         damath_board.display()
-        
         # # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
-        
+
         # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
         # board_theme_surface.blit(BOARD_BLACK, (0, 0))
         screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
@@ -968,7 +967,9 @@ def start_game():
         # game.board.update_theme(themes.list[themes.focused].board)
         # transition_out.play() 
         game.update()
-
+        if game.board.anim:
+            game.board.anim.update()
+        pygame.display.update()
         clock.tick(FPS)
  
 # --------- themes menu function ---------

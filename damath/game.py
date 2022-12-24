@@ -2,6 +2,7 @@ import pygame
 from .board import Board
 from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, LIME, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
 from audio_constants import *
+from ui_class.tween import *
 from objects import SQUARE_SIZE
 
 pygame.mixer.init()
@@ -11,10 +12,16 @@ MANDATORY_CAPTURE = True
 class Game:
 
     def __init__(self, surface, scoreboard, theme):
-        self.theme = theme
-        self._init()
         self.surface = surface
+        self.theme = theme
+        self.moved_piece = None
+        self.selected = None
+        self.board = Board(self.surface, self.theme)
+        self.moveable_pieces = list(self.board.moveables)
         self.scoreboard = scoreboard
+        self.RequiresCapture = False
+        self.turn = RED
+        self.valid_moves = {}
 
     def update(self):
         self.board.draw_contents(self.surface)
@@ -23,15 +30,6 @@ class Game:
         self.scoreboard.update(self.turn)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update() 
-
-    def _init(self):
-        self.moved_piece = None
-        self.selected = None
-        self.board = Board(self.theme)
-        self.moveable_pieces = list(self.board.moveables)
-        self.RequiresCapture = False
-        self.turn = RED
-        self.valid_moves = {}
     
     def draw_indicators(self, surface):
         if self.selected:
@@ -46,8 +44,6 @@ class Game:
                     capturing_piece_rect = pygame.Rect((self.moveable_pieces[i][1]*SQUARE_SIZE, self.moveable_pieces[i][0]*SQUARE_SIZE), (SQUARE_SIZE, SQUARE_SIZE))   
                     capturing_pieces_rect.append(capturing_piece_rect)
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
-                pass
-            pass
 
     def winner(self):   
         if (self.board.red_left <=0 or self.board.white_left <= 0):
@@ -62,7 +58,7 @@ class Game:
 
     def reset(self):
         self.scoreboard.reset()
-        self._init()
+        # self._init()
 
     def select(self, row, col):
         if self.selected:
@@ -151,6 +147,7 @@ class Game:
         print("Changed turns")
         self.moved_piece = None
         self.valid_moves = {}
+
         if self.turn == RED:
             self.turn = LIGHT_BLUE
         else:

@@ -2,8 +2,9 @@
 
 import pygame
 from display_constants import *
-from assets import BOARD
+from assets import BOARD, ORANGE_PIECE
 from ui_class.title import Image
+from ui_class.tween import *
 
 # --------- Game Scene --------- 
 

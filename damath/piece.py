@@ -2,10 +2,12 @@ import pygame
 from .constants import *
 from objects import SQUARE_SIZE
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
+from ui_class.title import Image
 
-class Piece:
+class Piece(Image):
 
-    def __init__(self, row, col, color, number):
+    def __init__(self, surface, row, col, color, number):
+        self.surface = surface
         self.row = row
         self.col = col
         self.color = color
@@ -31,7 +33,8 @@ class Piece:
         else:
             self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
-            
+
+        super().__init__(self.image, self.surface, (self.x, self.y), (self.w, self.h))
         self.calc_pos()
 
     def calc_pos(self):
@@ -54,8 +57,18 @@ class Piece:
             return
         else:
             surface.blit(self.image_king, (self.x, self.y))
-
+            
         surface.blit(self.text_surface, self.text_rect) 
+
+    def display(self):
+        if not self.IsKing:
+            self.surface.blit(self.image, (self.x, self.y))
+            return
+        else:
+            self.surface.blit(self.image_king, (self.x, self.y))
+            
+        self.surface.blit(self.text_surface, self.text_rect) 
+
 
     def move(self, row, col):
         self.row = row

@@ -4,23 +4,26 @@ from .constants import WHITE, BROWN, RED, ROWS, COLS, LIGHT_BLUE
 from assets import BOARD
 from audio_constants import *
 from display_constants import BG_COLOR
+from ui_class.tween import *
 
 pygame.mixer.init()
 
 class Board:
     
-    def __init__(self, theme):
+    def __init__(self, surface, theme):
+        self.surface = surface
         self.board = [] #array representation of the board
         self.moveables = []
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
-        self.create_board()
+        self.init_chips(self.surface)
         self.theme = theme
+        self.anim = None
 
     def update_theme(self, theme):
         self.theme = theme
 
-    def draw_squares(self, surface):
+    def init_symbols(self, surface):
         surface.fill(WHITE)
         surface.set_colorkey(WHITE)
         SYMBOLS_ONE = ["x", "-", "x", "-"]
@@ -63,14 +66,50 @@ class Board:
                         symbol_map.update({(row+1, col):SYMBOLS_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
 
-    def move(self, piece, row, col, number):
-        print(f"Piece {piece.color} moved: {piece.row}, {piece.col} -> {row}, {col}")
-        self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+    def init_chips(self, surface):
+        
+        num_counter = 0
+        num = [2, -5, 8, -11,
+               -7, 10, -3, 0,
+               4, -1, 6, -9]
 
+        for row in range(ROWS):
+            self.board.append([])
+            for col in range(COLS):
+                if col % 2 == ((row) % 2):
+                    if row < 3:                  
+                        self.board[row].append(Piece(surface, row, col, LIGHT_BLUE, num[num_counter]))
+                        self.moveables.append((row, col))
+                        if num_counter < 11:
+                            num_counter+=1
+                    elif row > 4:
+                        self.board[row].append(Piece(surface, row, col, RED, num[num_counter]))
+                        self.moveables.append((row, col))
+                        num_counter-=1
+                    else:
+                        self.board[row].append(Piece(surface, row, col, 0, 0))
+                else:
+                    self.board[row].append(Piece(surface, row, col, 0, 0))
+            
+        print("done init")
+
+    def move(self, piece, row, col, number):
+        print(f"Piece {piece.color} moved: {piece.row}(x:{piece.x}), {piece.col}(y:{piece.y}) -> {row}, {col}")
+
+        _piece = self.board[piece.row][piece.col]
+        _piece_dest = self.board[row][col]
+        self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
+        self.anim.play()
+
+        # swap (not ideal)
+        self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]        
+
+        piece.move(row, col)
+
+        print(f"(x:{piece.x}), (y:{piece.y})")
         self.moveables.append((row, col))
         del self.moveables[self.moveables.index((piece.row, piece.col))]
 
-        piece.move(row, col)
 
         if row == ROWS - 1:
             if piece.color == LIGHT_BLUE:
@@ -98,33 +137,8 @@ class Board:
     def get_piece(self, row, col):
         return self.board[row][col]
 
-    def create_board(self):
-        
-        num_counter = 0
-        num = [2, -5, 8, -11,
-               -7, 10, -3, 0,
-               4, -1, 6, -9]
-
-        for row in range(ROWS):
-            self.board.append([])
-            for col in range(COLS):
-                if col % 2 == ((row) % 2):
-                    if row < 3:                  
-                        self.board[row].append(Piece(row, col, LIGHT_BLUE, num[num_counter]))
-                        self.moveables.append((row, col))
-                        if num_counter < 11:
-                            num_counter+=1
-                    elif row > 4:
-                        self.board[row].append(Piece(row, col, RED, num[num_counter]))
-                        self.moveables.append((row, col))
-                        num_counter-=1
-                    else:
-                        self.board[row].append(Piece(row, col, 0, 0))
-                else:
-                    self.board[row].append(Piece(row, col, 0, 0))
-
     def draw_contents(self, surface):
-        self.draw_squares(surface)
+        self.init_symbols(surface)
 
     def draw_chips(self, surface):
         for row in range(ROWS):
@@ -132,11 +146,11 @@ class Board:
                 piece = self.board[row][col]
 
                 if piece.color != 0:
-                    piece.draw(surface, piece.number, piece.color)
+                    piece.display()
 
     def remove(self, pieces):
         for piece in pieces:
-            self.board[piece.row][piece.col] = Piece(piece.row, piece.col, 0, 0)
+            self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
             if piece != 0:
                 if piece.color == RED:
                     self.red_left -= 1 

@@ -35,7 +35,7 @@ class Move:
             self.anim_y = True
 
         if time_in_seconds != 0:
-            self.max_steps = FPS * time_in_seconds
+            self.max_steps = int(FPS * time_in_seconds)
         else:
             self.max_steps = 1
 
@@ -44,7 +44,7 @@ class Move:
     
     def update(self):
         """
-        Updates the animation. (only when playing) (only when
+        Updates the animation. (only when playing)
         """
         if not self.IsPlaying:
             return
@@ -132,7 +132,7 @@ class Scale:
             self.anim_h = True
 
         if time_in_seconds != 0:
-            self.max_steps = FPS * time_in_seconds
+            self.max_steps = int(FPS * time_in_seconds)
         else:
             self.max_steps = 1
 
@@ -228,7 +228,7 @@ class Rotate:
         self.values = []
 
         if time_in_seconds != 0:
-            self.max_steps = FPS * time_in_seconds
+            self.max_steps = int(FPS * time_in_seconds)
         else:
             self.max_steps = 1
 
@@ -321,7 +321,7 @@ class Move_Rect:
             self.anim_y = True
 
         if time_in_seconds != 0:
-            self.max_steps = FPS * time_in_seconds
+            self.max_steps = int(FPS * time_in_seconds)
         else:
             self.max_steps = 1
 
@@ -416,7 +416,7 @@ class Scale_Rect:
             self.anim_h = True
 
         if time_in_seconds != 0:
-            self.max_steps = FPS * time_in_seconds
+            self.max_steps = int(FPS * time_in_seconds)
         else:
             self.max_steps = 1
 
