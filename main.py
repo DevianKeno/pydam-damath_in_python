@@ -27,7 +27,7 @@ pygame.mixer.init(44100, -16, 2, 2048)
 reso = pygame.display.Info() # gets the video display information object
 
 ANIM_SPEED  = 20
-ANIM_ALPHA  = 255 # opacity (0 - transparent, 255 - opaque)
+ANIM_ALPHA  = 255
 CHIP_WIDTH  = 360
 CHIP_HEIGHT = 240
 
@@ -961,15 +961,13 @@ def start_game():
         # # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
 
-        pygame.draw.rect(screen, BLACK, selection_guide_rect)
-
         # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
         # board_theme_surface.blit(BOARD_BLACK, (0, 0))
-        screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
+        screen.blit(font.render("Scores", True, BG_COLOR), (side_menu_surface.get_width()//2, 0))
         # screen.blit(board_surface, (board_rect.x, board_rect.y)) 
-        # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 
+        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
         # return_btn.display_image() 
-        # scoreboard.draw()
+        scoreboard.draw()
         # game.board.update_theme(themes.list[themes.focused].board)
         # transition_out.play() 
         game.update()

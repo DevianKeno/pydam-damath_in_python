@@ -22,15 +22,14 @@ class Piece(Image):
         self.y = 0
         self.w = square_size * 0.874
         self.h = square_size
-
-        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', 18)
-        self.text_surface = self.font.render(str(number), True, BLACK)
-        self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
+        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
 
         if self.color == RED:
+            self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
             self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
         else:
+            self.text_surface = self.font.render(str(number), True, DARK_BLUE)
             self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
 
@@ -51,22 +50,23 @@ class Piece(Image):
     def can_capture(self, bool=True):
         self.HasPossibleCapture = bool
 
-    def draw(self, surface, number, color):
-        if not self.IsKing:
-            surface.blit(self.image, (self.x, self.y))
-            return
-        else:
-            surface.blit(self.image_king, (self.x, self.y))
-            
-        surface.blit(self.text_surface, self.text_rect) 
+    # def draw(self, surface, number, color):
+    #     if not self.IsKing:
+    #         surface.blit(self.image, (self.x, self.y))
+    #     else:
+    #         surface.blit(self.image_king, (self.x, self.y))
+
+    #     self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
+    #     surface.blit(self.text_surface, self.text_rect) 
 
     def display(self):
         if not self.IsKing:
             self.surface.blit(self.image, (self.x, self.y))
-            return
         else:
             self.surface.blit(self.image_king, (self.x, self.y))
-            
+            self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
+
+        self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.45))
         self.surface.blit(self.text_surface, self.text_rect) 
 
 
