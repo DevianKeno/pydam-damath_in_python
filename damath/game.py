@@ -16,7 +16,8 @@ class Game:
         self.scoreboard = scoreboard
 
     def update(self):
-        self.board.draw(self.surface)
+        self.board.draw_contents(self.surface)
+        self.board.draw_chips(self.surface)
         self.scoreboard.update(self.turn)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update() 

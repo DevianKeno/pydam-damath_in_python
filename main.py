@@ -14,6 +14,8 @@ from ui_class.themes_option import Themes, ThemesList
 from audio_constants import * 
 from ui_class.main_menu import *
 from ui_class.fade_anim import Fade
+from objects import *
+from assets import *
 
 # --------- initialization ---------
 pygame.init()
@@ -235,12 +237,6 @@ for idx, board in enumerate(BOARDS):
 BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
-game_side_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
-board_area_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
-
-board = Image(BOARD, board_area_surface,
-              (board_area_surface.get_width()//2, board_area_surface.get_height()//2),
-              (board_area_surface.get_width()*0.744, board_area_surface.get_height()*0.926))
 
 board_theme_surface = pygame.Surface((BOARD_THEME_W, BOARD_THEME_H))
 board_theme_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_theme_surface.get_width()//2,
@@ -256,7 +252,7 @@ scoreboard_surface  = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
 scoreboard_rect     = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
 scoreboard          = Scoreboard(scoreboard_surface)
 
-game = Game(board_surface, scoreboard, BOARD_DEFAULT_THEME)  
+game = Game(chips_surface, scoreboard, BOARD_DEFAULT_THEME)  
 
 if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -384,7 +380,7 @@ def main_menu():
     
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.1)
 
     full_trans_reset()
     game.reset()
@@ -955,12 +951,12 @@ def start_game():
         game_side_surface.fill(SIDE_MENU_COLOR)
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(BG_COLOR)
-        # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
-        board.display()
-        # board_theme_surface.blit(BOARD_BLACK, (0, 0))
-        tiles_surface = pygame.Rect(0, 0, board.w*0.765, board.h*0.765)
-        tiles_surface.center = (board_area_surface.get_width()//2, board_area_surface.get_height()//2)
 
+        damath_board.display()
+
+        board_area_surface.blit(chips_surface, (tiles_rect))
+        # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
+        # board_theme_surface.blit(BOARD_BLACK, (0, 0))
         screen.blit(font.render("Scores", True, BG_COLOR), (85, 165))
         # screen.blit(board_surface, (board_rect.x, board_rect.y)) 
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y)) 

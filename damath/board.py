@@ -1,6 +1,7 @@
 import pygame
 from .piece import Piece
-from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
+from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE
+from assets import BOARD
 from audio_constants import *
 from display_constants import BG_COLOR
 
@@ -130,8 +131,11 @@ class Board:
                 else:
                     self.board[row].append(Piece(row, col, 0, 0))
 
-    def draw(self, surface):
+    def draw_contents(self, surface):
         self.draw_squares(surface)
+
+    def draw_chips(self, surface):
+
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
