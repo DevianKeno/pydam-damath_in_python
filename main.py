@@ -956,6 +956,7 @@ def start_game():
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(OAR_BLUE)
 
+        damath_board_shadow.display()
         damath_board.display()
 
         # Renders chips
@@ -966,6 +967,9 @@ def start_game():
 
         screen.blit(text_scores,
                     (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
+
+        screen.blit(text_mode,
+                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.85))
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

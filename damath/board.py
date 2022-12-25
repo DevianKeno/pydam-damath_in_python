@@ -14,9 +14,9 @@ class Board:
         self.surface = surface
         self.board = [] #array representation of the board
         self.moveables = []
-        self.red_left = self.white_left = 12
-        self.red_kings = self.white_kings = 0
-        self.red_captures = self.white_captures = []
+        self.blue_pieces_count = self.orange_pieces_count = 12
+        self.blue_kings = self.orange_kings = 0
+        self.blue_captures = self.orange_captures = []
         self.init_chips(self.surface)
         self.theme = theme
         self.anim = None
@@ -100,7 +100,9 @@ class Board:
         self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
         self.anim.play()
 
+        # Swap current piece with destination
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        # Re-swap x and y variables
         _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
         _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
@@ -109,17 +111,20 @@ class Board:
         
         piece.move(row, col)
 
-
         if row == ROWS - 1:
             if piece.color == PLAYER_TWO:
+                if piece.IsKing:
+                    return
                 piece.make_king()
                 CAPTURE_SOUND.play()
-                self.white_kings += 1
+                self.orange_kings += 1
         elif row == 0:
             if piece.color == PLAYER_ONE:
+                if piece.IsKing:
+                    return
                 piece.make_king()
                 CAPTURE_SOUND.play()
-                self.red_kings += 1
+                self.blue_kings += 1
     
     def piece_skipped(self, piece, row, col, bool):
         piece.HasSkipped = bool
@@ -148,9 +153,9 @@ class Board:
                     piece.display()
 
     def draw_captured_chips(self, surface):
-        for chip in self.red_captures:
+        for chip in self.blue_captures:
             break
-        for chip in self.white_captures:
+        for chip in self.orange_captures:
             break 
         pass
 
@@ -158,10 +163,10 @@ class Board:
         for piece in pieces:
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
             if piece != 0:
-                if piece.color == RED:
-                    self.red_left -= 1 
+                if piece.color == PLAYER_ONE:
+                    self.blue_pieces_count -= 1 
                 else:
-                    self.white_left -= 1
+                    self.orange_pieces_count -= 1
 
     def get_valid_moves(self, piece, type="both"):
         moves = {}

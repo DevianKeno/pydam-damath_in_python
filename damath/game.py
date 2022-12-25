@@ -50,12 +50,12 @@ class Game:
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
     def winner(self):   
-        if (self.board.red_left <=0 or self.board.white_left <= 0):
+        if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0):
             red_score, blue_score = self.scoreboard.score()
             if red_score > blue_score:
-                return RED
+                return PLAYER_ONE 
             elif blue_score > red_score:
-                return LIGHT_BLUE
+                return PLAYER_ONE
             else:
                 return "TIE"
         return None
@@ -164,17 +164,18 @@ class Game:
 
     def check_for_captures(self):
         print(f"[Check]: Checking for possible captures for {self.turn}...")
-        red_count = self.board.red_left + self.board.red_kings
-        blue_count = self.board.white_left + self.board.white_kings
+        _blue_count = self.board.blue_pieces_count + self.board.blue_kings
+        _orange_count = self.board.orange_pieces_count + self.board.orange_kings
         moveables = []
         capturing_pieces = 0
         
         for row in range(ROWS):
-            if red_count == 0 or blue_count == 0:
+            if _blue_count == 0 or _orange_count == 0:
                 break
 
             for col in range(COLS):
-                if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
+                # if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
+                if self.board.board[row][col].color == self.turn:
                     piece = self.board.get_piece(row, col)
 
                     if self.board.get_valid_moves(piece, "capture"):
@@ -183,10 +184,10 @@ class Game:
                             moveables.append((piece.row, piece.col))
                             capturing_pieces += 1
 
-                    if self.turn == RED:
-                        red_count -= 1
+                    if self.turn == PLAYER_ONE:
+                        _blue_count -= 1
                     else:
-                        blue_count -= 1
+                        _orange_count -= 1
 
         if capturing_pieces == 0:
             print(f"No possible captures for {self.turn}")

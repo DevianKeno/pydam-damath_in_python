@@ -1,5 +1,5 @@
 import pygame
-from assets import BOARD, SCOREBOARD_SCORE_AREA, BLUE_PIECE, ORANGE_PIECE
+from assets import BOARD, BOARD_SHADOW, SCOREBOARD_SCORE_AREA, BLUE_PIECE, ORANGE_PIECE
 from display_constants import *
 from ui_class.colors import *
 from ui_class.image import Image
@@ -21,6 +21,11 @@ damath_board = Image(BOARD, board_area_surface,
                      (board_area_surface.get_width()//2, board_area_surface.get_height()//2),
                      (board_area_surface.get_width()*0.744, board_area_surface.get_height()*0.926))
 
+damath_board_shadow = Image(BOARD_SHADOW, board_area_surface,
+                     (board_area_surface.get_width()//2-1, board_area_surface.get_height()//2),
+                     (board_area_surface.get_width(), board_area_surface.get_height()))
+
+
 tiles_rect = pygame.Rect((0, 0), (damath_board.w*0.833, damath_board.h*0.833))
 tiles_rect.center = (board_area_surface.get_width()//2, board_area_surface.get_height()//2)
 
@@ -34,7 +39,8 @@ mini_title = Image(TITLE, game_side_surface,
                    (game_side_surface.get_width()//2, game_side_surface.get_height()*0.1),
                    (game_side_surface.get_width()*0.585, game_side_surface.get_height()*0.069))
 
-text_scores = font_cookie_run_reg.render("Scores", True, OAR_BLUE)
+text_scores = font_cookie_run_bold.render("Scores", True, OAR_BLUE)
+text_mode = font_cookie_run_reg.render("Classic", True, OAR_BLUE)
 
 scoreboard_surface  = pygame.Surface((game_side_surface.get_width(), game_side_surface.get_height()))
 scoreboard_rect = scoreboard_surface.get_rect()
