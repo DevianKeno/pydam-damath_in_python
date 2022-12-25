@@ -5,6 +5,7 @@ from assets import BOARD
 from audio_constants import *
 from display_constants import BG_COLOR
 from ui_class.tween import *
+from objects import p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
 
 pygame.mixer.init()
 
@@ -16,7 +17,7 @@ class Board:
         self.moveables = []
         self.blue_pieces_count = self.orange_pieces_count = 12
         self.blue_kings = self.orange_kings = 0
-        self.blue_captures = self.orange_captures = []
+        self.blue_captured = self.orange_captured = []
         self.init_chips(self.surface)
         self.theme = theme
         self.anim = None
@@ -151,22 +152,43 @@ class Board:
 
                 if piece.color != 0:
                     piece.display()
+        
+        for piece in self.blue_captured:
+            piece.display()
+        for piece in self.orange_captured:
+            piece.display()
 
     def draw_captured_chips(self, surface):
-        for chip in self.blue_captures:
+        for chip in self.blue_captured:
             break
-        for chip in self.orange_captures:
+        for chip in self.orange_captured:
             break 
         pass
 
-    def remove(self, pieces):
+    def move_to_graveyard(self, pieces):
         for piece in pieces:
+            if piece.color == PLAYER_ONE: #Blue
+                captured_piece = Piece(p2_captured_pieces_surface, 0, 0, piece.color, piece.number)
+                self.blue_captured.append(captured_piece)
+                captured_piece.IsCaptured = True
+                captured_piece.x = p2_captured_pieces_surface.get_width()//2 - piece.w/2
+                self.blue_pieces_count -= 1
+                captured_piece.y = (p2_captured_pieces_rect.top) + (len(self.blue_captured) * piece.h)
+            else:
+                captured_piece = Piece(p1_captured_pieces_surface, 0, 0, piece.color, piece.number)
+                self.orange_captured.append(captured_piece)
+                captured_piece.IsCaptured = True
+                captured_piece.x = p1_captured_pieces_surface.get_width()//2 - piece.w/2
+                self.orange_pieces_count -= 1
+                captured_piece.y = (p1_captured_pieces_rect.bottom - piece.h) - (len(self.orange_captured) * piece.h)
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
-            if piece != 0:
-                if piece.color == PLAYER_ONE:
-                    self.blue_pieces_count -= 1 
-                else:
-                    self.orange_pieces_count -= 1
+        # for piece in pieces:
+        #     self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
+        #     if piece != 0:
+        #         if piece.color == PLAYER_ONE:
+        #             self.blue_pieces_count -= 1 
+        #         else:
+        #             self.orange_pieces_count -= 1
 
     def get_valid_moves(self, piece, type="both"):
         moves = {}

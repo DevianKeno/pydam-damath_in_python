@@ -124,7 +124,8 @@ class Game:
                 else:
                     operations.append(self.board.piece_landed(row, col))
                 self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
-                self.board.remove(skipped)
+                
+                self.board.move_to_graveyard(skipped)
             else:
                 MOVE_SOUND.play()
 
@@ -136,7 +137,7 @@ class Game:
             return False
         self.selected = None
         return True
-
+        
     def draw_valid_moves(self, moves):
         if self.selected:
             color = YELLOW

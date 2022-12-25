@@ -1,6 +1,6 @@
 import pygame
 from .constants import *
-from objects import square_size
+from objects import square_size, p1_captured_pieces_surface, p2_captured_pieces_surface
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
 from ui_class.image import Image
 
@@ -18,6 +18,7 @@ class Piece(Image):
         self.IsKing = False
         self.IsOnPromotion = False
         self.HasSkipped = False
+        self.IsCaptured = False
         self.x = 0
         self.y = 0
         self.w = square_size * 0.874
@@ -60,14 +61,29 @@ class Piece(Image):
     #     surface.blit(self.text_surface, self.text_rect) 
 
     def display(self):
-        if not self.IsKing:
-            self.surface.blit(self.image, (self.x, self.y))
+        if self.IsCaptured:
+            if self.color == PLAYER_ONE:
+                if self.IsKing:
+                    p2_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
+                    self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
+                else:
+                    p2_captured_pieces_surface.blit(self.image, (self.x, self.y))
+            else:
+                if self.IsKing:
+                    p1_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
+                    self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
+                else:
+                    p1_captured_pieces_surface.blit(self.image, (self.x, self.y))
+            self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
+            self.surface.blit(self.text_surface, self.text_rect)
         else:
-            self.surface.blit(self.image_king, (self.x, self.y))
-            self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
-
-        self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
-        self.surface.blit(self.text_surface, self.text_rect) 
+            if not self.IsKing:
+                self.surface.blit(self.image, (self.x, self.y))
+            else:
+                self.surface.blit(self.image_king, (self.x, self.y))
+                self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
+            self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
+            self.surface.blit(self.text_surface, self.text_rect) 
 
 
     def move(self, row, col):

@@ -961,7 +961,13 @@ def start_game():
 
         # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
-
+        
+        # Render capture pieces
+        board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
+        board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
+        p1_captured_pieces_surface.fill(PERSIMMON_ORANGE)
+        p2_captured_pieces_surface.fill(DARK_GRAY_BLUE)
+        
         # Display side bar elements
         mini_title.display()
 
