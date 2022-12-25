@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, LIME, WHITE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
+from .constants import *
 from audio_constants import *
 from ui_class.tween import *
 from objects import square_size
@@ -18,10 +18,10 @@ class Game:
         self.selected = None
         self.board = Board(self.surface, self.theme)
         self.moveable_pieces = list(self.board.moveables)
-        self.scoreboard = scoreboard
-        self.RequiresCapture = False
-        self.turn = RED
         self.valid_moves = {}
+        self.RequiresCapture = False
+        self.turn = PLAYER_ONE
+        self.scoreboard = scoreboard
 
     def update(self):
         if self.board.anim:
@@ -29,7 +29,9 @@ class Game:
         self.board.draw_contents(self.surface)
         self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
-        self.scoreboard.update(self.turn)
+        self.board.draw_captured_chips(self.surface)
+        self.scoreboard.draw_scores()
+        self.scoreboard.draw_turn_indicator(self.turn)
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update() 
     
@@ -146,22 +148,22 @@ class Game:
                     pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
 
     def change_turn(self):
-        print("Changed turns")
         self.moved_piece = None
         self.valid_moves = {}
 
-        if self.turn == RED:
-            self.turn = LIGHT_BLUE
+        if self.turn == PLAYER_ONE:
+            self.turn = PLAYER_TWO
         else:
-            self.turn = RED
+            self.turn = PLAYER_ONE
+
+        print(f"Changed turns: Now {self.turn}")
 
         if MANDATORY_CAPTURE:
             self.moveable_pieces.clear()
             self.moveable_pieces = self.check_for_captures()
 
     def check_for_captures(self):
-        print(self.board.moveables)
-        print(f"Checking for possible captures for {self.turn}")
+        print(f"[Check]: Checking for possible captures for {self.turn}...")
         red_count = self.board.red_left + self.board.red_kings
         blue_count = self.board.white_left + self.board.white_kings
         moveables = []
@@ -177,7 +179,7 @@ class Game:
 
                     if self.board.get_valid_moves(piece, "capture"):
                         if self.board.has_possible_capture(piece):
-                            print(f"Possible capture by {row}, {col}")
+                            print(f"[Check]: Possible capture by {row}, {col}")
                             moveables.append((piece.row, piece.col))
                             capturing_pieces += 1
 

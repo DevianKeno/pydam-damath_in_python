@@ -19,6 +19,8 @@ RED_PIECE_KING = pygame.image.load('assets\piece_red_king.png').convert_alpha()
 
 # --------- x --------- 
 
+SCOREBOARD_SCORE_AREA = pygame.image.load('new_assets\scoreboard\score_area.png').convert_alpha()
+
 SCOREBOARD_RED = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_RED.png'), (250, 250))
 SCOREBOARD_BLUE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_BLUE.png'), (250, 250))
 SCOREBOARD_RED_ACTIVE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_RED_ACTIVE.png'), (250, 250))

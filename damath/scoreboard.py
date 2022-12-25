@@ -1,54 +1,53 @@
-from .constants import LIGHT_BLUE, RED, WHITE, BLACK, DARKER_BLUE, DARKER_RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, SCOREBOARD_COLOR, SCOREBOARD_ALPHA
-from assets import SCOREBOARD_BLUE, SCOREBOARD_RED, SCOREBOARD_BLUE_ACTIVE, SCOREBOARD_RED_ACTIVE
+"""
+Scoreboard class.
+"""
+
 import pygame, operator
+from .constants import *
+from ui_class.colors import DARK_GRAY_BLUE
 from ui_class.fade import fade
-from display_constants import SIDE_MENU_COLOR, BG_COLOR
+from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
+
 
 class Scoreboard:
 
-    TXT_OFFSET = 10
-
     def __init__(self, surface):
-        self.width = SCOREBOARD_WIDTH   
-        self.height = SCOREBOARD_HEIGHT
         self.surface = surface
+        # self.width = SCOREBOARD_WIDTH   
+        # self.height = SCOREBOARD_HEIGHT
 
-        self.player1_score = 0 #red
-        self.player2_score = 0 #blue
+        self.p1_score = 0 # Blue
+        self.p2_score = 0 # Orange
 
-        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', 54)
+        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(scoreboard_p1_score_area.w*0.24))
 
-    def draw(self):
-        
-        self.surface.fill(SIDE_MENU_COLOR)
-        pygame.draw.rect(self.surface, BG_COLOR, (0, 18, self.width, self.height//2-35), border_radius=8)
-        pygame.draw.rect(self.surface, BG_COLOR, (0, SCOREBOARD_HEIGHT//2+18, self.width, self.height//2-36), border_radius=8)
+    def draw_scores(self):
+        """
+        Displays the scores.
+        """
+        scoreboard_p1_score_area.display()
+        self.text_p1_score = self.font.render(str(round(self.p1_score, 1)), True, DARK_GRAY_BLUE)
+        self.p1_score_pos = (scoreboard_p1_score_area.x + scoreboard_p1_score_area.w//2,
+                             scoreboard_p1_score_area.y + scoreboard_p1_score_area.h//2)
+        self.p1_score_rect = self.text_p1_score.get_rect(center=self.p1_score_pos)
 
-    def update(self, turn):
+        self.surface.blit(self.text_p1_score, self.p1_score_rect)
 
-        blue_box = pygame.Rect((0, 18, self.width, self.height//2-35)) 
-        red_box = pygame.Rect((0, SCOREBOARD_HEIGHT//2+18, self.width, self.height//2-36))
+        scoreboard_p2_score_area.display()
+        self.text_p2_score = self.font.render(str(round(self.p2_score, 1)), True, DARK_GRAY_BLUE)
+        self.p2_score_pos = (scoreboard_p2_score_area.x + scoreboard_p2_score_area.w//2,
+                             scoreboard_p2_score_area.y + scoreboard_p2_score_area.h//2)
+        self.p2_score_rect = self.text_p2_score.get_rect(center=self.p2_score_pos)
+        self.surface.blit(self.text_p2_score, self.p2_score_rect)
 
-        if turn == RED: 
-
-            p1_score_surface = self.font.render(str(round(self.player1_score, 1)), True, SIDE_MENU_COLOR) #FFFFFF
-            p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
-            self.surface.blit(p1_score_surface, p1_score_rect) 
-
-            p2_score_surface = self.font.render(str(round(self.player2_score, 1)), True, SIDE_MENU_COLOR) #FFFFFF
-            p2_score_rect = p2_score_surface.get_rect(center=red_box.center)
-            self.surface.blit(p2_score_surface, p2_score_rect)
-
+    def draw_turn_indicator(self, turn):
+        """
+        Displays the turn indicator chips.
+        """
+        if turn == PLAYER_ONE:
+            scoreboard_p1_chip.display()
         else:
-
-            p2_score_surface = self.font.render(str(round(self.player2_score, 1)), True, SIDE_MENU_COLOR) #FFFFFF
-            p2_score_rect = p2_score_surface.get_rect(center=red_box.center)
-            self.surface.blit(p2_score_surface, p2_score_rect)
-
-            p1_score_surface = self.font.render(str(round(self.player1_score, 1)), True, SIDE_MENU_COLOR) #FFFFFF
-            p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
-            self.surface.blit(p1_score_surface, p1_score_rect) 
-        
+            scoreboard_p2_chip.display()
 
     def score_update(self, color, piece, numbers, operations):
         result = 0
@@ -72,17 +71,19 @@ class Scoreboard:
                     
             print("+", result)
 
-        if color == RED:
-            self.player1_score += result
+        if color == PLAYER_ONE:
+            self.p1_score += result
+            round(self.p1_score, 1)
         else:
-            self.player2_score += result
+            self.p2_score += result
+            round(self.p2_score, 1)
 
-        print(f'Player 1: {self.player1_score}\n' \
-                f'Player 2: {self.player2_score}')       
+        print(f'[Score]: {PLAYER_ONE}: {self.p1_score}\n' \
+              f'[Score]: {PLAYER_TWO}: {self.p2_score}')       
 
     def score(self):
-        return self.player1_score, self.player2_score
+        return self.p1_score, self.p2_score
 
     def reset(self):
-        self.player1_score = 0 #red
-        self.player2_score = 0 #blue
+        self.p1_score = 0 # Blue
+        self.p2_score = 0 # Orange

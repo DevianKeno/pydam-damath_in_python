@@ -2,7 +2,7 @@ import pygame
 from .constants import *
 from objects import square_size
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
-from ui_class.title import Image
+from ui_class.image import Image
 
 class Piece(Image):
 
@@ -24,14 +24,14 @@ class Piece(Image):
         self.h = square_size
         self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
 
-        if self.color == RED:
-            self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
-            self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
-            self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
-        else:
+        if self.color == PLAYER_ONE:
             self.text_surface = self.font.render(str(number), True, DARK_BLUE)
             self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
+        else:
+            self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
+            self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
+            self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
 
         super().__init__(self.image, self.surface, (self.x, self.y), (self.w, self.h))
         self.calc_pos()
@@ -66,7 +66,7 @@ class Piece(Image):
             self.surface.blit(self.image_king, (self.x, self.y))
             self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
 
-        self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.45))
+        self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
         self.surface.blit(self.text_surface, self.text_rect) 
 
 

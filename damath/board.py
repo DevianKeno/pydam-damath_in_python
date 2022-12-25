@@ -1,6 +1,6 @@
 import pygame
 from .piece import Piece
-from .constants import WHITE, BROWN, RED, ROWS, COLS, LIGHT_BLUE
+from .constants import *
 from assets import BOARD
 from audio_constants import *
 from display_constants import BG_COLOR
@@ -16,6 +16,7 @@ class Board:
         self.moveables = []
         self.red_left = self.white_left = 12
         self.red_kings = self.white_kings = 0
+        self.red_captures = self.white_captures = []
         self.init_chips(self.surface)
         self.theme = theme
         self.anim = None
@@ -78,23 +79,21 @@ class Board:
             for col in range(COLS):
                 if col % 2 == ((row) % 2):
                     if row < 3:                  
-                        self.board[row].append(Piece(surface, row, col, LIGHT_BLUE, num[num_counter]))
+                        self.board[row].append(Piece(surface, row, col, PLAYER_TWO, num[num_counter]))
                         self.moveables.append((row, col))
                         if num_counter < 11:
                             num_counter+=1
                     elif row > 4:
-                        self.board[row].append(Piece(surface, row, col, RED, num[num_counter]))
+                        self.board[row].append(Piece(surface, row, col, PLAYER_ONE, num[num_counter]))
                         self.moveables.append((row, col))
                         num_counter-=1
                     else:
                         self.board[row].append(Piece(surface, row, col, 0, 0))
                 else:
                     self.board[row].append(Piece(surface, row, col, 0, 0))
-            
-        print("done init")
 
     def move(self, piece, row, col, number):
-        print(f"Piece {piece.color} moved: {piece.row}(x:{piece.x}), {piece.col}(y:{piece.y}) -> {row}, {col}")
+        print(f"[Piece moved]: {piece.color}: ({piece.row}, {piece.col}) -> ({row}, {col})")
 
         _piece = self.board[piece.row][piece.col]
         _piece_dest = self.board[row][col]
@@ -112,12 +111,12 @@ class Board:
 
 
         if row == ROWS - 1:
-            if piece.color == LIGHT_BLUE:
+            if piece.color == PLAYER_TWO:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.white_kings += 1
         elif row == 0:
-            if piece.color == RED:
+            if piece.color == PLAYER_ONE:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.red_kings += 1
@@ -148,6 +147,13 @@ class Board:
                 if piece.color != 0:
                     piece.display()
 
+    def draw_captured_chips(self, surface):
+        for chip in self.red_captures:
+            break
+        for chip in self.white_captures:
+            break 
+        pass
+
     def remove(self, pieces):
         for piece in pieces:
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
@@ -167,7 +173,7 @@ class Board:
         if piece.HasPossibleCapture:
             piece.can_capture(False)
 
-        if piece.color == RED:
+        if piece.color == PLAYER_ONE:
             # Up    
             moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type))
             moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type))
@@ -215,12 +221,11 @@ class Board:
                     else:
                         if next_enemy_piece >= 2:
                             break
-                        print("Piece can capture")
                         piece.can_capture()
                         moves[(r, left)] = can_capture
 
                 # Check if the backward movement is for capturing
-                if piece.color == RED:
+                if piece.color == PLAYER_ONE:
                     if direction == 1: # Down
                         # Piece can capture, allow movement
                         if can_capture:
@@ -246,7 +251,6 @@ class Board:
                     if next_enemy_piece >= 2:
                         break
                     if can_capture:
-                        print("Piece can capture")
                         piece.can_capture(bool=True)
                         moves_capture[(r, left)] = can_capture
                     else:
@@ -256,7 +260,6 @@ class Board:
                         break
                     
                 if can_capture:
-                    print("Piece can capture")
                     piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass
@@ -315,7 +318,7 @@ class Board:
                         moves[(r, right)] = can_capture + skipped
                         
                 # Checks for backward movement
-                if piece.color == RED:
+                if piece.color == PLAYER_ONE:
                     if direction == 1:
                         if can_capture:
                             pass
@@ -338,7 +341,6 @@ class Board:
                     if next_enemy_piece >= 2:
                         break
                     if can_capture:
-                        print("Piece can capture")
                         piece.can_capture(bool=True)
                         moves_capture[(r, right)] = can_capture
                     else:
@@ -349,7 +351,6 @@ class Board:
 
                 # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
-                    print("Piece can capture")
                     piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass

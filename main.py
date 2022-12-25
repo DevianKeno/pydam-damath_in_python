@@ -1,19 +1,23 @@
+# 
+# Damath
+# 
+
 import pygame, sys, random
-import pytweening as twn
-from display_constants import *
-from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
-from ui_class.title import *
-from ui_class.button import Button, ButtonList
-from ui_class.fade import *
-from ui_class.tween import *
-from damath.constants import *
 from damath.game import Game
 from damath.piece import Piece
 from damath.scoreboard import Scoreboard
-from ui_class.themes_option import Themes, ThemesList
-from audio_constants import * 
-from ui_class.main_menu import *
+from display_constants import *
+from ui_class.button import Button, ButtonList
+from ui_class.colors import *
+from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
+from ui_class.fade import *
 from ui_class.fade_anim import Fade
+from ui_class.main_menu import *
+from ui_class.themes_option import Themes, ThemesList
+from ui_class.image import *
+from ui_class.tween import *
+from damath.constants import *
+from audio_constants import * 
 from objects import *
 from assets import *
 
@@ -43,10 +47,6 @@ def get_row_col_from_mouse(pos):
     x, y = pos
     row = (y-selection_guide_rect.h) // square_size
     col = (x-selection_guide_rect.w) // square_size
-    print(f"{chips_surface.get_width()}, {chips_surface.get_height()}")
-    print(square_size)
-    print(pygame.mouse.get_pos())
-    print(f"board: {row}, {col}")
     return row, col
 
 def anim_dim():
@@ -252,10 +252,8 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
                             SCREEN_HEIGHT//2-board_surface.get_height()//2,
                             BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
 
-scoreboard_surface  = pygame.Surface((SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT))
-scoreboard_rect     = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
-scoreboard          = Scoreboard(scoreboard_surface)
 
+scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, scoreboard, BOARD_DEFAULT_THEME)  
 
 if chip_animation:
@@ -375,7 +373,7 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 
 # --------- fade screen object ---------
 screen_copy = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-fade_screen = Fade(screen, screen_copy, pygame.Color(BG_COLOR), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25.5)
+fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25.5)
 
 # --------- main function ---------
 
@@ -397,13 +395,13 @@ def main_menu():
 
     while True:
         
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
         mx, my = pygame.mouse.get_pos() # gets the curent mouse position
 
         display_side_menu(main_menu, mx, my)
 
         screen.blit(title_surface, (SIDE_MENU_RECT_CURRENT.width, 0))
-        title_surface.fill(BG_COLOR)
+        title_surface.fill(OAR_BLUE)
 
         # pygame.draw.rect(screen, BLACK, TEST_side_menu)
         title.display()
@@ -525,7 +523,7 @@ def display_side_menu(func_called, mx, my):
 
     side_menu_is_hovered = False
     screen.blit(side_menu_surface, (0, 0))
-    side_menu_surface.fill(BG_COLOR)
+    side_menu_surface.fill(OAR_BLUE)
     screen.blit(LOGO, (SIDE_MENU_RECT_CURRENT.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
 
     if not side_menu_is_hovered:  
@@ -544,7 +542,7 @@ def display_side_menu(func_called, mx, my):
         else:
             side_menu_anim.reverse_play()
             side_menu_is_hovered = False
-            side_menu_surface.fill(SIDE_MENU_COLOR)
+            side_menu_surface.fill(DARK_GRAY_BLUE)
 
     fade_screen.change_pos((SIDE_MENU_RECT_CURRENT.width, 0))
 
@@ -567,7 +565,7 @@ def select_mode():
 
     while running:
     
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
         mx, my = pygame.mouse.get_pos()
         display_side_menu(select_mode, mx, my)
         btn_list_obj.hover_check(mx, my)
@@ -600,7 +598,7 @@ def online_menu():
     
     while running:
 
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
         display_side_menu(online_menu, mx, my)
@@ -627,7 +625,7 @@ def help_menu():
     running = True
     
     while running:
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
         display_side_menu(help_menu, mx, my)
@@ -654,7 +652,7 @@ def options_menu():
     running = True
     
     while running:
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
         display_side_menu(options_menu, mx, my)
@@ -683,7 +681,7 @@ def pause():
     pause_play_trans = False
 
     while paused:
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
         screen.blit(TITLE_BG, (0, 0))
 
         if chip_animation:
@@ -769,9 +767,9 @@ def start_game():
         change_volume(SOUND_VOLUME)
 
         #screen.blit(CLEAR_BG, (0, 0)) 
-        screen.fill(BG_COLOR)    
+        screen.fill(OAR_BLUE)    
         screen.blit(side_menu_surface, (0, 0))
-        side_menu_surface.fill(SIDE_MENU_COLOR)      
+        side_menu_surface.fill(DARK_GRAY_BLUE)      
 
         if game.winner() != None:
             print(game.winner()) 
@@ -953,23 +951,29 @@ def start_game():
 
 
         screen.blit(game_side_surface, (0, 0))
-        game_side_surface.fill(SIDE_MENU_COLOR)
+        game_side_surface.fill(DARK_GRAY_BLUE)
+        
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
-        board_area_surface.fill(BG_COLOR)
+        board_area_surface.fill(OAR_BLUE)
 
         damath_board.display()
-        # # Renders chips
+
+        # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
 
-        # screen.blit(board_theme_surface, (board_theme_rect.x, board_theme_rect.y))
-        # board_theme_surface.blit(BOARD_BLACK, (0, 0))
-        screen.blit(font.render("Scores", True, BG_COLOR), (side_menu_surface.get_width()//2, 0))
-        # screen.blit(board_surface, (board_rect.x, board_rect.y)) 
-        screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
-        # return_btn.display_image() 
-        scoreboard.draw()
+        # Display side bar elements
+        mini_title.display()
+
+        screen.blit(text_scores,
+                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
+
+        # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
+        # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
+        # scoreboard.draw()
         # game.board.update_theme(themes.list[themes.focused].board)
         # transition_out.play() 
+
+        # return_btn.display_image() 
         game.update()
         pygame.display.update()
         clock.tick(FPS)
@@ -982,7 +986,7 @@ def themes_menu(who_called_me=None):
 
     while running:
 
-        screen.fill(BG_COLOR)
+        screen.fill(OAR_BLUE)
         screen.blit(CLEAR_BG, (0, 0))
 
         for idx, theme in enumerate(themes.list):
