@@ -956,7 +956,7 @@ def start_game():
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(OAR_BLUE)
 
-        damath_board_shadow.display()
+        # damath_board_shadow.display()
         damath_board.display()
 
         # Renders chips
@@ -965,8 +965,8 @@ def start_game():
         # Render capture pieces
         board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
         board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
-        p1_captured_pieces_surface.fill(PERSIMMON_ORANGE)
-        p2_captured_pieces_surface.fill(DARK_GRAY_BLUE)
+        p1_captured_pieces_surface.fill(OAR_BLUE)
+        p2_captured_pieces_surface.fill(OAR_BLUE)
         
         # Display side bar elements
         mini_title.display()

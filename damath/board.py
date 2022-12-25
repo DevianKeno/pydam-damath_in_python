@@ -17,7 +17,8 @@ class Board:
         self.moveables = []
         self.blue_pieces_count = self.orange_pieces_count = 12
         self.blue_kings = self.orange_kings = 0
-        self.blue_captured = self.orange_captured = []
+        self.blue_captured = []
+        self.orange_captured = []
         self.init_chips(self.surface)
         self.theme = theme
         self.anim = None
@@ -169,26 +170,19 @@ class Board:
         for piece in pieces:
             if piece.color == PLAYER_ONE: #Blue
                 captured_piece = Piece(p2_captured_pieces_surface, 0, 0, piece.color, piece.number)
-                self.blue_captured.append(captured_piece)
                 captured_piece.IsCaptured = True
+                self.blue_captured.append(captured_piece)
                 captured_piece.x = p2_captured_pieces_surface.get_width()//2 - piece.w/2
+                captured_piece.y = (p2_captured_pieces_rect.top - piece.h) + (len(self.blue_captured) * piece.h)
                 self.blue_pieces_count -= 1
-                captured_piece.y = (p2_captured_pieces_rect.top) + (len(self.blue_captured) * piece.h)
             else:
                 captured_piece = Piece(p1_captured_pieces_surface, 0, 0, piece.color, piece.number)
-                self.orange_captured.append(captured_piece)
                 captured_piece.IsCaptured = True
+                self.orange_captured.append(captured_piece)
                 captured_piece.x = p1_captured_pieces_surface.get_width()//2 - piece.w/2
-                self.orange_pieces_count -= 1
                 captured_piece.y = (p1_captured_pieces_rect.bottom - piece.h) - (len(self.orange_captured) * piece.h)
+                self.orange_pieces_count -= 1
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
-        # for piece in pieces:
-        #     self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
-        #     if piece != 0:
-        #         if piece.color == PLAYER_ONE:
-        #             self.blue_pieces_count -= 1 
-        #         else:
-        #             self.orange_pieces_count -= 1
 
     def get_valid_moves(self, piece, type="both"):
         moves = {}
