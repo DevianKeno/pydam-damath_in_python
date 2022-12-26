@@ -931,7 +931,7 @@ def start_game():
                         if pygame.mouse.get_pressed()[2]: #removes the piece
                             drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                             piece = [game.board.get_piece(drow, dcol)]
-                            game.board.remove(piece)
+                            game.board.move_to_graveyard(piece)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0]:

@@ -51,15 +51,6 @@ class Piece(Image):
     def can_capture(self, bool=True):
         self.HasPossibleCapture = bool
 
-    # def draw(self, surface, number, color):
-    #     if not self.IsKing:
-    #         surface.blit(self.image, (self.x, self.y))
-    #     else:
-    #         surface.blit(self.image_king, (self.x, self.y))
-
-    #     self.text_rect = self.text_surface.get_rect(center=(self.x, self.y))
-    #     surface.blit(self.text_surface, self.text_rect) 
-
     def display(self):
         if self.IsCaptured:
             if self.color == PLAYER_ONE:

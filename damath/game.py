@@ -26,10 +26,11 @@ class Game:
     def update(self):
         if self.board.anim:
             self.board.anim.update()
+        if self.board.anim_capture:
+            self.board.anim_capture.update()
         self.board.draw_contents(self.surface)
         self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
-        self.board.draw_captured_chips(self.surface)
         self.scoreboard.draw_scores()
         self.scoreboard.draw_turn_indicator(self.turn)
         self.draw_valid_moves(self.valid_moves)
@@ -131,6 +132,7 @@ class Game:
 
             if not self.board.piece_had_skipped(self.selected, row, col):
                 self.board.piece_skipped(self.selected, row, col, bool=False)
+                self.board.check_for_kings(self.selected)
                 self.change_turn()
         else:
             self.selected = None

@@ -22,6 +22,7 @@ class Board:
         self.init_chips(self.surface)
         self.theme = theme
         self.anim = None
+        self.anim_capture = None
 
     def update_theme(self, theme):
         self.theme = theme
@@ -113,20 +114,25 @@ class Board:
         
         piece.move(row, col)
 
-        if row == ROWS - 1:
-            if piece.color == PLAYER_TWO:
+    def check_for_kings(self, piece):
+        if piece.color == PLAYER_ONE:
+            if piece.row == 0:
                 if piece.IsKing:
                     return
-                piece.make_king()
-                CAPTURE_SOUND.play()
-                self.orange_kings += 1
-        elif row == 0:
-            if piece.color == PLAYER_ONE:
-                if piece.IsKing:
+                if piece.HasPossibleCapture:
                     return
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.blue_kings += 1
+        else:
+            if piece.row == 7:
+                if piece.IsKing:
+                    return
+                if piece.HasPossibleCapture:
+                    return
+                piece.make_king()
+                CAPTURE_SOUND.play()
+                self.orange_kings += 1
     
     def piece_skipped(self, piece, row, col, bool):
         piece.HasSkipped = bool
@@ -156,19 +162,13 @@ class Board:
         
         for piece in self.blue_captured:
             piece.display()
+
         for piece in self.orange_captured:
             piece.display()
 
-    def draw_captured_chips(self, surface):
-        for chip in self.blue_captured:
-            break
-        for chip in self.orange_captured:
-            break 
-        pass
-
     def move_to_graveyard(self, pieces):
         for piece in pieces:
-            if piece.color == PLAYER_ONE: #Blue
+            if piece.color == PLAYER_ONE: # Blue
                 captured_piece = Piece(p2_captured_pieces_surface, 0, 0, piece.color, piece.number)
                 if piece.IsKing:
                     captured_piece.IsKing = True
