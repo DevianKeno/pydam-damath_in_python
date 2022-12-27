@@ -2,10 +2,12 @@
 # Damath
 # 
 
-import pygame, sys, random
+import pygame, sys, random, threading
 from damath.game import Game
 from damath.piece import Piece
 from damath.scoreboard import Scoreboard
+from damath.constants import *
+from damath.timer import *
 from display_constants import *
 from ui_class.button import Button, ButtonList
 from ui_class.colors import *
@@ -16,7 +18,6 @@ from ui_class.main_menu import *
 from ui_class.themes_option import Themes, ThemesList
 from ui_class.image import *
 from ui_class.tween import *
-from damath.constants import *
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -752,20 +753,36 @@ def pause():
         pygame.display.update()
         clock.tick(FPS)
 
+def timer_thread():
+
+     while start_game_running:
+        print(int(turn_timer.endtime - turn_timer.currenttime))
+        turn_timer.start_timer()
+
+        if turn_timer.starttime_started:
+            if turn_timer.remaining_time >= 0:
+                turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
+            else:
+                game.change_turn()
+
+TIMERTHREAD = threading.Thread(target=timer_thread)
+
 # --------- start game function ---------
 # (when Start button is pressed)
-def start_game():
 
+def start_game():
+    
     pygame.mixer.music.stop()
     full_trans_reset()
-    running = True
-
+    global start_game_running
+    start_game_running = True
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
     
-    while running:
+    TIMERTHREAD.start() # starts the timer thread
+
+    while start_game_running:
 
         change_volume(SOUND_VOLUME)
-
         #screen.blit(CLEAR_BG, (0, 0)) 
         screen.fill(OAR_BLUE)    
         screen.blit(side_menu_surface, (0, 0))
@@ -773,7 +790,7 @@ def start_game():
 
         if game.winner() != None:
             print(game.winner()) 
-            running = False
+            start_game_running = False
             game_ends()
 
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
@@ -784,6 +801,7 @@ def start_game():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                start_game_running = False
                 pygame.quit()
                 sys.exit()
 

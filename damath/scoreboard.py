@@ -7,7 +7,7 @@ from .constants import *
 from ui_class.colors import DARK_GRAY_BLUE
 from ui_class.fade import fade
 from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
-
+from .timer import *
 
 class Scoreboard:
 
@@ -44,10 +44,17 @@ class Scoreboard:
         """
         Displays the turn indicator chips.
         """
+        remtime = int(turn_timer.get_remaining_time())
+        timerfont = pygame.font.Font('font\CookieRun_Bold.ttf', int(scoreboard_p1_chip.w//2.5))
+        
         if turn == PLAYER_ONE:
             scoreboard_p1_chip.display()
+            timer_text = timerfont.render(str(remtime), True, (DARK_GRAY_BLUE))
+            self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
             scoreboard_p2_chip.display()
+            timer_text = timerfont.render(str(remtime), True, (PERSIMMON_ORANGE))
+            self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
 
     def score_update(self, color, piece, numbers, operations):
         result = 0
@@ -67,8 +74,7 @@ class Scoreboard:
                         piece.done_promote()
                     else:
                         result *= 2.
-                    
-                    
+                
             print("+", result)
 
         if color == PLAYER_ONE:

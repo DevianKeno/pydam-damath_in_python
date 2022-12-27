@@ -1,6 +1,7 @@
 import pygame
 from .board import Board
 from .constants import *
+from .timer import *
 from audio_constants import *
 from ui_class.tween import *
 from objects import square_size
@@ -159,6 +160,7 @@ class Game:
         else:
             self.turn = PLAYER_ONE
 
+        turn_timer.reset()
         print(f"Changed turns: Now {self.turn}")
 
         if MANDATORY_CAPTURE:
