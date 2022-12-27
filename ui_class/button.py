@@ -79,6 +79,20 @@ class Button:
         self.text_surface = font.render(self.text, True, self.text_color) #FFFFFF
         self.text_rect = self.text_surface.get_rect(center=self.top_rect.center)      
 
+    def draw(self):
+        """
+        Calls the render() function to render the text,
+        and draws the rectangle Object in the window
+        (Shows the rectangle and text in the screen)
+        """
+        self.render()
+        pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=8)
+        pygame.draw.circle(self.screen, 'white', self.top_big_circle, self.radius)
+        pygame.draw.circle(self.screen, 'white', self.top_small_circle,self.radius//2)
+        pygame.draw.circle(self.screen, 'white', self.bottom_big_circle, self.radius)
+        pygame.draw.circle(self.screen, 'white', self.bottom_small_circle, self.radius//2)
+        self.screen.blit(self.text_surface, self.text_rect)
+
     def mdraw(self): #clicked btn position
         """
         Calls the render() function to render the text,

@@ -15,6 +15,10 @@ class Game:
     def __init__(self, surface, scoreboard, theme):
         self.surface = surface
         self.theme = theme
+
+        self.scoreboard = scoreboard
+
+    def _init(self):
         self.moved_piece = None
         self.selected = None
         self.board = Board(self.surface, self.theme)
@@ -22,7 +26,6 @@ class Game:
         self.valid_moves = {}
         self.RequiresCapture = False
         self.turn = PLAYER_ONE
-        self.scoreboard = scoreboard
 
     def update(self):
         if self.board.anim:
@@ -64,8 +67,9 @@ class Game:
 
     def reset(self):
         self.scoreboard.reset()
-        # self._init()
-
+        self._init()
+        turn_timer.reset()
+        
     def select(self, row, col):
         if self.selected:
             result = self._move(row, col)

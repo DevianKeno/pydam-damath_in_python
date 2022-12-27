@@ -70,6 +70,10 @@ class Piece(Image):
         else:
             if not self.IsKing:
                 self.surface.blit(self.image, (self.x, self.y))
+                if self.color == PLAYER_ONE:
+                    self.text_surface = self.font.render(str(self.number), True, DARK_BLUE)
+                else:
+                    self.text_surface = self.font.render(str(self.number), True, DARK_ORANGE)
             else:
                 self.surface.blit(self.image_king, (self.x, self.y))
                 self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)

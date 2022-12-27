@@ -28,8 +28,8 @@ class Board:
         self.theme = theme
 
     def init_symbols(self, surface):
-        surface.fill(WHITE)
-        surface.set_colorkey(WHITE)
+        surface.fill('#B9BABB')
+        surface.set_colorkey('#B9BABB')
         SYMBOLS_ONE = ["x", "-", "x", "-"]
         SYMBOLS_TWO = ["÷", "+", "÷", "+"]
         symbol_counter = 0

@@ -755,8 +755,12 @@ def pause():
 
 def timer_thread():
 
-     while start_game_running:
-        print(int(turn_timer.endtime - turn_timer.currenttime))
+    global thread_running
+
+    thread_running = True
+
+    while thread_running:
+        #print(int(turn_timer.endtime - turn_timer.currenttime))
         turn_timer.start_timer()
 
         if turn_timer.starttime_started:
@@ -767,20 +771,27 @@ def timer_thread():
 
 TIMERTHREAD = threading.Thread(target=timer_thread)
 
+thread_started = False
+start_game_running = True
+thread_running = True
+
 # --------- start game function ---------
 # (when Start button is pressed)
 
 def start_game():
-    
+
+    global start_game_running, thread_running, thread_started
+    start_game_running = True
+
     pygame.mixer.music.stop()
     full_trans_reset()
-    global start_game_running
-    start_game_running = True
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
-    
-    TIMERTHREAD.start() # starts the timer thread
 
     while start_game_running:
+        print(threading.active_count())
+        if not thread_started:
+            TIMERTHREAD.start() # starts the timer thread
+            thread_started = True
 
         change_volume(SOUND_VOLUME)
         #screen.blit(CLEAR_BG, (0, 0)) 
@@ -802,6 +813,7 @@ def start_game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 start_game_running = False
+                thread_running = False
                 pygame.quit()
                 sys.exit()
 
@@ -919,31 +931,31 @@ def start_game():
                         if _keys[pygame.K_1]: # game resets
                             game.reset()
                         if _keys[pygame.K_2]: # blue wins
-                            game.scoreboard.player1_score = 1
-                            game.scoreboard.player2_score = 0
-                            game.board.red_left = 0
+                            game.scoreboard.p1_score = 1
+                            game.scoreboard.p2_score = 0
+                            game.board.orange_pieces_count = 0
                         if _keys[pygame.K_3]: # red wins
-                            game.scoreboard.player1_score = 0
-                            game.scoreboard.player2_score = 1
-                            game.board.red_left = 0
+                            game.scoreboard.p1_score = 0
+                            game.scoreboard.p2_score = 1
+                            game.board.blue_pieces_count = 0
                         if _keys[pygame.K_4]: # make all pieces king
                             for i in range(8):
                                 for j in range(8):
-                                    game.board.board[i][j].king = True
+                                    game.board.board[i][j].IsKing = True
                         if _keys[pygame.K_5]: # make all pieces not king
                             for i in range(8):
                                 for j in range(8):
-                                    game.board.board[i][j].king = False   
+                                    game.board.board[i][j].IsKing = False   
                         if _keys[pygame.K_6]: # removes all pieces
                             for i in range(8):
                                 for j in range(8):
-                                    game.board.board[i][j] = Piece(i, j, 0, 0)
+                                    game.board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
                         if _keys[pygame.K_7]: # displays a single chip in both ends
                             for i in range(8):
                                 for j in range(8):
-                                    game.board.board[i][j] = Piece(i, j, 0, 0)
-                            game.board.board[0][1] = Piece(0, 1, LIGHT_BLUE, 2)   
-                            game.board.board[7][6] = Piece(7, 6, RED, 2)  
+                                    game.board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
+                            game.board.board[0][2] = Piece(chips_surface, 0, 2, PLAYER_TWO, 2)   
+                            game.board.board[7][7] = Piece(chips_surface, 7, 7, PLAYER_ONE, 2)  
                             game.board.red_left = 1
                             game.board.white_left = 1
                         if pygame.mouse.get_pressed()[2]: #removes the piece
@@ -966,7 +978,6 @@ def start_game():
                                 INVALID_SOUND.play()
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
-
 
         screen.blit(game_side_surface, (0, 0))
         game_side_surface.fill(DARK_GRAY_BLUE)
@@ -1149,12 +1160,14 @@ def game_ends():
                 if transition_in.get_finished():
                     pygame.mixer.music.stop()
                     game.reset()
+                    running = False
                     start_game()
             
             if back_to_menu_transition_in:
                 transition_in.play()
                 if transition_in.get_finished():
                     pygame.mixer.music.stop()
+                    running = False
                     main_menu()
 
             WINNER.reset()
