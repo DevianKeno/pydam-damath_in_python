@@ -21,6 +21,7 @@ from ui_class.tween import *
 from audio_constants import * 
 from objects import *
 from assets import *
+from options import *
 
 # --------- initialization ---------
 pygame.init()
@@ -41,7 +42,6 @@ SOUND_VOLUME = 0.8
 
 clock = pygame.time.Clock()
 font  = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))    
-CHEAT_CODES = True
 
 # --------- piece move function ---------
 def get_row_col_from_mouse(pos):
@@ -769,7 +769,6 @@ def timer_thread():
             else:
                 game.change_turn()
         
-
 TIMERTHREAD = threading.Thread(target=timer_thread)
 
 thread_started = False
@@ -790,9 +789,10 @@ def start_game():
 
     while start_game_running:
 
-        if not thread_started:
-            TIMERTHREAD.start() # starts the timer thread
-            thread_started = True
+        if TIMER:
+            if not thread_started:
+                TIMERTHREAD.start() # starts the timer thread
+                thread_started = True
 
         change_volume(SOUND_VOLUME)
         #screen.blit(CLEAR_BG, (0, 0)) 
@@ -823,7 +823,7 @@ def start_game():
                     pause()
                     break
             # cheat codes
-                if CHEAT_CODES:
+                if CHEATS:
                     _keys = pygame.key.get_pressed()
                     
                     if _keys[pygame.K_LCTRL]:

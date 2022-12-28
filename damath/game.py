@@ -5,10 +5,9 @@ from .timer import *
 from audio_constants import *
 from ui_class.tween import *
 from objects import square_size
+from options import *
 
 pygame.mixer.init()
-
-MANDATORY_CAPTURE = True
 
 class Game:
 

@@ -8,6 +8,7 @@ from ui_class.colors import DARK_GRAY_BLUE
 from ui_class.fade import fade
 from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
 from .timer import *
+from options import *
 
 class Scoreboard:
 
@@ -49,12 +50,16 @@ class Scoreboard:
         
         if turn == PLAYER_ONE:
             scoreboard_p1_chip.display()
-            timer_text = timerfont.render(str(remtime), True, (DARK_GRAY_BLUE))
-            self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
+            if TIMER:
+                if remtime > 10: timer_text = timerfont.render(str(remtime), True, (DARK_GRAY_BLUE))
+                else: timer_text = timerfont.render(str(remtime), True, (RED))
+                self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
             scoreboard_p2_chip.display()
-            timer_text = timerfont.render(str(remtime), True, (PERSIMMON_ORANGE))
-            self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
+            if TIMER:
+                if remtime > 10: timer_text = timerfont.render(str(remtime), True, (PERSIMMON_ORANGE))
+                else: timer_text = timerfont.render(str(remtime), True, (RED))
+                self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
 
     def score_update(self, color, piece, numbers, operations):
         result = 0

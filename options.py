@@ -2,9 +2,6 @@
 Game options.
 """
 
-
-
-
-
 MANDATORY_CAPTURE = True
-CHEATS = False
+CHEATS = True
+TIMER = True
