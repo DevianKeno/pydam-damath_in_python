@@ -2,7 +2,7 @@
 Scoreboard class.
 """
 
-import pygame, operator
+import pygame, operator, math
 from .constants import *
 from ui_class.colors import DARK_GRAY_BLUE
 from ui_class.fade import fade
@@ -44,7 +44,7 @@ class Scoreboard:
         """
         Displays the turn indicator chips.
         """
-        remtime = int(turn_timer.get_remaining_time())
+        remtime = math.ceil(turn_timer.get_remaining_time())
         timerfont = pygame.font.Font('font\CookieRun_Bold.ttf', int(scoreboard_p1_chip.w//2.5))
         
         if turn == PLAYER_ONE:

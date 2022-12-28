@@ -758,17 +758,17 @@ def timer_thread():
     global thread_running
 
     thread_running = True
-
+    
     while thread_running:
-        #print(int(turn_timer.endtime - turn_timer.currenttime))
+        time.sleep(0.1)
+        #print(turn_timer.remaining_time)
         turn_timer.start_timer()
-
         if turn_timer.starttime_started:
             if turn_timer.remaining_time >= 0:
                 turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
             else:
                 game.change_turn()
-        time.sleep(0.5)
+        
 
 TIMERTHREAD = threading.Thread(target=timer_thread)
 
@@ -789,7 +789,7 @@ def start_game():
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
 
     while start_game_running:
-        print(threading.active_count())
+
         if not thread_started:
             TIMERTHREAD.start() # starts the timer thread
             thread_started = True
