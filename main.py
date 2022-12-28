@@ -768,6 +768,7 @@ def timer_thread():
                 turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
             else:
                 game.change_turn()
+        time.sleep(0.5)
 
 TIMERTHREAD = threading.Thread(target=timer_thread)
 
