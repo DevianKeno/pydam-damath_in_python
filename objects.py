@@ -1,9 +1,10 @@
 import pygame
-from assets import BOARD, BOARD_SHADOW, SCOREBOARD_SCORE_AREA, BLUE_PIECE, ORANGE_PIECE
+from assets import *
 from display_constants import *
 from ui_class.colors import *
 from ui_class.image import Image
 from ui_class.tween import *
+from ui_class.window import Window
 
 
 # --------- Fonts --------- 
@@ -70,3 +71,15 @@ scoreboard_p2_chip = Image(ORANGE_PIECE, game_side_surface,
                            (game_side_surface.get_width()*0.213, game_side_surface.get_height()*0.13))
 
 # scoreboard_rect     = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
+
+cheats_window_blue = Window(CHEAT_WINDOW_BLUE, screen,
+                            (0, 0),
+                            (screen.get_width()*0.097, screen.get_height()*0.096))
+cheats_window_orange = Window(CHEAT_WINDOW_ORANGE, screen,
+                              (0, 0),
+                              (screen.get_width()*0.097, screen.get_height()*0.096))
+
+icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))

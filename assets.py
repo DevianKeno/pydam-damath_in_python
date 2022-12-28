@@ -27,6 +27,17 @@ SCOREBOARD_BLUE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBO
 SCOREBOARD_RED_ACTIVE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_RED_ACTIVE.png'), (250, 250))
 SCOREBOARD_BLUE_ACTIVE = pygame.transform.smoothscale(pygame.image.load('assets\SCOREBOARD_BLUE_ACTIVE.png'), (250, 250))
 
+# --------- Cheats GUI --------- 
+
+CHEAT_WINDOW_BLUE = pygame.image.load('new_assets\cheats_window_blue.png').convert_alpha()
+CHEAT_WINDOW_ORANGE = pygame.image.load('new_assets\cheats_window_orange.png').convert_alpha()
+
+# Icons
+ICON_ADD = pygame.image.load('new_assets\icons\icon_add_piece.png').convert_alpha()
+ICON_REMOVE = pygame.image.load('new_assets\icons\icon_remove.png').convert_alpha()
+ICON_PROMOTE = pygame.image.load('new_assets\icons\icon_promote.png').convert_alpha()
+ICON_DEMOTE = pygame.image.load('new_assets\icons\icon_demote.png').convert_alpha()
+
 # --------- x --------- 
 
 # BOARD_1 = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))

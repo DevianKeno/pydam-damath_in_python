@@ -3,6 +3,8 @@
 # 
 
 import pygame, sys, random, threading
+from damath.board import Board
+from damath.cheats import Cheats
 from damath.game import Game
 from damath.piece import Piece
 from damath.scoreboard import Scoreboard
@@ -254,8 +256,10 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
                             BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
 
 
+board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
-game = Game(chips_surface, scoreboard, BOARD_DEFAULT_THEME)  
+cheats = Cheats(screen, board)
+game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)  
 
 if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -811,6 +815,35 @@ def start_game():
         else:
             return_btn.reset()
 
+        screen.blit(game_side_surface, (0, 0))
+        game_side_surface.fill(DARK_GRAY_BLUE)
+        
+        screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
+        board_area_surface.fill(OAR_BLUE)
+
+        # damath_board_shadow.display()
+        damath_board.display()
+
+        # Renders chips
+        board_area_surface.blit(chips_surface, (tiles_rect))
+        
+        # Render capture pieces
+        board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
+        board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
+        p1_captured_pieces_surface.fill(OAR_BLUE)
+        p2_captured_pieces_surface.fill(OAR_BLUE)
+        
+        # Display side bar elements
+        mini_title.display()
+
+        screen.blit(text_scores,
+                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
+
+        screen.blit(text_mode,
+                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.85))
+
+        cheats.draw()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 start_game_running = False
@@ -965,8 +998,10 @@ def start_game():
                             game.board.move_to_graveyard(piece)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Left click
                 if pygame.mouse.get_pressed()[0]:
                     if board_rect.collidepoint((current_mouse_x, current_mouse_y)):
+                        cheats.ShowWindow = False
                         """
                         gets the x and y position of the mouse,
                         and get its corresponding position in the board
@@ -980,32 +1015,17 @@ def start_game():
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
-        screen.blit(game_side_surface, (0, 0))
-        game_side_surface.fill(DARK_GRAY_BLUE)
-        
-        screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
-        board_area_surface.fill(OAR_BLUE)
+                if pygame.mouse.get_pressed()[2]:
+                    # Right click
+                    pos = pygame.mouse.get_pos()
+                    row, col = get_row_col_from_mouse(pos)
+                    
+                    if game.moved_piece != None:
+                        if row != game.moved_piece.row or row != game.moved_piece.col:
+                            INVALID_SOUND.play()
 
-        # damath_board_shadow.display()
-        damath_board.display()
-
-        # Renders chips
-        board_area_surface.blit(chips_surface, (tiles_rect))
-        
-        # Render capture pieces
-        board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
-        board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
-        p1_captured_pieces_surface.fill(OAR_BLUE)
-        p2_captured_pieces_surface.fill(OAR_BLUE)
-        
-        # Display side bar elements
-        mini_title.display()
-
-        screen.blit(text_scores,
-                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
-
-        screen.blit(text_mode,
-                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.85))
+                    if (-1 < row < ROWS) and (-1 < col < COLS):
+                        cheats.show_window(pos, row, col)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

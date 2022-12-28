@@ -175,7 +175,7 @@ class Board:
                 captured_piece.IsCaptured = True
                 self.blue_captured.append(captured_piece)
                 if len(self.blue_captured) <= 9:
-                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2)
+                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - 2
                     captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h)
                 else:
                     captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - piece.w
@@ -190,10 +190,10 @@ class Board:
                 self.orange_captured.append(captured_piece)
                 if len(self.orange_captured) <= 9:
                     captured_piece.x = (p1_captured_pieces_surface.get_width() // 2) - (piece.w)
-                    captured_piece.y = (p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)
+                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5
                 else:
                     captured_piece.x = (p1_captured_pieces_surface.get_width() // 2)
-                    captured_piece.y = (p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)
+                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)) - 5
                 
                 self.orange_pieces_count -= 1
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)

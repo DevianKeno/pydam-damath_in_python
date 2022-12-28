@@ -11,16 +11,15 @@ pygame.mixer.init()
 
 class Game:
 
-    def __init__(self, surface, scoreboard, theme):
+    def __init__(self, surface, board, scoreboard, theme):
         self.surface = surface
-        self.theme = theme
-
+        self.board = board
         self.scoreboard = scoreboard
+        self.theme = theme
 
     def _init(self):
         self.moved_piece = None
         self.selected = None
-        self.board = Board(self.surface, self.theme)
         self.moveable_pieces = list(self.board.moveables)
         self.valid_moves = {}
         self.RequiresCapture = False
