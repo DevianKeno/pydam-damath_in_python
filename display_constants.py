@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 
 pygame.init()
+#pygame.display.set_mode((854, 480))
 reso = pygame.display.Info() # gets the video display information object
 
 # SCREEN_WIDTH =  reso.current_w 
@@ -36,8 +37,8 @@ if SUPPORTED_RESO.get(reso.current_w) == None or SUPPORTED_RESO.get(reso.current
     SCREEN_WIDTH = reso_keys[idx]
     SCREEN_HEIGHT = SUPPORTED_RESO.get(SCREEN_WIDTH)
 else:
-    SCREEN_WIDTH =  reso.current_h
-    SCREEN_HEIGHT =  reso.current_w
+    SCREEN_WIDTH =  reso.current_w
+    SCREEN_HEIGHT =  reso.current_h
 
 print(F'[Current Resolution]: {SCREEN_WIDTH} x {SCREEN_HEIGHT}')
 FPS = 60
