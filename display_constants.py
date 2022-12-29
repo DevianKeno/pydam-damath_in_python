@@ -1,18 +1,47 @@
 import pygame
+import numpy as np
 
 pygame.init()
-
 reso = pygame.display.Info() # gets the video display information object
 
-SCREEN_WIDTH =  reso.current_w 
-SCREEN_HEIGHT =  reso.current_h 
-# SCREEN_WIDTH =  1366
-# SCREEN_HEIGHT =  768
-# SCREEN_WIDTH =  1280
-# SCREEN_HEIGHT =  720
+# SCREEN_WIDTH =  reso.current_w 
+# SCREEN_HEIGHT =  reso.current_h 
+
+# dict for all supported resolutions in the game
+SUPPORTED_RESO = {
+    854:480,
+    1024:576,
+    1280:720,
+    1366:768,
+    1600:900,
+    1920:1080    
+}
+
+if SUPPORTED_RESO.get(reso.current_w) == None or SUPPORTED_RESO.get(reso.current_w != reso.current_h):
+    """
+    if the current resolution is not supported
+    """
+    resolutions = []
+    reso_keys = [key for key in SUPPORTED_RESO.keys()]
+    
+    # get the difference of all the supported widths and the current width
+    for key in reso_keys:
+        diff = reso.current_w - key
+        if diff > 0: resolutions.append(diff)
+        else: resolutions.append(key)
+
+    # get the least difference in the list (closest resolution lower than the current one)
+    idx = np.argmin(resolutions)
+
+    SCREEN_WIDTH = reso_keys[idx]
+    SCREEN_HEIGHT = SUPPORTED_RESO.get(SCREEN_WIDTH)
+else:
+    SCREEN_WIDTH =  reso.current_h
+    SCREEN_HEIGHT =  reso.current_w
+
+print(F'[Current Resolution]: {SCREEN_WIDTH} x {SCREEN_HEIGHT}')
 FPS = 60
-#SCREEN_WIDTH = 1080
-#SCREEN_HEIGHT = 768
+
 BG_COLOR = ('#627E9B') # lighter shade of blue
 MAIN_TXT_COLOR = ('#7697B9')
 
