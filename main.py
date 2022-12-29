@@ -373,8 +373,8 @@ fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_
 
 # --------- Sliders --------- 
 slider_color = (65, 87, 110)
-music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
-sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
+music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
+sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
 
 # --------- main function ---------
 
@@ -662,10 +662,10 @@ def options_menu():
 
         if fade_screen.finished:
             screen.blit(font.render('Options', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
-            music_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3))
-            sound_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3))
-            screen.blit(options_font.render('Music', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/6), int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
-            screen.blit(options_font.render('SFX', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/6), int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
+            music_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5))
+            sound_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5))
+            screen.blit(options_font.render('Music', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/4.65), int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
+            screen.blit(options_font.render('SFX', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/4.65), int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
 
             if not sound_slider.get_slider_state() and music_slider.get_collider().collidepoint((mx, my)):
                 music_slider.update(mx)
