@@ -1,6 +1,10 @@
 import pygame
 pygame.mixer.init()
 
+# sound volume
+SOUND_VOLUME = 1.0
+MUSIC_VOLUME = 1.0
+
 CAPTURE_SOUND = pygame.mixer.Sound('audio\capture.wav')
 INVALID_SOUND = pygame.mixer.Sound('audio\invalid.mp3')
 MOVE_SOUND = pygame.mixer.Sound('audio\move.wav')

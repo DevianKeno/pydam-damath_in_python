@@ -20,6 +20,7 @@ from ui_class.main_menu import *
 from ui_class.themes_option import Themes, ThemesList
 from ui_class.image import *
 from ui_class.tween import *
+from ui_class.slider import Slider
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -32,15 +33,10 @@ pygame.mixer.init(44100, -16, 2, 2048)
 
 # --------- defining constants / objects for screen  ---------
 
-reso = pygame.display.Info() # gets the video display information object
-
 ANIM_SPEED  = 20
 ANIM_ALPHA  = 255
 CHIP_WIDTH  = 360
 CHIP_HEIGHT = 240
-
-# sound volume
-SOUND_VOLUME = 0.8
 
 clock = pygame.time.Clock()
 font  = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))    
@@ -278,11 +274,6 @@ restart_btn       = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1
 pause_options_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-115), 5, None, text='Options', fontsize=24)
 quit_btn          = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5, None, text='Quit Game', fontsize=24)
 
-# --------- instantiating Options objects ---------
-
-# sliders
-music_slider = pygame.transform.smoothscale(BLUE_PIECE_KING, (50, 50))
-
 # --------- transition objects ---------
 # --------- instantiating Transition objects ---------
 transition_in_list = []
@@ -380,13 +371,18 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 screen_copy = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25.5)
 
+# --------- Sliders --------- 
+slider_color = (65, 87, 110)
+music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
+sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
+
 # --------- main function ---------
 
 def main_menu():
     
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.1)
+    pygame.mixer.music.set_volume(MUSIC_VOLUME)
 
     full_trans_reset()
     game.reset()
@@ -652,8 +648,10 @@ def help_menu():
 # --------- options menu function ---------
 
 def options_menu():
-
+    
+    options_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
     fade_screen.reset()
+    global MUSIC_VOLUME, SOUND_VOLUME
     running = True
     
     while running:
@@ -664,6 +662,20 @@ def options_menu():
 
         if fade_screen.finished:
             screen.blit(font.render('Options', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
+            music_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3))
+            sound_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/3))
+            screen.blit(options_font.render('Music', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/6), int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
+            screen.blit(options_font.render('SFX', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/6), int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
+
+            if not sound_slider.get_slider_state() and music_slider.get_collider().collidepoint((mx, my)):
+                music_slider.update(mx)
+                MUSIC_VOLUME = music_slider.get_value()/100
+                pygame.mixer.music.set_volume(MUSIC_VOLUME)
+
+            elif not music_slider.get_slider_state() and sound_slider.get_collider().collidepoint((mx, my)):
+                sound_slider.update(mx)
+                SOUND_VOLUME = sound_slider.get_value()/100
+                change_volume(SOUND_VOLUME)
 
         fade_screen.full_fade()  
         screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
