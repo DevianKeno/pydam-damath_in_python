@@ -254,8 +254,8 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
-cheats = Cheats(screen, board)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)  
+cheats = Cheats(screen, board)
 
 if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -1037,7 +1037,7 @@ def start_game():
                             INVALID_SOUND.play()
 
                     if (-1 < row < ROWS) and (-1 < col < COLS):
-                        cheats.show_window(pos, row, col)
+                        cheats.show_window(pos, row, col, board.board)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

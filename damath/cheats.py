@@ -1,7 +1,7 @@
 import pygame
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.piece import Piece
-from objects import font_cookie_run_reg, cheats_window_blue, cheats_window_orange, icon_add, icon_remove, icon_promote, icon_demote
+from objects import font_cookie_run_reg, cheats_window_blue, cheats_window_orange, cheats_window_blue_long, cheats_window_orange_long, icon_add, icon_remove, icon_promote, icon_demote
 from ui_class.colors import *
 
 FONT_SIZE = cheats_window_blue.h * 0.25
@@ -37,7 +37,6 @@ class Cheats:
     
     def __init__(self, surface, board):
         self.surface = surface
-        self.board = board
         self.ShowWindow = False
         self.piece = Piece(surface, 0, 0, 0, 0)
         self.pos = ()
@@ -47,15 +46,17 @@ class Cheats:
 
         self.font = pygame.font.Font('font\CookieRun_Regular.ttf', int(FONT_SIZE))
 
-    def show_window(self, pos, row, col):
+    def show_window(self, pos, row, col, board):
         self.ShowWindow = True
         self.pos = pos
-        self.piece = self.board.get_piece(row, col)
+        self.piece = board[row][col]
             
         if self.piece.color == 0:
+            self.window = cheats_window_blue_long
             self.textlist_options = ["Add Blue", "Add Orange"]
             self.icons = [icon_add, icon_add]
         else:
+            self.var = cheats_window_blue
             if not self.piece.IsKing:
                 self.textlist_options = ["Remove", "Promote"]
                 self.icons = [icon_remove, icon_promote]
@@ -75,12 +76,11 @@ class Cheats:
         self.icon_div_height = self.window_rect.h//(self.icons_count+1)
 
         if self.piece.color == 0:
-            cheats_window_blue.display(self.pos)
+            self.window.display(self.pos)
             self.textlist.draw(self.surface, self.pos)
-
             for i, icon in enumerate(self.icons):
                 icon.x = self.pos[0] + self.window_rect.w*0.08 
-                icon.y = self.pos[1] + (i+1) * self.icon_div_height - icon .h//2
+                icon.y = self.pos[1] + (i+1) * self.icon_div_height - icon.h//2
                 icon.display()
         else:
             if self.piece.color == PLAYER_ONE:
@@ -89,9 +89,8 @@ class Cheats:
 
                 for i, icon in enumerate(self.icons):
                     icon.x = self.pos[0] + self.window_rect.w*0.08 
-                    icon.y = self.pos[1] + (i+1) * self.icon_div_height - icon .h//2
+                    icon.y = self.pos[1] + (i+1) * self.icon_div_height - icon.h//2
                     icon.display()
-
             else:
                 cheats_window_orange.display(self.pos)
                 self.textlist.draw(self.surface, self.pos)

@@ -11,7 +11,7 @@ pygame.mixer.init()
 
 class Board:
     
-    def __init__(self, surface, theme):
+    def __init__(self, surface, theme=None):
         self.surface = surface
         self.board = [] #array representation of the board
         self.moveables = []

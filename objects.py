@@ -78,6 +78,14 @@ cheats_window_blue = Window(CHEAT_WINDOW_BLUE, screen,
 cheats_window_orange = Window(CHEAT_WINDOW_ORANGE, screen,
                               (0, 0),
                               (screen.get_width()*0.097, screen.get_height()*0.096))
+                              
+cheats_window_blue_long = Window(CHEAT_WINDOW_BLUE_LONG, screen,
+                            (0, 0),
+                            (screen.get_width()*0.12, screen.get_height()*0.096))
+cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
+                              (0, 0),
+                              (screen.get_width()*0.12, screen.get_height()*0.096))
+
 
 icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))

@@ -31,6 +31,8 @@ SCOREBOARD_BLUE_ACTIVE = pygame.transform.smoothscale(pygame.image.load('assets\
 
 CHEAT_WINDOW_BLUE = pygame.image.load('new_assets\cheats_window_blue.png').convert_alpha()
 CHEAT_WINDOW_ORANGE = pygame.image.load('new_assets\cheats_window_orange.png').convert_alpha()
+CHEAT_WINDOW_BLUE_LONG = pygame.image.load('new_assets\cheats_window_blue_long.png').convert_alpha()
+CHEAT_WINDOW_ORANGE_LONG = pygame.image.load('new_assets\cheats_window_orange_long.png').convert_alpha()
 
 # Icons
 ICON_ADD = pygame.image.load('new_assets\icons\icon_add_piece.png').convert_alpha()
