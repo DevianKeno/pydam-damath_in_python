@@ -20,6 +20,7 @@ class Game:
     def _init(self):
         self.moved_piece = None
         self.selected = None
+        self.board = Board(self.surface, self.theme) # for game reset
         self.moveable_pieces = list(self.board.moveables)
         self.valid_moves = {}
         self.RequiresCapture = False
@@ -96,6 +97,7 @@ class Game:
                 if not self.board.piece_had_skipped(self.selected, row, col):
                     INVALID_SOUND.play()
                     return False
+                self.board.check_for_kings(self.selected)
                 self.board.piece_skipped(self.selected, row, col, bool=False)
                 self.change_turn()
             else:
