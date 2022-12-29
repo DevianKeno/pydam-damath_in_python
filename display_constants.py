@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 
 pygame.init()
-#pygame.display.set_mode((854, 480))
+#pygame.display.set_mode((1280, 720))
 reso = pygame.display.Info() # gets the video display information object
 
 # SCREEN_WIDTH =  reso.current_w 

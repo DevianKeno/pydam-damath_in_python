@@ -20,11 +20,22 @@ class Image:
         self.surface_center = (self.surface.get_width()//2, self.surface.get_height()//2)
         
         self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
+        self.init_alpha = 255
 
-    def display(self):
+    def reset_alpha(self):
+        self.init_alpha = 255
+
+    def display(self, alpha=255):
         """
         Displays the image or updates if already displayed.
+        - alpha (optional): Sets the alpha value of the image to fade into while displaying
         """
+        self.img.set_alpha(self.init_alpha)
+        if self.init_alpha > alpha+10:
+            self.init_alpha-=10
+        elif alpha == 255:
+            self.reset_alpha()
+
         if self.anim_scale:
             self.img = pygame.transform.smoothscale(self.source, (self.w, self.h))
         if self.anim_rot:
