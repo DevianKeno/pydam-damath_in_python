@@ -845,6 +845,8 @@ def start_game(mode):
     elif mode == 'Speed':
         turn_timer.set_duration(15)
 
+    text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
+
     print(f'[MODE]: {mode}')
     global start_game_running, thread_running, thread_started
     start_game_running = True

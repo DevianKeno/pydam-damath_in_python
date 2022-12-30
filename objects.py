@@ -50,7 +50,6 @@ mini_title = Image(TITLE, game_side_surface,
                    (game_side_surface.get_width()*0.585, game_side_surface.get_height()*0.069))
 
 text_scores = font_cookie_run_bold.render("Scores", True, OAR_BLUE)
-text_mode = font_cookie_run_reg.render("Classic", True, OAR_BLUE)
 
 scoreboard_surface  = pygame.Surface((game_side_surface.get_width(), game_side_surface.get_height()))
 scoreboard_rect = scoreboard_surface.get_rect()
