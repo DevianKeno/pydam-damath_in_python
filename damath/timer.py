@@ -11,7 +11,10 @@ class Timer:
         self.endtime = 0
         self.remaining_time = duration
         self.is_running = False 
-        
+    
+    def set_duration(self, duration):
+        self.duration = duration
+
     def start_timer(self):
         if not self.starttime_started:
             self.starttime = time.time()

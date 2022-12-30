@@ -12,6 +12,7 @@ from damath.constants import *
 from damath.timer import *
 from display_constants import *
 from ui_class.button import Button, ButtonList
+from ui_class.new_btn import NButton
 from ui_class.colors import *
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from ui_class.fade import *
@@ -547,21 +548,37 @@ def display_side_menu(func_called, mx, my):
 
     fade_screen.change_pos((SIDE_MENU_RECT_CURRENT.width, 0))
 
+# --------- button collision detection function ---------
+
+def btn_collided(x, y):
+    buttons = [key for key in toggle_btn.keys()]
+
+    for btn in buttons:
+        if btn.btn_rect.collidepoint((x, y)):
+            btn.toggled = not btn.toggled
+        if btn.toggled:
+            btn.set_state('Toggled')
+            start_select_btn.set_target(btn.get_target())
+            start_select_btn.set_args(btn.get_args())
+            for rembtn in buttons:
+                if rembtn != btn and rembtn.toggled:
+                    rembtn.toggled = not rembtn.toggled
+                    rembtn.set_state('Normal')
+        else:
+            btn.set_state('Normal')
+
+    # check if there aren't any toggled buttons
+    if not any(btn.toggled for btn in buttons):
+        start_select_btn.set_target(None)
+        start_select_btn.set_args(None)
+
 # --------- select mode function ---------
 
 def select_mode():
-
     fade_screen.reset()
 
-    btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
-
-    classic_btn = Button(screen, btn_size[0], btn_size[1], ((SCREEN_WIDTH*0.85)/9.5, SCREEN_HEIGHT/2), 1, None, None, 'Classic', 28, toggle=True)
-    speed_btn   = Button(screen, btn_size[0], btn_size[1], ((((SCREEN_WIDTH*0.85)/9.5 + btn_size[0])+((SCREEN_WIDTH*0.85) - (SCREEN_WIDTH*0.85)/9.5 - btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2), 1, None, None, 'Speed', 28, toggle=True)
-    custom_btn  = Button(screen, btn_size[0], btn_size[1], (((SCREEN_WIDTH*0.85) - (SCREEN_WIDTH*0.85)/9.5 - btn_size[0]), SCREEN_HEIGHT/2), 1, None, None, 'Custom', 28, toggle=True)
-    
-    btn_list     = [classic_btn, speed_btn, custom_btn]
-    btn_list_obj = ButtonList(btn_list)
-
+    classic_btn.set_target(start_game)
+    speed_btn.set_target(start_game)
     running = True
 
     while running:
@@ -569,24 +586,51 @@ def select_mode():
         screen.fill(OAR_BLUE)
         mx, my = pygame.mouse.get_pos()
         display_side_menu(select_mode, mx, my)
-        btn_list_obj.hover_check(mx, my)
-        
+
         if fade_screen.finished:
-            screen.blit(font.render('Modes', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
-
-            if not pygame.mouse.get_pressed()[0] or not btn_list_obj.get_hvrd_status():
-                classic_btn.ddraw(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, SCREEN_HEIGHT/2)
-                speed_btn.ddraw(((SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2)
-                custom_btn.ddraw((SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - btn_size[0]), SCREEN_HEIGHT/2)
-
+            screen.blit(font.render('Modes', True, WHITE), 
+                                (SIDE_MENU_RECT_CURRENT.width + 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 
+                                SCREEN_HEIGHT/2.5))
+            classic_btn.draw((SIDE_MENU_RECT_CURRENT.width + 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
+                                SCREEN_HEIGHT/2))
+            speed_btn.draw((((SIDE_MENU_RECT_CURRENT.width + 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
+                                btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                                btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2))
+            custom_btn.draw(((SIDE_MENU_RECT_CURRENT.width + 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                                btn_size[0]), SCREEN_HEIGHT/2))
+            start_select_btn.draw(((SIDE_MENU_RECT_CURRENT.width + 
+                                SCREEN_WIDTH)/2 - btn_size[0]//2, 
+                                SCREEN_HEIGHT/1.25))
         fade_screen.full_fade()     
-        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
+        screen.blit(pygame.transform.smoothscale(TITLE, 
+                                (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), 
+                                (SIDE_MENU_RECT_CURRENT.width + 
+                                ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - 
+                                (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit() 
-        
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if event.button == 1:
+                    if start_select_btn.btn_rect.collidepoint((x, y)):
+                        try:
+                            start_select_btn.call_target()
+                        except:
+                            continue
+                    else:
+                        btn_collided(x, y)
+
         pygame.display.update()
         clock.tick(FPS)
 
@@ -794,8 +838,14 @@ thread_running = True
 # --------- start game function ---------
 # (when Start button is pressed)
 
-def start_game():
+def start_game(mode):
 
+    if mode == 'Classic':
+        turn_timer.set_duration(60)
+    elif mode == 'Speed':
+        turn_timer.set_duration(15)
+
+    print(f'[MODE]: {mode}')
     global start_game_running, thread_running, thread_started
     start_game_running = True
 
@@ -1052,7 +1102,7 @@ def start_game():
  
 # --------- themes menu function ---------
 
-def themes_menu(who_called_me=None):
+def themes_menu(caller=None):
     
     running = True
 
@@ -1091,9 +1141,9 @@ def themes_menu(who_called_me=None):
                 if event.key == pygame.K_RETURN:
                     THEME_SELECTED_SOUND.play()
                     game.board.update_theme(themes.list[themes.focused].board)
-                    if 'main' is who_called_me:
+                    if 'main' == caller:
                         main_menu()
-                    elif 'pause' is who_called_me:
+                    elif 'pause' == caller:
                         pause()                    
 
             if event.type == pygame.MOUSEBUTTONDOWN:

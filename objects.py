@@ -5,6 +5,7 @@ from ui_class.colors import *
 from ui_class.image import Image
 from ui_class.tween import *
 from ui_class.window import Window
+from ui_class.new_btn import NButton
 
 
 # --------- Fonts --------- 
@@ -91,3 +92,34 @@ icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.ge
 icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+
+# --------- Buttons  --------- 
+btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
+classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
+                        SCREEN_HEIGHT/2), btn_size[0], btn_size[1], 'Classic', args='Classic')
+speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
+                        btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                        btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
+                        btn_size[0], btn_size[1], 'Speed', args='Speed')
+custom_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                        btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
+                        btn_size[1], 'Custom', args='Custom')
+start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
+                            SCREEN_WIDTH)/2 - btn_size[0]//2,
+                            SCREEN_HEIGHT/1.25), btn_size[0],
+                            btn_size[1], 'Start', rect_color=(38, 73, 89), 
+                            hover_color=(30, 58, 71), selected_color=(30, 58, 71),
+                            shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
+                            shadow_selected_color=(16, 30, 37), border_radius=10)
+
+toggle_btn = {
+    classic_btn : False,
+    speed_btn : False,
+    custom_btn : False
+}
