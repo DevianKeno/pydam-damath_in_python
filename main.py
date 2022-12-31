@@ -625,6 +625,7 @@ def select_mode():
                 if event.button == 1:
                     if start_select_btn.btn_rect.collidepoint((x, y)):
                         try:
+                            start_select_btn.set_state('Selected')
                             start_select_btn.call_target()
                         except:
                             continue

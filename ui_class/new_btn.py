@@ -150,6 +150,9 @@ class NButton:
             if self.states['Toggled'][1] or self.states['Selected'][1] or self.states['Disabled'][1]:
                 return
 
+        if state == 'Selected':
+            self.clicked = True
+
         # if the current state is different from the next state (the passed arg)
         if self.get_state() != state:
             self.color_idx = 0
@@ -225,10 +228,15 @@ class NButton:
                                 self.btn_rect.h//2 - self.text_surface.get_height()//2),
                                 self.text_surface.get_size())
 
-        # moves the button if toggled
-        if self.toggled:
+        # moves the button if toggled or clicked and mouse pressed
+        if self.toggled or (self.clicked and pygame.mouse.get_pressed()[0]):
             self.btn_rect.move_ip(0, self.shadow_offset/1.5)
             self.text_rect.move_ip(0, self.shadow_offset/1.5)
+
+        # if clicked and the mouse button is no longer pressed
+        elif self.clicked and not pygame.mouse.get_pressed()[0]:
+            self.set_state('Normal')
+            self.clicked = False
 
         # gets the current and previous shadow and button colors
         current_color = pygame.color.Color(self.states[self.get_state()][0])
