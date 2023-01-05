@@ -2,7 +2,11 @@
 # Damath
 # 
 
-import pygame, sys, random, threading
+import pygame 
+import sys
+import random 
+import threading
+from math import ceil
 from damath.board import Board
 from damath.cheats import Cheats
 from damath.game import Game
@@ -818,6 +822,8 @@ def pause():
 def timer_thread():
 
     global thread_running
+    turn_timer.reset()
+    global_timer.reset()
 
     thread_running = True
     
@@ -825,15 +831,22 @@ def timer_thread():
         time.sleep(0.1)
         #print(turn_timer.remaining_time)
         turn_timer.start_timer()
+        global_timer.start_timer()
+        
         if turn_timer.starttime_started:
             if turn_timer.remaining_time >= 0:
                 turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
             else:
                 game.change_turn()
-        
-TIMERTHREAD = threading.Thread(target=timer_thread)
 
-thread_started = False
+        if global_timer.starttime_started:
+            if ceil(global_timer.remaining_time) >= 0:
+                global_timer.remaining_time = global_timer.endtime - global_timer.currenttime
+            else:
+                thread_running = False
+                return
+    return
+        
 start_game_running = True
 thread_running = True
 
@@ -842,37 +855,43 @@ thread_running = True
 
 def start_game(mode):
 
+    global thread_running
+
     if mode == 'Classic':
         turn_timer.set_duration(60)
+        global_timer.set_duration(1200)
     elif mode == 'Speed':
         turn_timer.set_duration(15)
+        global_timer.set_duration(300)
 
     text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
+    TIMERTHREAD = threading.Thread(target=timer_thread)
 
     print(f'[MODE]: {mode}')
-    global start_game_running, thread_running, thread_started
     start_game_running = True
 
     pygame.mixer.music.stop()
     full_trans_reset()
-    font = pygame.font.Font('font\CookieRun_Bold.ttf', 46)
 
     while start_game_running:
 
         if TIMER:
-            if not thread_started:
-                TIMERTHREAD.start() # starts the timer thread
-                thread_started = True
+            if not TIMERTHREAD.is_alive():
+                TIMERTHREAD.start() 
+
+        mins, secs = global_timer.get_remaining_time()
+        global_timer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, WHITE)
 
         change_volume(SOUND_VOLUME)
         #screen.blit(CLEAR_BG, (0, 0)) 
         screen.fill(OAR_BLUE)    
         screen.blit(side_menu_surface, (0, 0))
         side_menu_surface.fill(DARK_GRAY_BLUE)      
-
+        
         if game.winner() != None:
             print(game.winner()) 
             start_game_running = False
+            thread_running = False
             game_ends()
 
         current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
@@ -905,8 +924,11 @@ def start_game(mode):
         screen.blit(text_scores,
                     (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
 
+        screen.blit(global_timer_text,
+                    (game_side_surface.get_width()//2-global_timer_text.get_width()//2, game_side_surface.get_height()*0.825)) 
+
         screen.blit(text_mode,
-                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.85))
+                    (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
         cheats.draw()
 

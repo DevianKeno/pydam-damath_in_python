@@ -1,4 +1,5 @@
 import time
+from math import ceil
 from .constants import TIMER_DURATION
 
 class Timer:
@@ -38,3 +39,21 @@ class Timer:
 
 turn_timer = Timer(TIMER_DURATION)
 
+class GlobalTimer(Timer):
+
+    def __init__(self, duration):
+        Timer.__init__(self, duration)
+
+    def get_remaining_time(self) -> tuple:
+        """
+        Returns a tuple containing minutes and seconds
+        """
+        m, s = ceil(self.remaining_time//60), ceil(self.remaining_time%60)
+        if s == 60: 
+            s = 0
+            m = ceil(self.remaining_time//60)+1
+        return (m, s)
+
+    #TODO: implement pause and resume and connect it to the turn timer (after fixing pause menu)
+
+global_timer = GlobalTimer(5)

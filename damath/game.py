@@ -54,7 +54,7 @@ class Game:
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
     def winner(self):   
-        if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0):
+        if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
             red_score, blue_score = self.scoreboard.score()
             if red_score > blue_score:
                 return PLAYER_ONE 
@@ -67,7 +67,8 @@ class Game:
     def reset(self):
         self.scoreboard.reset()
         self._init()
-        turn_timer.reset()
+        turn_timer.stop()
+        global_timer.stop()
         
     def select(self, row, col):
         if self.selected:
