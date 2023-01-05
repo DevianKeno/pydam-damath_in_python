@@ -2,7 +2,9 @@ import pygame
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT, BG_COLOR
 
 # --------- default values ---------
-BTN_COLOR = '#6FB95A'   
+BTN_COLOR = '#628C9F'   
+BTN_HOVER_COLOR = '#7CACC2'
+BTN_PRESSED_COLOR = '#F37048'
 TXT_COLOR = 'white'
 FONTSIZE = 36
 

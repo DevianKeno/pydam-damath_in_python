@@ -1,40 +1,42 @@
 import pygame
 from .piece import Piece
-from .constants import WHITE, BROWN, RED, ROWS, COLS, SQUARE_SIZE, LIGHT_BLUE, BLACK, BOARD_BLACK
+from .constants import *
+from assets import BOARD
 from audio_constants import *
+from display_constants import BG_COLOR
+from ui_class.tween import *
+from objects import p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
 
 pygame.mixer.init()
 
 class Board:
     
-    def __init__(self, theme):
+    def __init__(self, surface, theme=None):
+        self.surface = surface
         self.board = [] #array representation of the board
         self.moveables = []
-        self.red_left = self.white_left = 12
-        self.red_kings = self.white_kings = 0
-        self.create_board()
+        self.blue_pieces_count = self.orange_pieces_count = 12
+        self.blue_kings = self.orange_kings = 0
+        self.blue_captured = []
+        self.orange_captured = []
+        self.init_chips(self.surface)
         self.theme = theme
+        self.anim = None
+        self.anim_capture = None
 
     def update_theme(self, theme):
         self.theme = theme
 
-    def draw_squares(self, surface):
-        surface.fill(BLACK)
+    def init_symbols(self, surface):
+        surface.fill('#B9BABB')
+        surface.set_colorkey('#B9BABB')
         SYMBOLS_ONE = ["x", "-", "x", "-"]
         SYMBOLS_TWO = ["÷", "+", "÷", "+"]
         symbol_counter = 0
         symbol_counter_reversed = 3
         global symbol_map
         symbol_map = {}
-
-        # for row in range(ROWS):
-
-        #     """for col in range(row % 2, ROWS, 2):
-        #         pygame.draw.rect(surface, BROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, 
-        #                          SQUARE_SIZE, SQUARE_SIZE))"""
-            
-        surface.blit(self.theme, (1, -1))
-
+        
         for col in range(COLS):
             symbol_counter = 0
             symbol_counter_reversed = 3
@@ -68,25 +70,69 @@ class Board:
                         symbol_map.update({(row+1, col):SYMBOLS_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
 
+    def init_chips(self, surface):
+        
+        num_counter = 0
+        num = [2, -5, 8, -11,
+               -7, 10, -3, 0,
+               4, -1, 6, -9]
+
+        for row in range(ROWS):
+            self.board.append([])
+            for col in range(COLS):
+                if col % 2 == ((row) % 2):
+                    if row < 3:                  
+                        self.board[row].append(Piece(surface, row, col, PLAYER_TWO, num[num_counter]))
+                        self.moveables.append((row, col))
+                        if num_counter < 11:
+                            num_counter+=1
+                    elif row > 4:
+                        self.board[row].append(Piece(surface, row, col, PLAYER_ONE, num[num_counter]))
+                        self.moveables.append((row, col))
+                        num_counter-=1
+                    else:
+                        self.board[row].append(Piece(surface, row, col, 0, 0))
+                else:
+                    self.board[row].append(Piece(surface, row, col, 0, 0))
+
     def move(self, piece, row, col, number):
-        print(f"Piece {piece.color} moved: {piece.row}, {piece.col} -> {row}, {col}")
+        print(f"[Piece moved]: {piece.color}: ({piece.row}, {piece.col}) -> ({row}, {col})")
+
+        _piece = self.board[piece.row][piece.col]
+        _piece_dest = self.board[row][col]
+        self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
+        self.anim.play()
+
+        # Swap current piece with destination
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        # Re-swap x and y variables
+        _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
+        _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
         self.moveables.append((row, col))
         del self.moveables[self.moveables.index((piece.row, piece.col))]
-
+        
         piece.move(row, col)
 
-        if row == ROWS - 1:
-            if piece.color == LIGHT_BLUE:
+    def check_for_kings(self, piece):
+        if piece.color == PLAYER_ONE:
+            if piece.row == 0:
+                if piece.IsKing:
+                    return
+                if piece.HasPossibleCapture:
+                    return
                 piece.make_king()
                 CAPTURE_SOUND.play()
-                self.white_kings += 1
-        elif row == 0:
-            if piece.color == RED:
+                self.blue_kings += 1
+        else:
+            if piece.row == 7:
+                if piece.IsKing:
+                    return
+                if piece.HasPossibleCapture:
+                    return
                 piece.make_king()
                 CAPTURE_SOUND.play()
-                self.red_kings += 1
+                self.orange_kings += 1
     
     def piece_skipped(self, piece, row, col, bool):
         piece.HasSkipped = bool
@@ -103,48 +149,54 @@ class Board:
     def get_piece(self, row, col):
         return self.board[row][col]
 
-    def create_board(self):
-        
-        num_counter = 0
-        num = [2, -5, 8, -11,
-               -7, 10, -3, 0,
-               4, -1, 6, -9]
+    def draw_contents(self, surface):
+        self.init_symbols(surface)
 
-        for row in range(ROWS):
-            self.board.append([])
-            for col in range(COLS):
-                if col % 2 == ((row) % 2):
-                    if row < 3:                  
-                        self.board[row].append(Piece(row, col, LIGHT_BLUE, num[num_counter]))
-                        self.moveables.append((row, col))
-                        if num_counter < 11:
-                            num_counter+=1
-                    elif row > 4:
-                        self.board[row].append(Piece(row, col, RED, num[num_counter]))
-                        self.moveables.append((row, col))
-                        num_counter-=1
-                    else:
-                        self.board[row].append(Piece(row, col, 0, 0))
-                else:
-                    self.board[row].append(Piece(row, col, 0, 0))
-
-    def draw(self, surface):
-        self.draw_squares(surface)
+    def draw_chips(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
 
                 if piece.color != 0:
-                    piece.draw(surface, piece.number, piece.color)
+                    piece.display()
+        
+        for piece in self.blue_captured:
+            piece.display()
 
-    def remove(self, pieces):
+        for piece in self.orange_captured:
+            piece.display()
+
+    def move_to_graveyard(self, pieces):
         for piece in pieces:
-            self.board[piece.row][piece.col] = Piece(piece.row, piece.col, 0, 0)
-            if piece != 0:
-                if piece.color == RED:
-                    self.red_left -= 1 
+            if piece.color == PLAYER_ONE: # Blue
+                captured_piece = Piece(p2_captured_pieces_surface, 0, 0, piece.color, piece.number)
+                if piece.IsKing:
+                    captured_piece.IsKing = True
+                captured_piece.IsCaptured = True
+                self.blue_captured.append(captured_piece)
+                if len(self.blue_captured) <= 9:
+                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - 2
+                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h)
                 else:
-                    self.white_left -= 1
+                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - piece.w
+                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.blue_captured) - 9) * piece.h)
+                
+                self.blue_pieces_count -= 1
+            else:
+                captured_piece = Piece(p1_captured_pieces_surface, 0, 0, piece.color, piece.number)
+                if piece.IsKing:
+                    captured_piece.IsKing = True
+                captured_piece.IsCaptured = True
+                self.orange_captured.append(captured_piece)
+                if len(self.orange_captured) <= 9:
+                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2) - (piece.w)
+                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5
+                else:
+                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2)
+                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)) - 5
+                
+                self.orange_pieces_count -= 1
+            self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
 
     def get_valid_moves(self, piece, type="both"):
         moves = {}
@@ -156,7 +208,7 @@ class Board:
         if piece.HasPossibleCapture:
             piece.can_capture(False)
 
-        if piece.color == RED:
+        if piece.color == PLAYER_ONE:
             # Up    
             moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type))
             moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type))
@@ -204,12 +256,11 @@ class Board:
                     else:
                         if next_enemy_piece >= 2:
                             break
-                        print("Piece can capture")
                         piece.can_capture()
                         moves[(r, left)] = can_capture
 
                 # Check if the backward movement is for capturing
-                if piece.color == RED:
+                if piece.color == PLAYER_ONE:
                     if direction == 1: # Down
                         # Piece can capture, allow movement
                         if can_capture:
@@ -223,7 +274,7 @@ class Board:
                         if can_capture:
                             pass
                         else:
-                            if piece.IsKing:
+                            if not piece.IsKing:
                                 break
 
                 # if skipped and not can_capture:
@@ -235,7 +286,6 @@ class Board:
                     if next_enemy_piece >= 2:
                         break
                     if can_capture:
-                        print("Piece can capture")
                         piece.can_capture(bool=True)
                         moves_capture[(r, left)] = can_capture
                     else:
@@ -245,7 +295,6 @@ class Board:
                         break
                     
                 if can_capture:
-                    print("Piece can capture")
                     piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass
@@ -304,7 +353,7 @@ class Board:
                         moves[(r, right)] = can_capture + skipped
                         
                 # Checks for backward movement
-                if piece.color == RED:
+                if piece.color == PLAYER_ONE:
                     if direction == 1:
                         if can_capture:
                             pass
@@ -327,7 +376,6 @@ class Board:
                     if next_enemy_piece >= 2:
                         break
                     if can_capture:
-                        print("Piece can capture")
                         piece.can_capture(bool=True)
                         moves_capture[(r, right)] = can_capture
                     else:
@@ -338,7 +386,6 @@ class Board:
 
                 # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
-                    print("Piece can capture")
                     piece.can_capture(bool=True)
                     if piece.IsKing:
                         pass

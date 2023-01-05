@@ -62,7 +62,7 @@ class ThemesList:
 # --------- Themes class ---------
 class Themes:
 
-    SPEED = 65
+    SPEED = 5
 
     def __init__(self, screen, theme, number):
         self.screen = screen

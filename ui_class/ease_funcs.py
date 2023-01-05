@@ -41,3 +41,7 @@ easeInOutElastic = pytween.easeInOutElastic
 easeInBounce = pytween.easeInBounce
 easeOutBounce = pytween.easeOutBounce
 easeInOutBounce = pytween.easeInOutBounce
+
+none = "none"
+clamp = "clamp"
+ping_pong = "pp"

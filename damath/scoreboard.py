@@ -1,63 +1,67 @@
-from .constants import LIGHT_BLUE, RED, WHITE, BLACK, DARKER_BLUE, DARKER_RED, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT, \
-    SCOREBOARD_BLUE, SCOREBOARD_RED, SCOREBOARD_COLOR, SCOREBOARD_ALPHA, SCOREBOARD_BLUE_ACTIVE, SCOREBOARD_RED_ACTIVE
-import pygame, operator
+"""
+Scoreboard class.
+"""
+
+import pygame, operator, math
+from .constants import *
+from ui_class.colors import DARK_GRAY_BLUE
 from ui_class.fade import fade
+from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
+from .timer import *
+from options import *
 
 class Scoreboard:
 
-    TXT_OFFSET = 10
-
     def __init__(self, surface):
-        self.width = SCOREBOARD_WIDTH
-        self.height = SCOREBOARD_HEIGHT
         self.surface = surface
+        # self.width = SCOREBOARD_WIDTH   
+        # self.height = SCOREBOARD_HEIGHT
 
-        self.player1_score = 0 #red
-        self.player2_score = 0 #blue
+        self.p1_score = 0 # Blue
+        self.p2_score = 0 # Orange
 
-    def draw(self):
+        self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(scoreboard_p1_score_area.w*0.24))
+
+    def draw_scores(self):
+        """
+        Displays the scores.
+        """
+        scoreboard_p1_score_area.display()
+        self.text_p1_score = self.font.render(str(round(self.p1_score, 1)), True, DARK_GRAY_BLUE)
+        self.p1_score_pos = (scoreboard_p1_score_area.x + scoreboard_p1_score_area.w//2,
+                             scoreboard_p1_score_area.y + scoreboard_p1_score_area.h//2)
+        self.p1_score_rect = self.text_p1_score.get_rect(center=self.p1_score_pos)
+
+        self.surface.blit(self.text_p1_score, self.p1_score_rect)
+
+        scoreboard_p2_score_area.display()
+        self.text_p2_score = self.font.render(str(round(self.p2_score, 1)), True, DARK_GRAY_BLUE)
+        self.p2_score_pos = (scoreboard_p2_score_area.x + scoreboard_p2_score_area.w//2,
+                             scoreboard_p2_score_area.y + scoreboard_p2_score_area.h//2)
+        self.p2_score_rect = self.text_p2_score.get_rect(center=self.p2_score_pos)
+        self.surface.blit(self.text_p2_score, self.p2_score_rect)
+
+    def draw_turn_indicator(self, turn):
+        """
+        Displays the turn indicator chips.
+        """
+        remtime = math.ceil(turn_timer.get_remaining_time())
+        timerfont = pygame.font.Font('font\CookieRun_Bold.ttf', int(scoreboard_p1_chip.w//2.5))
         
-        self.surface.fill(SCOREBOARD_COLOR)
-        self.surface.set_colorkey(SCOREBOARD_COLOR)
-        #pygame.draw.rect(self.surface, LIGHT_BLUE, (10, 10, self.width-20, self.height//2-10))
-        #pygame.draw.rect(self.surface, RED, (10, self.height//2+10, self.width-20, self.height//2-20))
-        self.surface.blit(SCOREBOARD_BLUE, (0, 0))
-        self.surface.blit(SCOREBOARD_RED, (0, 251))
-
-    def update(self, turn):
-
-        font = pygame.font.Font('font\CookieRun_Bold.ttf', 48)
-
-        if turn == RED: 
-            red_box = pygame.Rect((10, 10+self.TXT_OFFSET, self.width-20, self.height//2-10))
-            blue_box = pygame.Rect((10, self.height//2+30, self.width-20, self.height//2-20))  
-
-            self.surface.blit(SCOREBOARD_BLUE, (0, 0))
-            self.surface.blit(SCOREBOARD_RED_ACTIVE, (0, 251))
-
-            p1_score_surface = font.render(str(round(self.player1_score, 1)), True, RED) #FFFFFF
-            p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
-            self.surface.blit(p1_score_surface, p1_score_rect) 
-
-            p2_score_surface = font.render(str(round(self.player2_score, 1)), True, LIGHT_BLUE) #FFFFFF
-            p2_score_rect = p2_score_surface.get_rect(center=red_box.center)
-            self.surface.blit(p2_score_surface, p2_score_rect)
-
+        if turn == PLAYER_ONE:
+            scoreboard_p1_chip.display()
+            scoreboard_p2_chip.display(100)
+            if TIMER:
+                if remtime > 10: timer_text = timerfont.render(str(remtime), True, (DARK_GRAY_BLUE))
+                else: timer_text = timerfont.render(str(remtime), True, (RED))
+                self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
-            blue_box = pygame.Rect((10, self.height//2+30, self.width-20, self.height//2-20))
-            red_box = pygame.Rect((10, 10+self.TXT_OFFSET, self.width-20, self.height//2-10))  
-
-            self.surface.blit(SCOREBOARD_BLUE_ACTIVE, (0, 0))
-            self.surface.blit(SCOREBOARD_RED, (0, 251))
-
-            p2_score_surface = font.render(str(round(self.player2_score, 2)), True, LIGHT_BLUE) #FFFFFF
-            p2_score_rect = p2_score_surface.get_rect(center=red_box.center)
-            self.surface.blit(p2_score_surface, p2_score_rect)
-
-            p1_score_surface = font.render(str(round(self.player1_score, 2)), True, RED) #FFFFFF
-            p1_score_rect = p1_score_surface.get_rect(center=blue_box.center)
-            self.surface.blit(p1_score_surface, p1_score_rect) 
-        
+            scoreboard_p2_chip.display()
+            scoreboard_p1_chip.display(100)
+            if TIMER:
+                if remtime > 10: timer_text = timerfont.render(str(remtime), True, (PERSIMMON_ORANGE))
+                else: timer_text = timerfont.render(str(remtime), True, (RED))
+                self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
 
     def score_update(self, color, piece, numbers, operations):
         result = 0
@@ -77,21 +81,22 @@ class Scoreboard:
                         piece.done_promote()
                     else:
                         result *= 2.
-                    
-                    
+                
             print("+", result)
 
-        if color == RED:
-            self.player1_score += result
+        if color == PLAYER_ONE:
+            self.p1_score += result
+            round(self.p1_score, 1)
         else:
-            self.player2_score += result
+            self.p2_score += result
+            round(self.p2_score, 1)
 
-        print(f'Player 1: {self.player1_score}\n' \
-                f'Player 2: {self.player2_score}')       
+        print(f'[Score]: {PLAYER_ONE}: {self.p1_score}\n' \
+              f'[Score]: {PLAYER_TWO}: {self.p2_score}')       
 
     def score(self):
-        return self.player1_score, self.player2_score
+        return self.p1_score, self.p2_score
 
     def reset(self):
-        self.player1_score = 0 #red
-        self.player2_score = 0 #blue
+        self.p1_score = 0 # Blue
+        self.p2_score = 0 # Orange

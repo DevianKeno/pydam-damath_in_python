@@ -1,43 +1,65 @@
 import pygame
 from .board import Board
-from .constants import ROWS, COLS, RED, LIGHT_BLUE, YELLOW, WHITE, SQUARE_SIZE, OFFSET, BOARD_OFFSET, BOARD_WIDTH, BOARD_HEIGHT
+from .constants import *
+from .timer import *
 from audio_constants import *
+from ui_class.tween import *
+from objects import square_size
+from options import *
 
 pygame.mixer.init()
 
-MANDATORY_CAPTURE = True
-
 class Game:
 
-    def __init__(self, surface, scoreboard, theme):
-        self.theme = theme
-        self._init()
+    def __init__(self, surface, board, scoreboard, theme):
         self.surface = surface
+        self.board = board
         self.scoreboard = scoreboard
-
-    def update(self):
-        
-        self.board.draw(self.surface)
-        self.scoreboard.update(self.turn)
-        self.draw_valid_moves(self.valid_moves)
-        pygame.display.update() 
+        self.theme = theme
 
     def _init(self):
         self.moved_piece = None
         self.selected = None
-        self.board = Board(self.theme)
+        self.board = Board(self.surface, self.theme) # for game reset
         self.moveable_pieces = list(self.board.moveables)
-        self.RequiresCapture = False
-        self.turn = RED
         self.valid_moves = {}
+        self.RequiresCapture = False
+        self.turn = PLAYER_ONE
+
+    def update(self):
+        if self.board.anim:
+            self.board.anim.update()
+        if self.board.anim_capture:
+            self.board.anim_capture.update()
+        self.board.draw_contents(self.surface)
+        self.draw_indicators(self.surface)
+        self.board.draw_chips(self.surface)
+        self.scoreboard.draw_scores()
+        self.scoreboard.draw_turn_indicator(self.turn)
+        self.draw_valid_moves(self.valid_moves)
+        pygame.display.update() 
+    
+    def draw_indicators(self, surface):
+        if self.selected:
+            piece = self.selected
+            selected_piece_rect = pygame.Rect((piece.col*square_size, piece.row*square_size), (square_size, square_size))
+            pygame.draw.rect(surface, YELLOW, selected_piece_rect)
+        
+        if MANDATORY_CAPTURE:
+            if self.RequiresCapture:
+                for i in range(len(self.moveable_pieces)):
+                    capturing_pieces_rect = []
+                    capturing_piece_rect = pygame.Rect((self.moveable_pieces[i][1]*square_size, self.moveable_pieces[i][0]*square_size), (square_size, square_size))   
+                    capturing_pieces_rect.append(capturing_piece_rect)
+                    pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
     def winner(self):   
-        if (self.board.red_left <=0 or self.board.white_left <= 0):
+        if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
             red_score, blue_score = self.scoreboard.score()
             if red_score > blue_score:
-                return RED
+                return PLAYER_ONE 
             elif blue_score > red_score:
-                return LIGHT_BLUE
+                return PLAYER_ONE
             else:
                 return "TIE"
         return None
@@ -45,9 +67,10 @@ class Game:
     def reset(self):
         self.scoreboard.reset()
         self._init()
-
+        turn_timer.stop()
+        global_timer.stop()
+        
     def select(self, row, col):
-
         if self.selected:
             result = self._move(row, col)
             if not result:
@@ -75,6 +98,7 @@ class Game:
                 if not self.board.piece_had_skipped(self.selected, row, col):
                     INVALID_SOUND.play()
                     return False
+                self.board.check_for_kings(self.selected)
                 self.board.piece_skipped(self.selected, row, col, bool=False)
                 self.change_turn()
             else:
@@ -107,77 +131,73 @@ class Game:
                 else:
                     operations.append(self.board.piece_landed(row, col))
                 self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
-                self.board.remove(skipped)
+                
+                self.board.move_to_graveyard(skipped)
             else:
                 MOVE_SOUND.play()
 
             if not self.board.piece_had_skipped(self.selected, row, col):
                 self.board.piece_skipped(self.selected, row, col, bool=False)
+                self.board.check_for_kings(self.selected)
                 self.change_turn()
         else:
+            self.selected = None
             return False
+        self.selected = None
         return True
-    
+        
     def draw_valid_moves(self, moves):
-
         if self.selected:
-            if self.selected.color == RED:
-                circle_color = RED
-            else:
-                circle_color = LIGHT_BLUE
-
+            color = YELLOW
+            if self.RequiresCapture:
+                color = LIME
             if moves:
                 for move in moves:
                     row, col = move
-                    """alpha_circle = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-                    self.surface.blit(alpha_circle, (col * SQUARE_SIZE, row * SQUARE_SIZE))
-                    alpha_circle.set_alpha(50)
-                    alpha_circle.fill(WHITE)
-                    pygame.draw.circle(alpha_circle, YELLOW, (5, 5), 16)"""
-                    pygame.draw.circle(self.surface, circle_color, (col * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET, row * SQUARE_SIZE + SQUARE_SIZE//2+OFFSET), 16)
-                    #pygame.draw.rect(self.surface, YELLOW, (col * SQUARE_SIZE, row *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
-        else:
-            pass
+                    pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
 
     def change_turn(self):
-        print("Changed turns")
         self.moved_piece = None
         self.valid_moves = {}
-        if self.turn == RED:
-            self.turn = LIGHT_BLUE
+
+        if self.turn == PLAYER_ONE:
+            self.turn = PLAYER_TWO
         else:
-            self.turn = RED
+            self.turn = PLAYER_ONE
+
+        turn_timer.reset()
+        print(f"Changed turns: Now {self.turn}")
 
         if MANDATORY_CAPTURE:
             self.moveable_pieces.clear()
             self.moveable_pieces = self.check_for_captures()
 
     def check_for_captures(self):
-        print(self.board.moveables)
-        print(f"Checking for possible captures for {self.turn}")
-        red_count = self.board.red_left + self.board.red_kings
-        blue_count = self.board.white_left + self.board.white_kings
+        print(f"[Check]: Checking for possible captures for {self.turn}...")
+        _blue_count = self.board.blue_pieces_count + self.board.blue_kings
+        _orange_count = self.board.orange_pieces_count + self.board.orange_kings
         moveables = []
         capturing_pieces = 0
         
-        for row in range(ROWS-1):
-            if red_count == 0 or blue_count == 0:
+        for row in range(ROWS):
+            if _blue_count == 0 or _orange_count == 0:
                 break
 
-            for col in range(7):
-                if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
+            for col in range(COLS):
+                # if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
+                if self.board.board[row][col].color == self.turn:
                     piece = self.board.get_piece(row, col)
 
                     if self.board.get_valid_moves(piece, "capture"):
                         if self.board.has_possible_capture(piece):
-                            print(f"Possible capture by {row}, {col}")
+                            print(f"[Check]: Possible capture by {row}, {col}")
                             moveables.append((piece.row, piece.col))
                             capturing_pieces += 1
 
-                    if self.turn == RED:
-                        red_count -= 1
+                    if self.turn == PLAYER_ONE:
+                        _blue_count -= 1
                     else:
-                        blue_count -= 1
+                        _orange_count -= 1
 
         if capturing_pieces == 0:
             print(f"No possible captures for {self.turn}")
