@@ -557,15 +557,16 @@ def btn_collided(x, y):
         if btn.btn_rect.collidepoint((x, y)):
             btn.toggled = not btn.toggled
         if btn.toggled:
-            btn.set_state('Toggled')
+            btn.set_state(btn.Toggled)
             start_select_btn.set_target(btn.get_target())
             start_select_btn.set_args(btn.get_args())
             for rembtn in buttons:
                 if rembtn != btn and rembtn.toggled:
                     rembtn.toggled = not rembtn.toggled
-                    rembtn.set_state('Normal')
+                    rembtn.set_state(btn.Normal)
         else:
-            btn.set_state('Normal')
+            btn.set_state(btn.Normal)
+    
 
     # check if there aren't any toggled buttons
     if not any(btn.toggled for btn in buttons):
@@ -625,7 +626,7 @@ def select_mode():
                 if event.button == 1:
                     if start_select_btn.btn_rect.collidepoint((x, y)):
                         try:
-                            start_select_btn.set_state('Selected')
+                            start_select_btn.set_state(start_select_btn.Selected)
                             start_select_btn.call_target()
                         except:
                             continue

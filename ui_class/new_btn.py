@@ -6,6 +6,12 @@ args = Iterable
 
 class NButton:
 
+    Normal = 'Normal'
+    Hovered = 'Hovered'
+    Selected = 'Selected'
+    Disabled = 'Disabled'
+    Toggled = 'Toggled'
+
     def __init__(self, surface: pygame.Surface, 
                     pos: tuple, width: int, height: int, 
                     text: str, *, border_radius: int=12, 
@@ -14,7 +20,7 @@ class NButton:
                     toggled_color=(243, 112, 72), text_color=(255, 255, 255), 
                     shadow_rect_color=(38, 73, 89), shadow_hovered_color=(54, 103, 126),
                     shadow_selected_color=(54, 103, 126), shadow_disabled_color=(10, 10, 10),
-                    shadow_toggled_color=(149, 49, 30), transition_speed = 15,
+                    shadow_toggled_color=(149, 49, 30), transition_duration = 20,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
                     shadow_offset: int=0, target: Callable = None, args: Iterable=[]): 
                     """
@@ -30,7 +36,7 @@ class NButton:
                         - text_color = text color in all button states (default = (255, 255, 255))
                         - shadow colors (shadow_rect_color, shadow_hovered_color, shadow_selected_color,
                                         shadow_disabled_color, shadow_toggled_color)
-                        - transition_speed = speed of color transition (default = 15)
+                        - transition_duration = duration of color transition (default = 20)
                         - fontsize = button text size (default = (height / 1.7))
                         - fontstyle = font styled used in the text (default = Cookie Run Regular)
                         - shadow_offset = x-offset of the shadow relative to the button rect (default = height * 0.25)
@@ -61,7 +67,7 @@ class NButton:
                     self.target = target
                     self.args = args
 
-                    self.transition_speed = transition_speed
+                    self.transition_duration = transition_duration
                     self.color_idx = 0
 
                     if fontsize >= 0:
@@ -76,15 +82,15 @@ class NButton:
 
                     self.toggled = False
                     self.clicked = False
-                    self.prev_state = 'Normal'
+                    self.prev_state = self.Normal
 
                     # Dict for button states : [button color, bool, shadow color]
                     self.states = {
-                        'Normal': [self.rect_color, True, self.shadow_rect_color],
-                        'Hovered': [self.hover_color, False, self.shadow_hovered_color],
-                        'Selected': [self.selected_color, False, self.shadow_selected_color],
-                        'Disabled': [self.disabled_color, False, self.shadow_disabled_color],
-                        'Toggled': [self.toggled_color, False, self.shadow_toggled_color]
+                        self.Normal: [self.rect_color, True, self.shadow_rect_color],
+                        self.Hovered: [self.hover_color, False, self.shadow_hovered_color],
+                        self.Selected: [self.selected_color, False, self.shadow_selected_color],
+                        self.Disabled: [self.disabled_color, False, self.shadow_disabled_color],
+                        self.Toggled: [self.toggled_color, False, self.shadow_toggled_color]
                     }
 
                     # button, shadow, text rect
@@ -146,11 +152,16 @@ class NButton:
             - Toggled
         """
 
-        if state == 'Hovered':
-            if self.states['Toggled'][1] or self.states['Selected'][1] or self.states['Disabled'][1]:
+        _STATES = [self.Normal, self.Hovered, self.Selected, self.Disabled, self.Toggled]
+
+        if state not in _STATES:
+            raise ValueError(f'Invalid argument. Expected one of the following: {_STATES}')
+
+        if state == self.Hovered:
+            if self.states[self.Toggled][1] or self.states[self.Selected][1] or self.states[self.Disabled][1]:
                 return
 
-        if state == 'Selected':
+        if state == self.Selected:
             self.clicked = True
 
         # if the current state is different from the next state (the passed arg)
@@ -165,11 +176,11 @@ class NButton:
                     self.prev_state = states
                 self.states[states][1] = False
 
-    def set_speed(self, speed):
+    def set_duration(self, duration):
         """
-        Sets the color transition's speed
+        Sets the color transition's duration
         """
-        self.transition_speed = speed
+        self.transition_duration = duration
 
     def set_text(self, text: str):
         """
@@ -213,10 +224,10 @@ class NButton:
         # checks for collision (hover)
         mx, my = pygame.mouse.get_pos()
         if self.btn_rect.collidepoint((mx, my)):
-            self.set_state('Hovered')
+            self.set_state(self.Hovered)
         else:
             if not self.toggled:
-                self.set_state('Normal')
+                self.set_state(self.Normal)
 
         # changes position if a new position is passed
         if pos is not None:
@@ -235,7 +246,7 @@ class NButton:
 
         # if clicked and the mouse button is no longer pressed
         elif self.clicked and not pygame.mouse.get_pressed()[0]:
-            self.set_state('Normal')
+            self.set_state(self.Normal)
             self.clicked = False
 
         # gets the current and previous shadow and button colors
@@ -244,13 +255,13 @@ class NButton:
         current_shadow_color = pygame.color.Color(self.states[self.get_state()][2])
         prev_shadow_color = pygame.color.Color(self.states[self.get_prev_state()][2])
 
-        if self.color_idx < self.transition_speed:
+        if self.color_idx < self.transition_duration:
             self.color_idx +=1
 
         # transitioning the color from previous to current
-        fade_color = [pc + ((cc - pc)/self.transition_speed)*self.color_idx 
+        fade_color = [pc + ((cc - pc)/self.transition_duration)*self.color_idx 
                         for cc, pc in zip(current_color, prev_color)]
-        fade_shadow_color = [psc + ((csc - psc)/self.transition_speed)*self.color_idx 
+        fade_shadow_color = [psc + ((csc - psc)/self.transition_duration)*self.color_idx 
                         for csc, psc in zip(current_shadow_color, prev_shadow_color)]
         
         # draws the text, shadow rect, and the btn rect on the surface
