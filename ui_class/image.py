@@ -45,3 +45,6 @@ class Image:
             return
             
         self.surface.blit(self.img, (self.x, self.y))
+        
+    def get_rect(self):
+        return self.img.get_rect(topleft=(self.x, self.y))

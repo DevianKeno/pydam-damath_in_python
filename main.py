@@ -767,27 +767,27 @@ def pause():
                     paused = not paused
                     break
 
-        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
-        #print(current_mouse_x, current_mouse_y)
+        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
+        #print(mx, my)
       
-        if resume_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        if resume_btn.top_rect.collidepoint((mx, my)):
             resume_btn.hover_update(start_game)
             restart_btn.reset()
             pause_options_btn.reset()
             quit_btn.reset()
-        elif restart_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        elif restart_btn.top_rect.collidepoint((mx, my)):
             restart_btn.hover_update()
             pause_options_btn.reset()
             quit_btn.reset()
             if pygame.mouse.get_pressed()[0]:
                 restart_play_trans = True
                 game.reset()
-        elif pause_options_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        elif pause_options_btn.top_rect.collidepoint((mx, my)):
             pause_options_btn.hover_update(options_menu, param='pause')
             resume_btn.reset()
             restart_btn.reset()
             quit_btn.reset()
-        elif quit_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        elif quit_btn.top_rect.collidepoint((mx, my)):
             resume_btn.reset()
             restart_btn.reset()
             pause_options_btn.reset()   
@@ -893,9 +893,11 @@ def start_game(mode):
             start_game_running = False
             thread_running = False
             game_ends()
+            
+        # Get current mouse position
+        m_pos = pygame.mouse.get_pos()
 
-        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
-        if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        if return_btn.top_rect.collidepoint(m_pos):
             return_btn.hover_update(pause, _fade=False)
         else:
             return_btn.reset()
@@ -906,19 +908,19 @@ def start_game(mode):
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(OAR_BLUE)
 
-        # damath_board_shadow.display()
+        damath_board_shadow.display()
         damath_board.display()
 
         # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
         
-        # Render capture pieces
+        # Render captured pieces
         board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
         board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
         p1_captured_pieces_surface.fill(OAR_BLUE)
         p2_captured_pieces_surface.fill(OAR_BLUE)
         
-        # Display side bar elementsimage.png
+        # Display side bar elements
         mini_title.display()
 
         screen.blit(text_scores,
@@ -930,15 +932,11 @@ def start_game(mode):
         screen.blit(text_mode,
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
-        # --- TEST TEST TEST
-        # cheats_window_blue.display((0, 0))
-        test_area = pygame.Rect(0, 0, 35, 35)
-        screen.blit(cheats_window_blue.img, (500, 500), test_area)
-        # --- TEST TEST TEST
-
         cheats.draw()
 
-        # test_textlist.draw_vertical(screen, (0, 0))
+        if cheats.ShowWindow:
+            if cheats.window.get_rect().collidepoint(m_pos):
+                cheats.check_for_hover(m_pos)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1096,7 +1094,7 @@ def start_game(mode):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
                 if pygame.mouse.get_pressed()[0]:
-                    if board_rect.collidepoint((current_mouse_x, current_mouse_y)):
+                    if board_rect.collidepoint(m_pos):
                         cheats.ShowWindow = False
                         """
                         gets the x and y position of the mouse,
@@ -1108,20 +1106,26 @@ def start_game(mode):
                         if game.moved_piece != None:
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
+
                         if (-1 < row < ROWS) and (-1 < col < COLS):
                             game.select(row, col)
 
-                if pygame.mouse.get_pressed()[2]:
-                    # Right click
-                    pos = pygame.mouse.get_pos()
-                    row, col = get_row_col_from_mouse(pos)
-                    
-                    if game.moved_piece != None:
-                        if row != game.moved_piece.row or row != game.moved_piece.col:
-                            INVALID_SOUND.play()
+                        if CHEATS:
+                            cheats.invoke()
 
-                    if (-1 < row < ROWS) and (-1 < col < COLS):
-                        cheats.show_window(pos, row, col, board.board)
+                if CHEATS:
+                    if pygame.mouse.get_pressed()[2]:
+                        # Right click
+                        row, col = get_row_col_from_mouse(m_pos)
+                        
+                        if game.moved_piece != None:
+                            if row != game.moved_piece.row or row != game.moved_piece.col:
+                                INVALID_SOUND.play()
+                        if (-1 < row < ROWS) and (-1 < col < COLS):
+                            cheats.show_window(m_pos, row, col, board.board)
+
+
+                    
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
@@ -1153,7 +1157,7 @@ def themes_menu(caller=None):
                 red_chips[i].next_frame()
                 blue_chips[i].next_frame()
         
-        current_mouse_x, current_mouse_y = pygame.mouse.get_pos() # gets the curent mouse position
+        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
 
         themes.display()
 
@@ -1182,21 +1186,21 @@ def themes_menu(caller=None):
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if themes.focused < len(themes.rect_list)-1:
-                    if themes.rect_list[themes.focused+1].collidepoint((current_mouse_x, current_mouse_y)):
+                    if themes.rect_list[themes.focused+1].collidepoint((mx, my)):
                         if pygame.mouse.get_pressed()[0]:
                             themes.move('left')
                 if themes.focused > 0:
-                    if themes.rect_list[themes.focused-1].collidepoint((current_mouse_x, current_mouse_y)):
+                    if themes.rect_list[themes.focused-1].collidepoint((mx, my)):
                         if pygame.mouse.get_pressed()[0]:
                             themes.move('right')
 
-        # if return_btn.top_rect.collidepoint((current_mouse_x, current_mouse_y)):
+        # if return_btn.top_rect.collidepoint((mx, my)):
         #     if 'main' is who_called_me:
         #         return_btn.hover_update(main_menu)
         #     elif 'pause' is who_called_me:
         #         return_btn.hover_update(start_game)
 
-        # elif themes.rect_list[themes.focused].collidepoint((current_mouse_x, current_mouse_y)):
+        # elif themes.rect_list[themes.focused].collidepoint((mx, my)):
         #     return_btn.reset()
         #     if pygame.mouse.get_pressed()[0]:
         #         THEME_SELECTED_SOUND.play()

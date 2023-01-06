@@ -129,6 +129,6 @@ test_list = ["Add Blue", "Add Orange"]
 test_list_icons = [icon_add, icon_remove, icon_promote, icon_demote]
 
 test_font = pygame.font.Font('font\CookieRun_Regular.ttf', 132)
-test_textlist = TextList(test_font, WHITE, test_list, test_list_icons, padding=5, icon_padding=10)
+test_textlist = TextList(test_font, WHITE, test_list, test_list_icons, spacing=20, icon_spacing=10)
 
 # test_winlist = WindowList(screen, (0, 0), (500, 500), test_textlist)
