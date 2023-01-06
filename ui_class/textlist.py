@@ -37,13 +37,14 @@ class TextList:
         """
         Called when the list is first shown.
         """
-
-        x = pos[0]
+        if self.HasIcons:
+            if self.icon_list[0]:
+                x = pos[0] + self.padding
         y = pos[1] + self.padding
 
         for i in range(self.items_count):
             textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
-            textlist_item_rect = textlist_item_surface.get_rect(center=(x, y), width=window.w*0.8)
+            textlist_item_rect = textlist_item_surface.get_rect(topleft=(x, y), width=window.w-(self.padding*2))
             self.text_rects.append(textlist_item_rect)
 
             if self.IsVertical:

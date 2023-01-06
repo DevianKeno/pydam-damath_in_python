@@ -48,7 +48,7 @@ class Cheats:
             else:
                 self.window = cheats_window_orange
         
-        self.text_list = TextList(font_cookie_run_reg, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=10)
+        self.text_list = TextList(font_cookie_run_reg, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=20)
         self.text_list.generate_rects(pos, self.window)
 
     def draw(self):
