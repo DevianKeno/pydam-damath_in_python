@@ -260,7 +260,7 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)  
-cheats = Cheats(screen, board)
+cheats = Cheats(screen)
 
 if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -426,7 +426,7 @@ def main_menu():
             # Debug
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    start_game()
+                    start_game('Classic')
                     break
 
         anim_title_breathe.update()
@@ -918,7 +918,7 @@ def start_game(mode):
         p1_captured_pieces_surface.fill(OAR_BLUE)
         p2_captured_pieces_surface.fill(OAR_BLUE)
         
-        # Display side bar elements
+        # Display side bar elementsimage.png
         mini_title.display()
 
         screen.blit(text_scores,
@@ -930,7 +930,15 @@ def start_game(mode):
         screen.blit(text_mode,
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
+        # --- TEST TEST TEST
+        # cheats_window_blue.display((0, 0))
+        test_area = pygame.Rect(0, 0, 35, 35)
+        screen.blit(cheats_window_blue.img, (500, 500), test_area)
+        # --- TEST TEST TEST
+
         cheats.draw()
+
+        # test_textlist.draw_vertical(screen, (0, 0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

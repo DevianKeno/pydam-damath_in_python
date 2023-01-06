@@ -35,7 +35,7 @@ class Cheats:
     Cheats.
     """
     
-    def __init__(self, surface, board):
+    def __init__(self, surface):
         self.surface = surface
         self.ShowWindow = False
         self.piece = Piece(surface, 0, 0, 0, 0)

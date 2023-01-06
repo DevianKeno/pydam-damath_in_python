@@ -3,6 +3,7 @@ from assets import *
 from display_constants import *
 from ui_class.colors import *
 from ui_class.image import Image
+from ui_class.textlist import TextList
 from ui_class.tween import *
 from ui_class.window import Window
 from ui_class.new_btn import NButton
@@ -86,12 +87,6 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
                               (0, 0),
                               (screen.get_width()*0.12, screen.get_height()*0.096))
 
-
-icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
-icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
-icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
-icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
-
 # --------- Buttons  --------- 
 btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
@@ -122,3 +117,18 @@ toggle_btn = {
     speed_btn : False,
     custom_btn : False
 }
+
+# --------- Text Lists  --------- 
+
+icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+
+test_list = ["Add Blue", "Add Orange"]
+test_list_icons = [icon_add, icon_remove, icon_promote, icon_demote]
+
+test_font = pygame.font.Font('font\CookieRun_Regular.ttf', 132)
+test_textlist = TextList(test_font, WHITE, test_list, test_list_icons, padding=5, icon_padding=10)
+
+# test_winlist = WindowList(screen, (0, 0), (500, 500), test_textlist)
