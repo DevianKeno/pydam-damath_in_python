@@ -33,7 +33,7 @@ class Cheats:
     def show_window(self, pos, row, col, board):
         self.ShowWindow = True
         self.pos = pos
-        self.piece = board[row][col]
+        self.piece = self.game.board.board[row][col]
         self.row, self.col = row, col
             
         if self.piece.color == 0:
