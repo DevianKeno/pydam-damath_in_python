@@ -208,13 +208,6 @@ menu_fontsize         = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
 mainmenu_opt_gap      = menu_fontsize * 2.1
 side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
-selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
-
-play_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
-online_menu_text  = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Online', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Online!'])
-help_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Help', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Start learning Damath!'])
-options_menu_text = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Options', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
-exit_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Exit', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Quit the Game :<'])
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
@@ -348,19 +341,16 @@ def full_trans_reset():
     transition_in.reset()
     transition_out.reset()
 
-def full_trans_is_finished():
-    return (transition_in.get_finished() and transition_out.get_finished())
-
 # --------- Main Menu --------- 
 
 title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
               (title_surface.get_width()*0.942, title_surface.get_height()*0.261))
 
+anim_title_up = Move(title, (title.x, SCREEN_HEIGHT//10), 1, ease_type=easeInOutSine)
 anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
-side_menu_anim = SideMenuAnim(side_menu_surface, SIDE_MENU_RECT_CURRENT, SIDE_MENU_RECT_ACTIVE)
 
 # --------- Side menu rect tweenable --------- 
 TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
@@ -374,16 +364,15 @@ back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, Non
 
 # --------- fade screen object ---------
 screen_copy = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25.5)
+fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25)
 
 # --------- Sliders --------- 
 slider_color = (65, 87, 110)
 music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
 sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
 
+# --------- Sidebar objects --------- 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
-
-# --------- main function ---------
 
 def main_menu():
     
@@ -404,19 +393,13 @@ def main_menu():
     while True:
         
         screen.fill(OAR_BLUE)
-        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
-
-        #display_side_menu(main_menu, mx, my)
-
-        screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.get_rect().w)//2)+sidebar.get_rect().w-title_surface.get_width()//2, 0))
+        
+        screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
+                    sidebar.sidebar_rect.w-title_surface.get_width()//2, 0))
         title_surface.fill(OAR_BLUE)
 
-        if sidebar.get_rect().collidepoint((mx, my)):
-            sidebar.set(state=sidebar.Hovered)
-        else:
-            sidebar.set(state=sidebar.Normal)
-
         # pygame.draw.rect(screen, BLACK, TEST_side_menu)
+        sidebar_display(main_menu)
         title.display()
 
         if chip_animation:
@@ -443,120 +426,72 @@ def main_menu():
         pygame.display.update()
         clock.tick(FPS)
 
-# --------- displaying main menu buttons function ---------
+def title_up_display():
+    """
+    For moving the title img up + fade animation 
+    """
+    title_surface.fill(OAR_BLUE)
+    title_surface.set_colorkey(OAR_BLUE)
+    anim_title_up.update()
+    if anim_title_up.IsFinished:
+        fade_screen.full_fade()  
+    title.display()
+    screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
+            sidebar.sidebar_rect.w-title_surface.get_width()//2, 0))
 
-def menu_btn_display(func_called):
+added = False
+def sidebar_display(func_called):
+    global added
+    if not added:
+        sidebar.add_option(2, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
+                        target=select_mode)
+        sidebar.add_option(2, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                        text='Online', description='Play Online!', target=online_menu)
+        sidebar.add_option(2, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                        text='Help', description='Learn Damath!', target=help_menu)
+        sidebar.add_option(2, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                        text='Options', description='Adjust to your preferences!', target=options_menu)
+        sidebar.add_option(2, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                            text='Exit', description='Quit the game... :<', target=sys.exit)
+        added = True
 
-    # if side_menu_anim.is_finished or not side_menu_anim.reversed_is_playing:
-    play_menu_text.display()
-    online_menu_text.display()
-    help_menu_text.display()
-    options_menu_text.display()
-    exit_menu_text.display()    
+    target_functions = {
+        "sb_play": select_mode,
+        "sb_online": online_menu,
+        "sb_help": help_menu,
+        "sb_options": options_menu,
+        "sb_exit": sys.exit
+    }
 
-    play_target = select_mode
-    online_target = online_menu
-    help_target = help_menu
-    options_target = options_menu
-    exit_target = sys.exit
-
-    mx, my = pygame.mouse.get_pos()
-
-    if func_called == select_mode:
-        play_menu_text.select()
-        options_menu_text.unselect()
-        online_menu_text.unselect()
-        help_menu_text.unselect()
-        play_target = None
-
-    elif func_called == options_menu:
-        play_menu_text.unselect()
-        options_menu_text.select()
-        online_menu_text.unselect()
-        help_menu_text.unselect()
-        options_target = None
-
-    elif func_called == online_menu:
-        online_menu_text.select()
-        play_menu_text.unselect()
-        options_menu_text.unselect()
-        help_menu_text.unselect()
-        online_target = None
-    
-    elif func_called == help_menu:
-        help_menu_text.select()
-        online_menu_text.unselect()
-        play_menu_text.unselect()
-        options_menu_text.unselect()
-        help_target = None            
-
-    if play_menu_text.get_text_rect().collidepoint((mx, my)):
-        play_menu_text.hover_update(play_target)
-        online_menu_text.reset()
-        help_menu_text.reset()
-        options_menu_text.reset()
-        exit_menu_text.reset()
-    elif online_menu_text.get_text_rect().collidepoint((mx, my)):
-        online_menu_text.hover_update(online_target)
-        play_menu_text.reset()
-        help_menu_text.reset()
-        options_menu_text.reset()
-        exit_menu_text.reset()
-    elif help_menu_text.get_text_rect().collidepoint((mx, my)):
-        help_menu_text.hover_update(help_target)
-        play_menu_text.reset()
-        online_menu_text.reset()
-        options_menu_text.reset()
-        exit_menu_text.reset()
-    elif options_menu_text.get_text_rect().collidepoint((mx, my)):
-        options_menu_text.hover_update(options_target)
-        play_menu_text.reset()
-        online_menu_text.reset()
-        help_menu_text.reset()
-        exit_menu_text.reset()
-    elif exit_menu_text.get_text_rect().collidepoint((mx, my)):
-        exit_menu_text.hover_update(exit_target)
-        play_menu_text.reset()
-        online_menu_text.reset()
-        help_menu_text.reset()
-        options_menu_text.reset()
-    else:
-        play_menu_text.reset()
-        online_menu_text.reset()
-        help_menu_text.reset()
-        options_menu_text.reset()
-        exit_menu_text.reset()
-    # else:
-    #     side_menu_anim.display()
-
-# --------- side menu hover detection function ---------
-
-def display_side_menu(func_called, mx, my):
-
-    side_menu_is_hovered = False
-    screen.blit(side_menu_surface, (0, 0))
-    side_menu_surface.fill(OAR_BLUE)
-    screen.blit(LOGO, (SIDE_MENU_RECT_CURRENT.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
-
-    if not side_menu_is_hovered:  
-        if SIDE_MENU_RECT_CURRENT.collidepoint((mx, my)):
-            side_menu_anim.play()
-            side_menu_is_hovered = True
-            if side_menu_anim.is_finished:
-                menu_btn_display(func_called)
+    for id in target_functions.keys():
+        if target_functions[id] == func_called:
+            target_functions[id] = None
+            sidebar.get_option(id).target = None
         else:
-            side_menu_anim.reverse_play()
-    else:
-        if SIDE_MENU_RECT_CURRENT.collidepoint((mx, my)):
-            side_menu_anim.play()
-            if side_menu_anim.is_finished:
-                menu_btn_display(func_called)
-        else:
-            side_menu_anim.reverse_play()
-            side_menu_is_hovered = False
-            side_menu_surface.fill(DARK_GRAY_BLUE)
+            sidebar.get_option(id).target = target_functions[id]
 
-    fade_screen.change_pos((SIDE_MENU_RECT_CURRENT.width, 0))
+    mx, my = pygame.mouse.get_pos() # gets the curent mouse position
+    if sidebar.sidebar_rect.collidepoint((mx, my)):
+        sidebar.set(state=HOVERED)
+        for opt in sidebar.options.keys():
+            if sidebar.get_option(opt).get_rect().collidepoint((mx, my)):
+                if pygame.mouse.get_pressed()[0]:
+                    sidebar.update_options_state(opt, SELECTED)
+                    sidebar.get_option(opt).call_target()
+                else:
+                    sidebar.update_options_state(opt, HOVERED)
+            else:
+                if sidebar.get_option(opt).state != SELECTED:
+                    sidebar.update_options_state(opt, NORMAL)
+    else:
+        sidebar.set(state=NORMAL)
+    screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
+    fade_screen.change_pos((sidebar.sidebar_rect.width, 0))
 
 # --------- button collision detection function ---------
 
@@ -591,40 +526,34 @@ def select_mode():
     classic_btn.set_target(start_game)
     speed_btn.set_target(start_game)
     running = True
+    anim_title_up.play()
 
     while running:
     
         screen.fill(OAR_BLUE)
-        mx, my = pygame.mouse.get_pos()
-        display_side_menu(select_mode, mx, my)
+        sidebar_display(select_mode)
 
         if fade_screen.finished:
             screen.blit(font.render('Modes', True, WHITE), 
-                                (SIDE_MENU_RECT_CURRENT.width + 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 
+                                (sidebar.sidebar_rect.width + 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
                                 SCREEN_HEIGHT/2.5))
-            classic_btn.draw((SIDE_MENU_RECT_CURRENT.width + 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
+            classic_btn.draw((sidebar.sidebar_rect.width + 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10, 
                                 SCREEN_HEIGHT/2))
-            speed_btn.draw((((SIDE_MENU_RECT_CURRENT.width + 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
-                                btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+            speed_btn.draw((((sidebar.sidebar_rect.width + 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 + 
+                                btn_size[0])+(sidebar.sidebar_rect.width + 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
                                 btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2))
-            custom_btn.draw(((SIDE_MENU_RECT_CURRENT.width + 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
-                                (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+            custom_btn.draw(((sidebar.sidebar_rect.width + 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
                                 btn_size[0]), SCREEN_HEIGHT/2))
-            start_select_btn.draw(((SIDE_MENU_RECT_CURRENT.width + 
+            start_select_btn.draw(((sidebar.sidebar_rect.width + 
                                 SCREEN_WIDTH)/2 - btn_size[0]//2, 
                                 SCREEN_HEIGHT/1.25))
-        fade_screen.full_fade()     
-        screen.blit(pygame.transform.smoothscale(TITLE, 
-                                (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), 
-                                (SIDE_MENU_RECT_CURRENT.width + 
-                                ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - 
-                                (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -643,6 +572,7 @@ def select_mode():
                     else:
                         btn_collided(x, y)
 
+        title_up_display()
         pygame.display.update()
         clock.tick(FPS)
 
@@ -651,6 +581,7 @@ def select_mode():
 def online_menu():
 
     fade_screen.reset()
+    anim_title_up.play()
     running = True
     
     while running:
@@ -658,19 +589,20 @@ def online_menu():
         screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
-        display_side_menu(online_menu, mx, my)
+        sidebar_display(online_menu)
 
         if fade_screen.finished:
-            screen.blit(font.render('Online', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
-
-        fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
+            screen.blit(font.render('Online', True, WHITE), 
+                        (sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
+                        SCREEN_HEIGHT/2.5))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        title_up_display()
         pygame.display.update()
         clock.tick(FPS)
 
@@ -679,25 +611,27 @@ def online_menu():
 def help_menu():
 
     fade_screen.reset()
+    anim_title_up.play()
     running = True
     
     while running:
         screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
-        display_side_menu(help_menu, mx, my)
+        sidebar_display(help_menu)
 
         if fade_screen.finished:
-            screen.blit(font.render('Help', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
- 
-        fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
+            screen.blit(font.render('Help', True, WHITE), 
+                        (sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
+                        SCREEN_HEIGHT/2.5))
  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+        title_up_display()
         pygame.display.update()
         clock.tick(FPS)
 
@@ -707,6 +641,7 @@ def options_menu():
     
     options_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
     fade_screen.reset()
+    anim_title_up.play()
     global MUSIC_VOLUME, SOUND_VOLUME
     running = True
     
@@ -714,14 +649,25 @@ def options_menu():
         screen.fill(OAR_BLUE)
 
         mx, my = pygame.mouse.get_pos()
-        display_side_menu(options_menu, mx, my)
+        sidebar_display(options_menu)
 
         if fade_screen.finished:
-            screen.blit(font.render('Options', True, WHITE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, SCREEN_HEIGHT/2.5))
-            music_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5))
-            sound_slider.draw(int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5))
-            screen.blit(options_font.render('Music', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/4.65), int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
-            screen.blit(options_font.render('SFX', True, WHITE), (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/4.65), int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
+            screen.blit(font.render('Options', True, WHITE), 
+                        (sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
+                        SCREEN_HEIGHT/2.5))
+            music_slider.draw(int(sidebar.sidebar_rect.width + 
+                            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/2.5))
+            sound_slider.draw(int(sidebar.sidebar_rect.width + 
+                            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/2.5))
+            screen.blit(options_font.render('Music', True, WHITE), 
+                        (int(sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/4.65),
+                        int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
+            screen.blit(options_font.render('SFX', True, WHITE), 
+                        (int(sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/4.65), 
+                        int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
 
             if not sound_slider.get_slider_state() and music_slider.get_collider().collidepoint((mx, my)):
                 music_slider.update(mx)
@@ -732,15 +678,13 @@ def options_menu():
                 sound_slider.update(mx)
                 SOUND_VOLUME = sound_slider.get_value()/100
                 change_volume(SOUND_VOLUME)
-
-        fade_screen.full_fade()  
-        screen.blit(pygame.transform.smoothscale(TITLE, (SCREEN_WIDTH*0.602, SCREEN_HEIGHT*0.21)), (SIDE_MENU_RECT_CURRENT.width + ((SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2 - (SCREEN_WIDTH*0.602)/2), SCREEN_HEIGHT/10))  
  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-       
+
+        title_up_display()
         pygame.display.update()
         clock.tick(FPS)
 
