@@ -260,7 +260,7 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)  
-cheats = Cheats(screen)
+cheats = Cheats(screen, game)
 
 if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -908,7 +908,7 @@ def start_game(mode):
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(OAR_BLUE)
 
-        damath_board_shadow.display()
+        # damath_board_shadow.display()
         damath_board.display()
 
         # Renders chips
@@ -1094,12 +1094,8 @@ def start_game(mode):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
                 if pygame.mouse.get_pressed()[0]:
+                    
                     if board_rect.collidepoint(m_pos):
-                        cheats.ShowWindow = False
-                        """
-                        gets the x and y position of the mouse,
-                        and get its corresponding position in the board
-                        """
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
                         
@@ -1107,11 +1103,14 @@ def start_game(mode):
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
 
-                        if (-1 < row < ROWS) and (-1 < col < COLS):
-                            game.select(row, col)
-
-                        if CHEATS:
-                            cheats.invoke()
+                        if cheats.ShowWindow:
+                            if CHEATS:
+                                cheats.invoke()
+                        else:
+                            if (-1 < row < ROWS) and (-1 < col < COLS):
+                                game.select(row, col)
+                                
+                        cheats.ShowWindow = False
 
                 if CHEATS:
                     if pygame.mouse.get_pressed()[2]:

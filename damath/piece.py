@@ -45,6 +45,12 @@ class Piece(Image):
         self.IsOnPromotion = True
         self.IsKing = True
 
+    def promote(self):
+        self.IsKing = True
+
+    def demote(self):
+        self.IsKing = False
+
     def done_promote(self):
         self.IsOnPromotion = False
 
