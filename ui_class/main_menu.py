@@ -3,8 +3,8 @@ import pytweening
 from .constants import BTN_PRESSED_COLOR
 from ui_class import tween as tween
 from ui_class.ease_funcs import *
-from display_constants import SIDE_MENU_COLOR, BG_COLOR, SCREEN_WIDTH
-from damath.constants import WHITE
+from display_constants import SIDE_MENU_COLOR, SIDE_MENU_RECT_ACTIVE, SIDE_MENU_RECT_DEFAULT, FPS
+from damath.constants import WHITE, DARK_GRAY_BLUE
 
 class SideMenuAnim:
 
@@ -208,3 +208,145 @@ class MainMenu:
         self.next_anim = 0
         self.rect.update(self.x, self.y, self.width, self.height)
 
+state, status = str, str
+class Sidebar: 
+
+    dt = pygame.time.Clock().tick(FPS)/1000
+    diff = SIDE_MENU_RECT_ACTIVE.width - SIDE_MENU_RECT_DEFAULT.width
+    
+    Hovered = 'Hovered'
+    Normal = 'Normal'
+
+    Default = 'Default'
+    Animating = 'Animating'
+    Active = 'Active'
+
+    def __init__(self, surface: pygame.Surface, 
+                pos: tuple, width: float, height: float,
+                color=DARK_GRAY_BLUE, fontstyle='font\CookieRun_Regular.ttf', 
+                fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.045),
+                anim_duration: int=8):
+
+                self.surface = surface
+                self.x, self.y = pos
+                self.w, self.h = self.width, self.height = width, height
+                self.color = color
+                self.fontstyle = fontstyle
+                self.fontsize = fontsize
+
+                self.anim_duration = anim_duration
+                self.anim_idx = 0
+
+                self.current_w = width
+                self.init_w = width
+                self.options_counter = 0
+
+                self.font = pygame.font.Font(fontstyle, fontsize)
+                self._init()
+
+    def _init(self):
+
+        self._STATUS = {self.Default: True,
+            self.Animating: False,
+            self.Active: False}
+
+        self._STATES = {self.Hovered: False,
+            self.Normal: True}
+
+        self.state = self.Normal
+        self.status = self.Default
+        self.sidebar_rect = pygame.Rect(self.x, self.y, 
+                                self.w, self.h)
+        
+        self.anim_move = (self.diff/self.anim_duration)
+
+    def _draw(self, nwidth=None, nheight=None):
+        
+        if nwidth is None:
+            nwidth = self.w
+        if nheight is None:
+            nheight = self.h
+        
+        self.sidebar_rect.update(self.x, self.y, nwidth, nheight)
+        pygame.draw.rect(self.surface, self.color, self.sidebar_rect)
+
+        if self.get_status() == self.Active:
+            text = self.font.render('Play', True, WHITE)
+            self.surface.blit(text, (50, 50))
+
+    def _animate(self):
+        
+        if self.state == self.Normal:
+            if self.current_w > self.init_w:
+                self.current_w-=self.anim_move
+            if self.anim_idx > 0:
+                self.anim_idx-=1
+                self.set(status=self.Animating)
+            else:
+                self.set(status=self.Default)
+
+        else:
+            if self.current_w < (self.init_w + self.diff):
+                self.current_w+=self.anim_move
+            if self.anim_idx < self.anim_duration:
+                self.anim_idx+=1
+                self.set(status=self.Animating)
+            else:
+                self.set(status=self.Active)
+
+        self._draw(self.current_w)
+
+    def set(self, *, state=None, status=None):
+        """
+        Sets a state or a status for the sidebar
+        """
+        pass
+
+        if state is not None:
+            if state not in self._STATES.keys():
+                raise ValueError(f'Invalid State.' \
+                                f'Expected one of the following: {self._STATES}')
+
+            for key_state in self._STATES.keys():
+                if key_state != state:
+                    self._STATES[key_state] = False
+                else:
+                    self._STATES[key_state] = True
+            
+            self.state = state
+            self._animate()
+
+        if status is not None:
+            if status not in self._STATUS.keys():
+                raise ValueError(f'Invalid Status.' \
+                                    f'Expected one of the following: {self._STATUS}')
+                
+            for key_status in self._STATUS.keys():
+                if key_status != status:
+                    self._STATUS[key_status] = False
+                else:
+                    self._STATUS[key_status] = True       
+
+            self.status = status
+
+    def get_state(self) -> state:
+        """
+        Returns the current state of the sidebar
+        """
+        for key_state in self._STATES.keys():
+            if self._STATES[key_state]:
+                return key_state
+
+    def get_status(self) -> status:
+        """
+        Returns the current status of the sidebar
+        """
+        for key_status in self._STATUS.keys():
+            if self._STATUS[key_status]:
+                return key_status
+
+    def get_rect(self) -> pygame.Rect:
+        """
+        Returns the rect of the sidebar
+        """
+        return self.sidebar_rect

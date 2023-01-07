@@ -210,11 +210,11 @@ side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 selected_menu_surface = pygame.Surface((SCREEN_WIDTH*0.85, SCREEN_HEIGHT))
 
-play_menu_text    = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
-online_menu_text  = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Online', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Online!'])
-help_menu_text    = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Help', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Start learning Damath!'])
-options_menu_text = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Options', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
-exit_menu_text    = MainMenu(side_menu_surface, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Exit', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Quit the Game :<'])
+play_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Play', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Damath!'])
+online_menu_text  = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Online', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Play Online!'])
+help_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Help', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Start learning Damath!'])
+options_menu_text = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Options', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Adjust settings', 'to your preferences!'])
+exit_menu_text    = MainMenu(screen, (SIDE_MENU_RECT_ACTIVE.width/3.5, side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)), SIDE_MENU_RECT_ACTIVE.width/2.25, mainmenu_opt_gap, 'Exit', MAIN_TXT_COLOR, menu_fontsize, None, None, ['Quit the Game :<'])
 
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
@@ -381,6 +381,8 @@ slider_color = (65, 87, 110)
 music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
 sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
 
+sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
+
 # --------- main function ---------
 
 def main_menu():
@@ -404,10 +406,15 @@ def main_menu():
         screen.fill(OAR_BLUE)
         mx, my = pygame.mouse.get_pos() # gets the curent mouse position
 
-        display_side_menu(main_menu, mx, my)
+        #display_side_menu(main_menu, mx, my)
 
-        screen.blit(title_surface, (SIDE_MENU_RECT_CURRENT.width, 0))
+        screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.get_rect().w)//2)+sidebar.get_rect().w-title_surface.get_width()//2, 0))
         title_surface.fill(OAR_BLUE)
+
+        if sidebar.get_rect().collidepoint((mx, my)):
+            sidebar.set(state=sidebar.Hovered)
+        else:
+            sidebar.set(state=sidebar.Normal)
 
         # pygame.draw.rect(screen, BLACK, TEST_side_menu)
         title.display()
@@ -416,7 +423,6 @@ def main_menu():
             for i in range(len(red_chips)):
                 red_chips[i].next_frame()
                 blue_chips[i].next_frame()
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -441,87 +447,87 @@ def main_menu():
 
 def menu_btn_display(func_called):
 
-    if side_menu_anim.is_finished or not side_menu_anim.reversed_is_playing:
-        play_menu_text.display()
-        online_menu_text.display()
-        help_menu_text.display()
-        options_menu_text.display()
-        exit_menu_text.display()    
+    # if side_menu_anim.is_finished or not side_menu_anim.reversed_is_playing:
+    play_menu_text.display()
+    online_menu_text.display()
+    help_menu_text.display()
+    options_menu_text.display()
+    exit_menu_text.display()    
 
-        play_target = select_mode
-        online_target = online_menu
-        help_target = help_menu
-        options_target = options_menu
-        exit_target = sys.exit
+    play_target = select_mode
+    online_target = online_menu
+    help_target = help_menu
+    options_target = options_menu
+    exit_target = sys.exit
 
-        mx, my = pygame.mouse.get_pos()
+    mx, my = pygame.mouse.get_pos()
 
-        if func_called == select_mode:
-            play_menu_text.select()
-            options_menu_text.unselect()
-            online_menu_text.unselect()
-            help_menu_text.unselect()
-            play_target = None
+    if func_called == select_mode:
+        play_menu_text.select()
+        options_menu_text.unselect()
+        online_menu_text.unselect()
+        help_menu_text.unselect()
+        play_target = None
 
-        elif func_called == options_menu:
-            play_menu_text.unselect()
-            options_menu_text.select()
-            online_menu_text.unselect()
-            help_menu_text.unselect()
-            options_target = None
+    elif func_called == options_menu:
+        play_menu_text.unselect()
+        options_menu_text.select()
+        online_menu_text.unselect()
+        help_menu_text.unselect()
+        options_target = None
 
-        elif func_called == online_menu:
-            online_menu_text.select()
-            play_menu_text.unselect()
-            options_menu_text.unselect()
-            help_menu_text.unselect()
-            online_target = None
-        
-        elif func_called == help_menu:
-            help_menu_text.select()
-            online_menu_text.unselect()
-            play_menu_text.unselect()
-            options_menu_text.unselect()
-            help_target = None            
+    elif func_called == online_menu:
+        online_menu_text.select()
+        play_menu_text.unselect()
+        options_menu_text.unselect()
+        help_menu_text.unselect()
+        online_target = None
+    
+    elif func_called == help_menu:
+        help_menu_text.select()
+        online_menu_text.unselect()
+        play_menu_text.unselect()
+        options_menu_text.unselect()
+        help_target = None            
 
-        if play_menu_text.get_text_rect().collidepoint((mx, my)):
-            play_menu_text.hover_update(play_target)
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif online_menu_text.get_text_rect().collidepoint((mx, my)):
-            online_menu_text.hover_update(online_target)
-            play_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif help_menu_text.get_text_rect().collidepoint((mx, my)):
-            help_menu_text.hover_update(help_target)
-            play_menu_text.reset()
-            online_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
-        elif options_menu_text.get_text_rect().collidepoint((mx, my)):
-            options_menu_text.hover_update(options_target)
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            exit_menu_text.reset()
-        elif exit_menu_text.get_text_rect().collidepoint((mx, my)):
-            exit_menu_text.hover_update(exit_target)
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-        else:
-            play_menu_text.reset()
-            online_menu_text.reset()
-            help_menu_text.reset()
-            options_menu_text.reset()
-            exit_menu_text.reset()
+    if play_menu_text.get_text_rect().collidepoint((mx, my)):
+        play_menu_text.hover_update(play_target)
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif online_menu_text.get_text_rect().collidepoint((mx, my)):
+        online_menu_text.hover_update(online_target)
+        play_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif help_menu_text.get_text_rect().collidepoint((mx, my)):
+        help_menu_text.hover_update(help_target)
+        play_menu_text.reset()
+        online_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    elif options_menu_text.get_text_rect().collidepoint((mx, my)):
+        options_menu_text.hover_update(options_target)
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        exit_menu_text.reset()
+    elif exit_menu_text.get_text_rect().collidepoint((mx, my)):
+        exit_menu_text.hover_update(exit_target)
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
     else:
-        side_menu_anim.display()
+        play_menu_text.reset()
+        online_menu_text.reset()
+        help_menu_text.reset()
+        options_menu_text.reset()
+        exit_menu_text.reset()
+    # else:
+    #     side_menu_anim.display()
 
 # --------- side menu hover detection function ---------
 
