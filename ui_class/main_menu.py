@@ -90,7 +90,7 @@ class Sidebar:
         self.sidebar_rect.update(self.x, self.y, nwidth, nheight)
         pygame.draw.rect(self.surface, self.color, self.sidebar_rect)
 
-        if self.anim_idx >= self.anim_duration//2:
+        if self.anim_idx >= self.anim_duration//4:
             if self.options is not None:
                 for option in self.options.keys():
                     self.options[option].update_state(nx=self.options[option].init_x+(10*self.anim_idx))

@@ -6,11 +6,14 @@ from audio_constants import *
 from display_constants import BG_COLOR
 from ui_class.tween import *
 from objects import p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
+from options import *
 
 pygame.mixer.init()
 
 class Board:
     
+    mode = MODE
+
     def __init__(self, surface, theme=None):
         self.surface = surface
         self.board = [] #array representation of the board
@@ -19,8 +22,8 @@ class Board:
         self.blue_kings = self.orange_kings = 0
         self.blue_captured = []
         self.orange_captured = []
+        self.theme = theme    
         self.init_chips(self.surface)
-        self.theme = theme
         self.anim = None
         self.anim_capture = None
 
@@ -72,28 +75,65 @@ class Board:
 
     def init_chips(self, surface):
         
-        num_counter = 0
-        num = [2, -5, 8, -11,
-               -7, 10, -3, 0,
-               4, -1, 6, -9]
+        val_counter = 0
+        
+        match self.mode:
+            case 'Naturals':
+                num = [
+                    10, 7, 2, 5,
+                    1, 4, 11, 8, 
+                    12, 9, 6, 3
+                ]
+
+            case 'Integers':
+                num = [2, -5, 8, -11,
+                       -7, 10, -3, 0,
+                       4, -1, 6, -9]
+
+            case 'Rationals':
+                num = [
+                    '10/10', '7/10', '2/10', '5/10',
+                    '1/10', '4/10', '11/10', '8/10',
+                    '12/10', '9/10', '6/10', '3/10'
+                ]
+
+            case 'Radicals':
+                num = [
+                    '9√2', '-√8', '4√18', '16√32',
+                    '-49√8', '-25√18', '36√32', '64√2',
+                    '-121√18', '-81√32', '100√2', '144√8'
+                ]
+                
+            case 'Polynomials':
+                num = [
+                    '3x²y', '-xy²', '6x', '10y',
+                    '21xy²', '-15x', '28y', '36x²y',
+                    '-55x', '-45y', '66x²y', '78xy' 
+                ]
 
         for row in range(ROWS):
             self.board.append([])
             for col in range(COLS):
                 if col % 2 == ((row) % 2):
                     if row < 3:                  
-                        self.board[row].append(Piece(surface, row, col, PLAYER_TWO, num[num_counter]))
+                        self.board[row].append(Piece(surface, row, col, PLAYER_TWO, num[val_counter]))
                         self.moveables.append((row, col))
-                        if num_counter < 11:
-                            num_counter+=1
+                        if val_counter < 11:
+                            val_counter+=1
                     elif row > 4:
-                        self.board[row].append(Piece(surface, row, col, PLAYER_ONE, num[num_counter]))
+                        self.board[row].append(Piece(surface, row, col, PLAYER_ONE, num[val_counter]))
                         self.moveables.append((row, col))
-                        num_counter-=1
+                        val_counter-=1
                     else:
                         self.board[row].append(Piece(surface, row, col, 0, 0))
                 else:
                     self.board[row].append(Piece(surface, row, col, 0, 0))
+
+    def set_mode(self, mode):
+        self.mode = mode
+        self.board = []
+        self.init_chips(self.surface)
+        self.draw_chips(self.surface)
 
     def move(self, piece, row, col, number):
         print(f"[Piece moved]: {piece.color}: ({piece.row}, {piece.col}) -> ({row}, {col})")

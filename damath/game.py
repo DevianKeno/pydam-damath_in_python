@@ -1,5 +1,7 @@
 import pygame
 from .board import Board
+from .piece import Piece
+from .scoreboard import Scoreboard
 from .constants import *
 from .timer import *
 from audio_constants import *
@@ -25,6 +27,11 @@ class Game:
         self.valid_moves = {}
         self.RequiresCapture = False
         self.turn = PLAYER_ONE
+
+    def set_mode(self, mode):
+        Piece.mode = mode
+        Scoreboard.mode = mode
+        self.board.set_mode(mode)
 
     def update(self):
         if self.board.anim:

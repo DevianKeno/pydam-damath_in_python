@@ -3,8 +3,11 @@ from .constants import *
 from objects import square_size, p1_captured_pieces_surface, p2_captured_pieces_surface
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
 from ui_class.image import Image
+from options import *
 
 class Piece(Image):
+
+    mode = MODE
 
     def __init__(self, surface, row, col, color, number):
         self.surface = surface
@@ -26,11 +29,11 @@ class Piece(Image):
         self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
 
         if self.color == PLAYER_ONE:
-            self.text_surface = self.font.render(str(number), True, DARK_BLUE)
+            #self.text_surface = self.font.render(str(number), True, DARK_BLUE)
             self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
         else:
-            self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
+            #self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
             self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
 
@@ -58,14 +61,24 @@ class Piece(Image):
         self.HasPossibleCapture = bool
 
     def display(self):
+
+        if self.mode == 'Rationals':
+            self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.24))
+        elif self.mode == 'Radicals':
+            self.font = pygame.font.Font('font\CookieRun_Regular.ttf', int(square_size*0.15))
+        elif self.mode == 'Polynomials':
+            self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.21))
+
         if self.IsCaptured:
             if self.color == PLAYER_ONE:
+                self.text_surface = self.font.render(str(self.number), True, DARK_BLUE)
                 if self.IsKing:
                     p2_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
                 else:
                     p2_captured_pieces_surface.blit(self.image, (self.x, self.y))
             else:
+                self.text_surface = self.font.render(str(self.number), True, DARK_ORANGE)
                 if self.IsKing:
                     p1_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)

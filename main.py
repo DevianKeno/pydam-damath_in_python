@@ -249,10 +249,10 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
                             SCREEN_HEIGHT//2-board_surface.get_height()//2,
                             BOARD_WIDTH, BOARD_HEIGHT) #creating a Rect object to save the position & size of the board
 
-
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
+
 if CHEATS:
     cheats = Cheats(screen, game)
 
@@ -1042,6 +1042,18 @@ def start_game(mode):
                             drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
                             piece = [game.board.get_piece(drow, dcol)]
                             game.board.move_to_graveyard(piece)
+
+                    if _keys[pygame.K_m]:
+                        if _keys[pygame.K_0]:
+                            game.set_mode('Naturals')
+                        elif _keys[pygame.K_1]:
+                            game.set_mode('Integers')
+                        elif _keys[pygame.K_2]:
+                            game.set_mode('Rationals')
+                        elif _keys[pygame.K_3]:
+                            game.set_mode('Radicals')
+                        elif _keys[pygame.K_4]:
+                            game.set_mode('Polynomials')
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
