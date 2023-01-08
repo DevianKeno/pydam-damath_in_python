@@ -252,10 +252,11 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
-game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)  
-cheats = Cheats(screen, game)
+game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
+if CHEATS:
+    cheats = Cheats(screen, game)
 
-if chip_animation:
+if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
     big_red_chip  = SpinningChip(screen, 'red')
 
@@ -882,11 +883,12 @@ def start_game(mode):
         screen.blit(text_mode,
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
-        cheats.draw()
+        if CHEATS:
+            cheats.draw()
 
-        if cheats.ShowWindow:
-            if cheats.window.get_rect().collidepoint(m_pos):
-                cheats.check_for_hover(m_pos)
+            if cheats.ShowWindow:
+                if cheats.window.get_rect().collidepoint(m_pos):
+                    cheats.check_for_hover(m_pos, cheats.window.get_rect())
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1055,7 +1057,8 @@ def start_game(mode):
 
                         if cheats.ShowWindow:
                             if CHEATS:
-                                cheats.invoke()
+                                if cheats.window.get_rect().collidepoint(m_pos):
+                                    cheats.invoke()
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 game.select(row, col)
@@ -1066,12 +1069,11 @@ def start_game(mode):
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
                         row, col = get_row_col_from_mouse(m_pos)
-                        
-                        if game.moved_piece != None:
-                            if row != game.moved_piece.row or row != game.moved_piece.col:
-                                INVALID_SOUND.play()
+
                         if (-1 < row < ROWS) and (-1 < col < COLS):
-                            cheats.show_window(m_pos, row, col, board.board)
+                            cheats.create_window(m_pos, row, col)
+                        else:
+                            cheats.create_window(m_pos, row, col, OnBoard=False)
 
 
                     

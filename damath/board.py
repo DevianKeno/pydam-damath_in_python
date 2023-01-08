@@ -198,6 +198,9 @@ class Board:
                 self.orange_pieces_count -= 1
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
 
+    def remove(self, piece):
+        self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
+
     def get_valid_moves(self, piece, type="both"):
         moves = {}
         up = -1

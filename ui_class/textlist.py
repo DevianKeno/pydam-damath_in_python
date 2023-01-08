@@ -9,7 +9,7 @@ class TextList:
     List of text object for dropdowns or menus.
     """
     
-    def __init__(self, font, font_color=BLACK, list=[], icons=[], rect=None, spacing=0, icon_spacing=0, padding=0, vertical=True):
+    def __init__(self, font, font_color=BLACK, list=[], icons=[], rect=None, spacing=0, icon_spacing=0, padding=[0, 0, 0, 0], vertical=True):
         self.font = font_cookie_run_reg
         self.font_color = font_color
         self.text_list = list
@@ -17,8 +17,8 @@ class TextList:
         self.rect = rect
         self.spacing = spacing
         self.icon_spacing = icon_spacing
-        self.padding = padding
         self.IsVertical = vertical
+        self.padding = padding
 
         self.text_rects = []
         self.items_count = len(self.text_list)
@@ -37,14 +37,14 @@ class TextList:
         """
         Called when the list is first shown.
         """
-        if self.HasIcons:
-            if self.icon_list[0]:
-                x = pos[0] + self.padding
-        y = pos[1] + self.padding
+        # if self.HasIcons:
+        #     if self.icon_list[0]:
+        x = pos[0] + self.padding[1]
+        y = pos[1] + self.padding[0]
 
         for i in range(self.items_count):
             textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
-            textlist_item_rect = textlist_item_surface.get_rect(topleft=(x, y), width=window.w-(self.padding*2))
+            textlist_item_rect = textlist_item_surface.get_rect(topleft=(x, y), width=window.w-(self.padding[1]+self.padding[2]))
             self.text_rects.append(textlist_item_rect)
 
             if self.IsVertical:
@@ -56,17 +56,21 @@ class TextList:
     def draw(self, surface, pos):
         if self.IsVertical:
             self._draw_vertical(surface, pos)
-        else:
-            self._draw_horizontal(surface, pos)
+        # else:
+        #     self._draw_horizontal(surface, pos)
 
 
     def _draw_vertical(self, surface, pos):
         """
         Draw a vertical text list.
         """
-        self.text_x = self.padding + pos[0] + self.icon_list[0].w + self.icon_spacing
-        self.text_y = self.padding + pos[1]
-        self.icon_x = self.padding + pos[0]
+        
+        self.text_x = self.padding[1] + pos[0]
+        self.text_y = self.padding[0] + pos[1]
+
+        if self.HasIcons:
+            self.text_x = self.padding[1] + pos[0] + self.icon_list[0].w + self.icon_spacing
+            self.icon_x = self.padding[1] + pos[0]
 
         for i in range(self.items_count):
             textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
@@ -81,29 +85,31 @@ class TextList:
             icon.x = self.icon_x
             icon.y = textlist_item_rect.centery - icon.h//2
             icon.display()
+
+    """
+    Needs fixing but probably won't use
+    """
+    # def _draw_horizontal(self, surface, pos):
+    #     """
+    #     Draw a horizontal text list.
+    #     """
+    #     self.x = pos[0] + self.icon_list[0].w + self.icon_spacing
+    #     self.y = pos[1]
+
+    #     for i in range(self.items_count):
+    #         textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
+    #         textlist_item_rect = textlist_item_surface.get_rect(topleft=(self.x, self.y))
+    #         surface.blit(textlist_item_surface, textlist_item_rect)
+    #         self.x += textlist_item_rect.w + self.spacing
             
+    #         if not self.HasIcons:
+    #             continue
 
-    def _draw_horizontal(self, surface, pos):
-        """
-        Draw a horizontal text list.
-        """
-        self.x = pos[0] + self.icon_list[0].w + self.icon_spacing
-        self.y = pos[1]
-
-        for i in range(self.items_count):
-            textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
-            textlist_item_rect = textlist_item_surface.get_rect(topleft=(self.x, self.y))
-            surface.blit(textlist_item_surface, textlist_item_rect)
-            self.x += textlist_item_rect.w + self.spacing
-            
-            if not self.HasIcons:
-                continue
-
-            icon = self.icon_list[i]
-            self.x += icon.w + self.icon_spacing
-            icon.x = textlist_item_rect.left - icon.h
-            icon.y = textlist_item_rect.centery - icon.h//2
-            icon.display()
+    #         icon = self.icon_list[i]
+    #         self.x += icon.w + self.icon_spacing
+    #         icon.x = textlist_item_rect.left - icon.h
+    #         icon.y = textlist_item_rect.centery - icon.h//2
+    #         icon.display()
 
     def get_rect(self, index):
         return self.text_rects[index]
