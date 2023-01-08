@@ -96,13 +96,13 @@ class Cheats:
                 s.fill((255, 255, 255))
                 self.surface.blit(s, item_rect)
                 
-                pygame.draw.rect(self.surface, WHITE, item_rect)
-            else:
-                self.selected = 0
-                if window_rect.collidepoint(m_pos):
-                    self.selected = None
-                    print(self.selected)
-                    pygame.draw.rect(self.surface, BLACK, item_rect)
+                # pygame.draw.rect(self.surface, WHITE, item_rect)
+            # else:
+            #     self.selected = 0
+            #     if window_rect.collidepoint(m_pos):
+            #         self.selected = None
+            #         print(self.selected)
+            #         pygame.draw.rect(self.surface, BLACK, item_rect)
 
     def invoke(self):
         match self.window_type:
