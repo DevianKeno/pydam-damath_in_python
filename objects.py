@@ -2,11 +2,13 @@ import pygame
 from assets import *
 from display_constants import *
 from ui_class.colors import *
+from ui_class.dropdown_menu import Dropdown
 from ui_class.image import Image
+from ui_class.new_btn import NButton
+from ui_class.rect_window import RectWindow
 from ui_class.textlist import TextList
 from ui_class.tween import *
 from ui_class.window import Window
-from ui_class.new_btn import NButton
 
 
 # --------- Fonts --------- 
@@ -125,10 +127,9 @@ icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, scr
 icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 
-test_list = ["Add Blue", "Add Orange"]
-test_list_icons = [icon_add, icon_remove, icon_promote, icon_demote]
-
-test_font = pygame.font.Font('font\CookieRun_Regular.ttf', 132)
-test_textlist = TextList(test_font, WHITE, test_list, test_list_icons, spacing=20, icon_spacing=10)
-
-# test_winlist = WindowList(screen, (0, 0), (500, 500), test_textlist)
+icon_change_turn = Image(ICON_CHANGE_TURN, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_remove_all = Image(ICON_REMOVE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_promote_all = Image(ICON_PROMOTE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_demote_all = Image(ICON_DEMOTE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_pause_timer = Image(ICON_PAUSE_TIMER, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_resume_timer = Image(ICON_RESUME_TIMER, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))

@@ -40,6 +40,13 @@ ICON_REMOVE = pygame.image.load('new_assets\icons\icon_remove.png').convert_alph
 ICON_PROMOTE = pygame.image.load('new_assets\icons\icon_promote.png').convert_alpha()
 ICON_DEMOTE = pygame.image.load('new_assets\icons\icon_demote.png').convert_alpha()
 
+ICON_CHANGE_TURN = pygame.image.load('new_assets\icons\icon_change_turn.png').convert_alpha()
+ICON_REMOVE_ALL = pygame.image.load('new_assets\icons\icon_remove_all.png').convert_alpha()
+ICON_PROMOTE_ALL = pygame.image.load('new_assets\icons\icon_promote_all.png').convert_alpha()
+ICON_DEMOTE_ALL = pygame.image.load('new_assets\icons\icon_demote_all.png').convert_alpha()
+ICON_PAUSE_TIMER = pygame.image.load('new_assets\icons\icon_timer_pause.png').convert_alpha()
+ICON_RESUME_TIMER = pygame.image.load('new_assets\icons\icon_timer_play.png').convert_alpha()
+
 # --------- x --------- 
 
 # BOARD_1 = pygame.transform.smoothscale(pygame.image.load('assets\\vecteezy_chess-board-cropped.jpg'), (BOARD_WIDTH-5, BOARD_HEIGHT-5))

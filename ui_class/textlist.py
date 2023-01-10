@@ -12,16 +12,16 @@ class TextList:
     def __init__(self, font, font_color=BLACK, list=[], icons=[], rect=None, spacing=0, icon_spacing=0, padding=[0, 0, 0, 0], vertical=True):
         self.font = font_cookie_run_reg
         self.font_color = font_color
-        self.text_list = list
+        self.item_list = list
         self.icon_list = icons
         self.rect = rect
         self.spacing = spacing
         self.icon_spacing = icon_spacing
         self.IsVertical = vertical
         self.padding = padding
-
+        
         self.text_rects = []
-        self.items_count = len(self.text_list)
+        self.items_count = len(self.item_list)
         self.pos = (0, 0)
         self.HasIcons = False
         self.IsFirstCall = True
@@ -33,7 +33,19 @@ class TextList:
         self.x = self.pos[0]
         self.y = self.pos[1]
 
-    def generate_rects(self, pos, window):
+        """
+        Gets the longest string which the window's width will be based on.
+        """
+        self.longest_item = max(list, key=len)
+        self.longest_item_index = list.index(self.longest_item)
+        self.longest_item_surface = self.font.render(self.item_list[self.longest_item_index], True, self.font_color)
+        self.longest_item_rect = self.longest_item_surface.get_rect(topleft=(0, 0))
+        self.longest_item_rect = self.longest_item_surface.get_rect(topleft=(0, 0), width=self.longest_item_rect.w + (self.padding[1]+self.padding[2]))
+
+        if self.HasIcons:
+            self.longest_item_rect = self.longest_item_surface.get_rect(topleft=(0, 0), width=self.longest_item_rect.w +(self.padding[1]+self.padding[2])+self.icon_list[0].w)
+
+    def generate_rects(self, pos):
         """
         Called when the list is first shown.
         """
@@ -43,8 +55,8 @@ class TextList:
         y = pos[1] + self.padding[0]
 
         for i in range(self.items_count):
-            textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
-            textlist_item_rect = textlist_item_surface.get_rect(topleft=(x, y), width=window.w-(self.padding[1]+self.padding[2]))
+            textlist_item_surface = self.font.render(self.item_list[i], True, self.font_color)
+            textlist_item_rect = textlist_item_surface.get_rect(topleft=(x, y), width=self.longest_item_rect.w)
             self.text_rects.append(textlist_item_rect)
 
             if self.IsVertical:
@@ -73,7 +85,7 @@ class TextList:
             self.icon_x = self.padding[1] + pos[0]
 
         for i in range(self.items_count):
-            textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
+            textlist_item_surface = self.font.render(self.item_list[i], True, self.font_color)
             textlist_item_rect = textlist_item_surface.get_rect(topleft=(self.text_x, self.text_y))
             surface.blit(textlist_item_surface, textlist_item_rect)
             self.text_y += textlist_item_rect.h + self.spacing
@@ -97,7 +109,7 @@ class TextList:
     #     self.y = pos[1]
 
     #     for i in range(self.items_count):
-    #         textlist_item_surface = self.font.render(self.text_list[i], True, self.font_color)
+    #         textlist_item_surface = self.font.render(self.item_list[i], True, self.font_color)
     #         textlist_item_rect = textlist_item_surface.get_rect(topleft=(self.x, self.y))
     #         surface.blit(textlist_item_surface, textlist_item_rect)
     #         self.x += textlist_item_rect.w + self.spacing

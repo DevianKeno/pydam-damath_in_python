@@ -897,11 +897,11 @@ def start_game(mode):
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
         if CHEATS:
-            cheats.draw()
-
             if cheats.ShowWindow:
-                if cheats.window.get_rect().collidepoint(m_pos):
-                    cheats.check_for_hover(m_pos, cheats.window.get_rect())
+                cheats.draw_menu()
+
+                if cheats.text_box.collidepoint(m_pos):
+                    cheats.check_for_hover(m_pos, cheats.text_box)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -914,7 +914,7 @@ def start_game(mode):
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
                     pause()
                     break
-            # cheat codes
+            # Legacy cheat codes
                 if CHEATS:
                     _keys = pygame.key.get_pressed()
                     
@@ -1082,7 +1082,7 @@ def start_game(mode):
 
                         if cheats.ShowWindow:
                             if CHEATS:
-                                if cheats.window.get_rect().collidepoint(m_pos):
+                                if cheats.dd.window.collidepoint(m_pos):
                                     cheats.invoke()
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
@@ -1099,9 +1099,6 @@ def start_game(mode):
                             cheats.create_window(m_pos, row, col)
                         else:
                             cheats.create_window(m_pos, row, col, OnBoard=False)
-
-
-                    
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
