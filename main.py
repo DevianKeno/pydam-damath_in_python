@@ -26,6 +26,7 @@ from ui_class.themes_option import Themes, ThemesList
 from ui_class.image import *
 from ui_class.tween import *
 from ui_class.slider import Slider
+from ui_class.rect_window import *
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -376,7 +377,9 @@ sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
 
 def main_menu():
-    
+
+
+
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(MUSIC_VOLUME)
@@ -424,8 +427,9 @@ def main_menu():
         anim_title_rotate.update()
         # anim_TEST_side_menu_scale.update()
         # anim_TEST_side_menu_breathe.update()
+        
         pygame.display.update()
-        clock.tick(FPS)
+        clock.tick(FPS)     
 
 def title_up_display():
     """
@@ -614,7 +618,12 @@ def help_menu():
     fade_screen.reset()
     anim_title_up.play()
     running = True
-    
+
+    t1_rectwin = create_window(screen, (500, 350),200, 300, DARK_BLUE)
+    t2_rectwin = create_window(screen, (750, 350), 200, 100, PERSIMMON_ORANGE, border_radius=8, border_thickness=2)
+    t3_rectwin = create_window(screen, (1000, 350), 200, 100, DARK_ORANGE, border_thickness=10)
+    t4_rectwin = create_window(screen, (750, 475), 475, 175, DARK_BLUE, border_thickness=16) 
+
     while running:
         screen.fill(OAR_BLUE)
 
@@ -632,6 +641,10 @@ def help_menu():
                 pygame.quit()
                 sys.exit()
 
+        t1_rectwin.draw()
+        t2_rectwin.draw()
+        t3_rectwin.draw()
+        t4_rectwin.draw()
         title_up_display()
         pygame.display.update()
         clock.tick(FPS)
