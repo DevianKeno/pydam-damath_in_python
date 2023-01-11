@@ -17,6 +17,7 @@ class Dropdown:
         self.text_list = text_list
         self.IsSelectable = IsSelectable
         self.targets = targets
+        self.IsActive = True
 
         self.selected = None
 
@@ -52,6 +53,9 @@ class Dropdown:
         self.window = RectWindow(self.surface, self.pos, window_new_width, window_new_height, window_color, 9, 4, WHITE)
 
     def draw(self):
+        if not self.IsActive:
+            return
+
         self.window.draw()
         self.text_list.draw(self.surface, self.pos)
 
@@ -64,10 +68,10 @@ class Dropdown:
             item_rect = self.text_list.get_rect(i)
             if item_rect.collidepoint(m_pos):
                 self.selected = i
-                s = pygame.Surface((item_rect.w, item_rect.h))
-                s.set_alpha(64)
-                s.fill((255, 255, 255))
-                self.surface.blit(s, item_rect)
+                hover_area = pygame.Surface((item_rect.w, item_rect.h))
+                hover_area.set_alpha(64)
+                hover_area.fill((255, 255, 255))
+                self.surface.blit(hover_area, item_rect)
 
     def get_selected(self):
         return self.selected

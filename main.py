@@ -897,11 +897,12 @@ def start_game(mode):
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
         if CHEATS:
-            if cheats.ShowWindow:
+            if cheats.ShowMenu:
                 cheats.draw_menu()
 
-                if cheats.text_box.collidepoint(m_pos):
-                    cheats.check_for_hover(m_pos, cheats.text_box)
+                if cheats.ShowEVWindow:
+                    if cheats.ev_window.collidepoint(m_pos):
+                        cheats.check_for_hover(m_pos)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -912,7 +913,10 @@ def start_game(mode):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                    pause()
+                    if cheats.ShowMenu:
+                        cheats.hide_menus()
+                    else:
+                        pause()
                     break
             # Legacy cheat codes
                 if CHEATS:
@@ -1068,6 +1072,15 @@ def start_game(mode):
                         elif _keys[pygame.K_4]:
                             game.set_mode('Polynomials')
 
+                if cheats.IsTyping:
+                    if event.key == pygame.K_RETURN:
+                        print(cheats.input)
+                        cheats.input.text = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        cheats.input.text = cheats.input.text[:-1]
+                    else:
+                        cheats.input.text += event.unicode
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
                 if pygame.mouse.get_pressed()[0]:
@@ -1080,25 +1093,36 @@ def start_game(mode):
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
 
-                        if cheats.ShowWindow:
-                            if CHEATS:
-                                if cheats.dd.window.collidepoint(m_pos):
-                                    cheats.invoke()
+                        if cheats.ShowMenu:
+                            if cheats.dd.window.collidepoint(m_pos):
+                                cheats.invoke()
+                            elif cheats.ShowEVWindow:
+                                if cheats.ev_window.collidepoint(m_pos):
+                                    if cheats.selected_done == 1:
+                                        cheats.invoke()
+                                        cheats.hide_menus()
+                                    if cheats.text_box_rect.collidepoint(m_pos):
+                                        cheats.IsTyping = True
+                                        cheats.input_box.clear()
+                                else:
+                                    cheats.hide_menus()
+                            else:
+                                cheats.IsTyping = False
+                                cheats.hide_menus()
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 game.select(row, col)
-                                
-                        cheats.ShowWindow = False
-
+                            
                 if CHEATS:
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
                         row, col = get_row_col_from_mouse(m_pos)
 
-                        if (-1 < row < ROWS) and (-1 < col < COLS):
-                            cheats.create_window(m_pos, row, col)
-                        else:
-                            cheats.create_window(m_pos, row, col, OnBoard=False)
+                        if not cheats.ShowEVWindow:
+                            if (-1 < row < ROWS) and (-1 < col < COLS):
+                                cheats.create_window(m_pos, row, col)
+                            else:
+                                cheats.create_window(m_pos, row, col, OnBoard=False)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

@@ -191,7 +191,6 @@ class Game:
                 break
 
             for col in range(COLS):
-                # if str(self.board.board[row][col]).strip(" ") == str(self.turn).strip(" "):
                 if self.board.board[row][col].color == self.turn:
                     piece = self.board.get_piece(row, col)
 

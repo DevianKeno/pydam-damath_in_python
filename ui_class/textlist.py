@@ -9,27 +9,26 @@ class TextList:
     List of text object for dropdowns or menus.
     """
     
-    def __init__(self, font, font_color=BLACK, list=[], icons=[], rect=None, spacing=0, icon_spacing=0, padding=[0, 0, 0, 0], vertical=True):
-        self.font = font_cookie_run_reg
+    def __init__(self, font, font_color=BLACK, list=[], icons=[], spacing=0, icon_spacing=0, padding=[0, 0, 0, 0], vertical=True):
+        self.font = font
         self.font_color = font_color
         self.item_list = list
+        self.items_count = len(self.item_list)
         self.icon_list = icons
-        self.rect = rect
+        self.icons_count = 0
+        self.HasIcons = False
         self.spacing = spacing
         self.icon_spacing = icon_spacing
-        self.IsVertical = vertical
         self.padding = padding
-        
+        self.IsVertical = vertical
         self.text_rects = []
-        self.items_count = len(self.item_list)
-        self.pos = (0, 0)
-        self.HasIcons = False
-        self.IsFirstCall = True
+        self.IsActive = True
 
         if icons:
             self.HasIcons = True
             self.icons_count = len(self.icon_list)
             
+        self.pos = (0, 0)
         self.x = self.pos[0]
         self.y = self.pos[1]
 
@@ -49,8 +48,7 @@ class TextList:
         """
         Called when the list is first shown.
         """
-        # if self.HasIcons:
-        #     if self.icon_list[0]:
+        
         x = pos[0] + self.padding[1]
         y = pos[1] + self.padding[0]
 
@@ -66,6 +64,9 @@ class TextList:
         
 
     def draw(self, surface, pos):
+        if not self.IsActive:
+            return
+
         if self.IsVertical:
             self._draw_vertical(surface, pos)
         # else:
@@ -77,12 +78,12 @@ class TextList:
         Draw a vertical text list.
         """
         
-        self.text_x = self.padding[1] + pos[0]
-        self.text_y = self.padding[0] + pos[1]
+        self.text_x = pos[0] + self.padding[1]
+        self.text_y = pos[1] + self.padding[0]
 
         if self.HasIcons:
-            self.text_x = self.padding[1] + pos[0] + self.icon_list[0].w + self.icon_spacing
-            self.icon_x = self.padding[1] + pos[0]
+            self.text_x = pos[0] + self.padding[1] + self.icon_list[0].w + self.icon_spacing
+            self.icon_x = pos[0] + self.padding[1]
 
         for i in range(self.items_count):
             textlist_item_surface = self.font.render(self.item_list[i], True, self.font_color)

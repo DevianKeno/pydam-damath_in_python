@@ -238,6 +238,10 @@ class Board:
                 self.orange_pieces_count -= 1
             self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
 
+    def add_piece(self, piece):
+        self.board[piece.row][piece.col] = piece
+        self.moveables.append((piece.row, piece.col))
+
     def remove(self, piece):
         self.board[piece.row][piece.col] = Piece(self.surface, piece.row, piece.col, 0, 0)
 
