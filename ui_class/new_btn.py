@@ -70,12 +70,12 @@ class NButton:
                     self.transition_duration = transition_duration
                     self.color_idx = 0
 
-                    if fontsize >= 0:
+                    if fontsize <= 0:
                         self.fontsize = int(self.height / 1.7)
                     else:
                         self.fontsize = fontsize
 
-                    if shadow_offset >= 0:
+                    if shadow_offset <= 0:
                         self.shadow_offset = self.height * 0.25
                     else:
                         self.shadow_offset = shadow_offset
@@ -230,15 +230,19 @@ class NButton:
                 self.set_state(self.Normal)
 
         # changes position if a new position is passed
-        if pos is not None:
-            self.dx, self.dy = pos
-            self.btn_rect.update(self.dx, self.dy, self.width, self.height)
-            self.btn_shadow_rect.update(self.dx, self.dy+self.shadow_offset, self.width, self.height)
-            self.text_rect = pygame.Rect((self.btn_rect.x + self.btn_rect.w//2 - 
-                                self.text_surface.get_width()//2, self.btn_rect.y + 
-                                self.btn_rect.h//2 - self.text_surface.get_height()//2),
-                                self.text_surface.get_size())
+        if pos is None:
+            self.dx, self.dy = self.x, self.y
 
+        else:
+            self.dx, self.dy = pos
+            
+        self.btn_rect.update(self.dx, self.dy, self.width, self.height)
+        self.btn_shadow_rect.update(self.dx, self.dy+self.shadow_offset, self.width, self.height)
+        self.text_rect = pygame.Rect((self.btn_rect.x + self.btn_rect.w//2 - 
+                            self.text_surface.get_width()//2, self.btn_rect.y + 
+                            self.btn_rect.h//2 - self.text_surface.get_height()//2),
+                            self.text_surface.get_size())
+            
         # moves the button if toggled or clicked and mouse pressed
         if self.toggled or (self.clicked and pygame.mouse.get_pressed()[0]):
             self.btn_rect.move_ip(0, self.shadow_offset/1.5)
