@@ -1,20 +1,30 @@
 import pygame
+from audio_constants import MOVE_SOUND
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.piece import Piece
+from display_constants import screen
 from objects import chips_surface, font_cookie_run_reg, cheats_window_blue, icon_add, icon_remove, icon_promote, icon_demote, icon_change_turn, icon_promote_all, icon_demote_all, icon_remove_all, icon_pause_timer, icon_resume_timer
 from ui_class.colors import *
 from ui_class.font import *
 from ui_class.text import Text
 from ui_class.text_box import TextBox
 from ui_class.textlist import TextList
+from ui_class.tween import *
 from ui_class.dropdown_menu import Dropdown
 from ui_class.rect_window import RectWindow
 
+pygame.mixer.init()
+
 font_size = cheats_window_blue.h * 0.2
 font_cookie_run_reg = pygame.font.Font('font\CookieRun_Regular.ttf', int(font_size))
+      
+board_centerx = ((screen.get_width()*0.7//2) + (screen.get_width()*0.3)) 
+board_centery = screen.get_height()//2 
 
-ev_window_w = 180
-ev_window_h = 140
+ev_window_dimensions = (180, 140)
+ev_window_radius = 9
+ev_window_rect = pygame.Rect((board_centerx-ev_window_dimensions[0]//2, board_centery-ev_window_dimensions[1]//2), (ev_window_dimensions[0], ev_window_dimensions[1]))
+
 ev_text_box_w = 120
 ev_text_box_h = 36
 
@@ -49,16 +59,13 @@ class Cheats:
 
         self.dd = Dropdown(self.surface, self.text_list)
 
-        self.board_mid_x = ((surface.get_width()*0.7//2) + (surface.get_width()*0.3)) 
-        self.board_mid_y = surface.get_height()//2 
-
         # Add piece window elements
-        self.ev_window = RectWindow(surface, (self.board_mid_x-ev_window_w//2, self.board_mid_y-ev_window_h//2), ev_window_w, ev_window_h, DARK_CERULEAN, 9, 4, WHITE)
-        
+        self.ev_window = RectWindow(surface, (ev_window_rect.topleft), ev_window_rect.w, ev_window_rect.h, DARK_CERULEAN, ev_window_radius, 4, WHITE)
+
         self.prompt = Text(surface, CookieRun_Regular, font_size, WHITE)
         self.prompt.text = "Enter Value"
         self.prompt.font_size *= 1.1
-        self.prompt.pos = (self.ev_window.x+self.ev_window.w//2, self.ev_window.y+self.ev_window.h*0.2)
+        self.prompt.pos = (ev_window_rect.x+ev_window_rect.w//2, ev_window_rect.y+ev_window_rect.h*0.2)
         self.prompt.update()
         
         self.input = Text(surface, CookieRun_Bold, font_size, DARK_CERULEAN)
@@ -66,16 +73,16 @@ class Cheats:
         self.input.font_size *= 1.25
         self.input.update()
 
-        self.text_box_rect = pygame.Rect((self.board_mid_x-ev_text_box_w//2, self.board_mid_y-ev_text_box_h//2), (ev_text_box_w, ev_text_box_h))
+        self.text_box_rect = pygame.Rect((board_centerx-ev_text_box_w//2, board_centery-ev_text_box_h//2), (ev_text_box_w, ev_text_box_h))
         self.input_box = TextBox(surface, self.input, self.text_box_rect)
         self.input_box.text = self.input.text
 
         self.done = Text(surface, CookieRun_Regular, font_size, WHITE)
-        self.done.pos = (self.ev_window.x+self.ev_window.w//2, self.ev_window.y+self.ev_window.h*0.8)
-        self.done_hover_area = self.done.text_surface.get_rect(center=(self.ev_window.x+self.ev_window.w*0.1, self.ev_window.y+self.ev_window.h*0.8), width=self.ev_window.w*0.8)
+        self.done.pos = (ev_window_rect.x+ev_window_rect.w//2, ev_window_rect.y+ev_window_rect.h*0.8)
+        self.done_hover_area = self.done.text_surface.get_rect(center=(ev_window_rect.x+ev_window_rect.w*0.1, ev_window_rect.y+ev_window_rect.h*0.8), width=ev_window_rect.w*0.8)
         self.done.text = "Done"
 
-    def create_window(self, pos, row, col, OnBoard=True):
+    def create_dd(self, pos, row, col, OnBoard=True):
         self.ShowMenu = True
         self.pos = pos
         self.piece = self.game.board.board[row][col]
@@ -116,6 +123,16 @@ class Cheats:
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
         self.dd = Dropdown(self.surface, self.text_list)
         self.dd.create(pos, color=window_color)
+        self.dd.IsHoverable = True
+
+    def create_ev_window(self):
+        self.ShowEVWindow = True
+        self.ev_window.wupdate(x=board_centerx, y=board_centery, width=0, height=0)
+        
+        self.anim_ev_window = Scale_Rect(self.ev_window, (ev_window_dimensions[0], ev_window_dimensions[1]), 0.2, True, easeOutBack, none, False)
+        self.anim_ev_window_inner = Scale_Rect(self.ev_window.inner_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
+        self.anim_ev_window_shadow = Scale_Rect(self.ev_window.shadow_surf_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
+        
 
     def draw_menu(self):
         if not self.ShowMenu:
@@ -126,11 +143,20 @@ class Cheats:
         if not self.ShowEVWindow:
             return
         
+        self.dd.IsHoverable = False
         self.ev_window.draw()
+
         pygame.draw.rect(self.surface, WHITE, self.text_box_rect, 0, 6)
         self.prompt.draw()
         self.input_box.draw()
         self.done.draw()
+        
+        if self.anim_ev_window.IsFinished:
+            return
+
+        self.anim_ev_window.play()
+        self.anim_ev_window_inner.play()
+        self.anim_ev_window_shadow.play()
 
     def hide_menus(self, windows=0):
         match windows:
@@ -141,6 +167,8 @@ class Cheats:
                 self.ShowMenu = False
             case 2:
                 self.ShowEVWindow = False
+        
+        self.IsTyping = False
 
     def check_for_hover(self, m_pos):
         if self.done_hover_area.collidepoint(m_pos):
@@ -189,20 +217,22 @@ class Cheats:
     def add_blue(self):
         self.ev_window.change_color(window_color=DARK_CERULEAN)
         self.input.change_color(DARK_CERULEAN) 
-        self.ShowEVWindow = True
         self.add_color = PLAYER_ONE
+        self.create_ev_window()
 
     def add_orange(self):
         self.ev_window.change_color(window_color=PERSIMMON_ORANGE)
         self.input.change_color(BURNT_UMBER) 
-        self.ShowEVWindow = True
         self.add_color = PLAYER_TWO
+        self.create_ev_window()
 
     def add_piece(self):
+        MOVE_SOUND.play()
         self.add_value = self.input.text
         piece = Piece(chips_surface, self.row, self.col, self.add_color, int(self.add_value))
         self.game.board.add_piece(piece)
         self.game.moveable_pieces.append((self.row, self.col))
+        self.hide_menus()
 
     def remove(self):
         piece = self.game.board.get_piece(self.row, self.col)

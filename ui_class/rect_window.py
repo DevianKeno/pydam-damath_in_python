@@ -93,11 +93,31 @@ class RectWindow(pygame.Rect):
         self.inflate_ip(x, y)
         self.inner_rect.inflate_ip(x, y)
 
-    def wupdate(self, x, y, width, height):
-        self.update(x, y, width, height)
-        self.inner_rect.update(x, y,  
-                    width-self.border_thickness, 
-                    height-self.border_thickness)
+    def wupdate(self, x=-1, y=-1, width=-1, height=-1):
+        if x == -1:
+            _new_x = self.x
+        else:
+            _new_x = x
+            
+        if y == -1:
+            _new_y = self.y
+        else:
+            _new_y = y
+
+        if width == -1:
+            _new_width = self.width
+        else:
+            _new_width = width
+
+        if height == -1:
+            _new_height = self.height
+        else:
+            _new_height = height
+
+        self.update(_new_x, _new_y, _new_width, _new_height)
+        self.inner_rect.update(_new_x, _new_y,  
+                    _new_width-self.border_thickness, 
+                    _new_height-self.border_thickness)
         self.inner_rect.center = self.center
 
     def change_color(self, *, window_color=None, border_color=None):

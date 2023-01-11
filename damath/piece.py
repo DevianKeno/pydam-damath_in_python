@@ -26,14 +26,21 @@ class Piece(Image):
         self.y = 0
         self.w = square_size * 0.874
         self.h = square_size
+        
         self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
+        
+        match self.mode:
+            case 'Rationals':
+                self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.24))
+            case 'Radicals':
+                self.font = pygame.font.Font('font\CookieRun_Regular.ttf', int(square_size*0.15))
+            case 'Polynomials':
+                self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.21))
 
         if self.color == PLAYER_ONE:
-            #self.text_surface = self.font.render(str(number), True, DARK_BLUE)
             self.image = pygame.transform.smoothscale(BLUE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(BLUE_PIECE_KING, (self.w, self.h))
         else:
-            #self.text_surface = self.font.render(str(number), True, DARK_ORANGE)
             self.image = pygame.transform.smoothscale(ORANGE_PIECE, (self.w, self.h))
             self.image_king = pygame.transform.smoothscale(ORANGE_PIECE_KING, (self.w, self.h))
 
@@ -61,17 +68,10 @@ class Piece(Image):
         self.HasPossibleCapture = bool
 
     def display(self):
-
-        if self.mode == 'Rationals':
-            self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.24))
-        elif self.mode == 'Radicals':
-            self.font = pygame.font.Font('font\CookieRun_Regular.ttf', int(square_size*0.15))
-        elif self.mode == 'Polynomials':
-            self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.21))
-
         if self.IsCaptured:
             if self.color == PLAYER_ONE:
                 self.text_surface = self.font.render(str(self.number), True, DARK_BLUE)
+
                 if self.IsKing:
                     p2_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
@@ -84,11 +84,13 @@ class Piece(Image):
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
                 else:
                     p1_captured_pieces_surface.blit(self.image, (self.x, self.y))
+
             self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
             self.surface.blit(self.text_surface, self.text_rect)
         else:
             if not self.IsKing:
                 self.surface.blit(self.image, (self.x, self.y))
+
                 if self.color == PLAYER_ONE:
                     self.text_surface = self.font.render(str(self.number), True, DARK_BLUE)
                 else:
@@ -96,6 +98,7 @@ class Piece(Image):
             else:
                 self.surface.blit(self.image_king, (self.x, self.y))
                 self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
+
             self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
             self.surface.blit(self.text_surface, self.text_rect) 
 

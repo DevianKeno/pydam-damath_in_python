@@ -12,12 +12,12 @@ window_color = DARK_CERULEAN
 
 class Dropdown:
 
-    def __init__(self, surface, text_list, IsSelectable=True, targets=[]) -> None:
+    def __init__(self, surface, text_list, targets=[]) -> None:
         self.surface = surface
         self.text_list = text_list
-        self.IsSelectable = IsSelectable
         self.targets = targets
         self.IsActive = True
+        self.IsHoverable = True
 
         self.selected = None
 
@@ -59,9 +59,11 @@ class Dropdown:
         self.window.draw()
         self.text_list.draw(self.surface, self.pos)
 
-        if self.IsSelectable:
-            m_pos = pygame.mouse.get_pos()
-            self._check_for_hover(m_pos)
+        if not self.IsHoverable:
+            return
+
+        m_pos = pygame.mouse.get_pos()
+        self._check_for_hover(m_pos)
 
     def _check_for_hover(self, m_pos):
         for i in range(self.text_list.items_count):

@@ -913,8 +913,11 @@ def start_game(mode):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                    if cheats.ShowMenu:
-                        cheats.hide_menus()
+                    if CHEATS:
+                        if cheats.ShowMenu:
+                            cheats.hide_menus()
+                        else:
+                            pause()
                     else:
                         pause()
                     break
@@ -1071,15 +1074,15 @@ def start_game(mode):
                             game.set_mode('Radicals')
                         elif _keys[pygame.K_4]:
                             game.set_mode('Polynomials')
-
-                if cheats.IsTyping:
-                    if event.key == pygame.K_RETURN:
-                        print(cheats.input)
-                        cheats.input.text = ''
-                    elif event.key == pygame.K_BACKSPACE:
-                        cheats.input.text = cheats.input.text[:-1]
-                    else:
-                        cheats.input.text += event.unicode
+                
+                    if cheats.IsTyping:
+                        if event.key == pygame.K_RETURN:
+                            print(cheats.input)
+                            cheats.input.text = ''
+                        elif event.key == pygame.K_BACKSPACE:
+                            cheats.input.text = cheats.input.text[:-1]
+                        else:
+                            cheats.input.text += event.unicode
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
@@ -1088,19 +1091,26 @@ def start_game(mode):
                     if board_rect.collidepoint(m_pos):
                         pos = pygame.mouse.get_pos()
                         row, col = get_row_col_from_mouse(pos)
-                        
+
                         if game.moved_piece != None:
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
+                            
+                        if (-1 < row < ROWS) and (-1 < col < COLS):
+                            game.select(row, col)
 
+                    if CHEATS:
                         if cheats.ShowMenu:
-                            if cheats.dd.window.collidepoint(m_pos):
+                            if cheats.dd.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
                                 cheats.invoke()
                             elif cheats.ShowEVWindow:
                                 if cheats.ev_window.collidepoint(m_pos):
+                                    # Clicked on "Done"
                                     if cheats.selected_done == 1:
                                         cheats.invoke()
                                         cheats.hide_menus()
+                                    
+                                    # Clicked on text box
                                     if cheats.text_box_rect.collidepoint(m_pos):
                                         cheats.IsTyping = True
                                         cheats.input_box.clear()
@@ -1109,9 +1119,6 @@ def start_game(mode):
                             else:
                                 cheats.IsTyping = False
                                 cheats.hide_menus()
-                        else:
-                            if (-1 < row < ROWS) and (-1 < col < COLS):
-                                game.select(row, col)
                             
                 if CHEATS:
                     if pygame.mouse.get_pressed()[2]:
@@ -1120,9 +1127,9 @@ def start_game(mode):
 
                         if not cheats.ShowEVWindow:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                cheats.create_window(m_pos, row, col)
+                                cheats.create_dd(m_pos, row, col)
                             else:
-                                cheats.create_window(m_pos, row, col, OnBoard=False)
+                                cheats.create_dd(m_pos, row, col, OnBoard=False)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
