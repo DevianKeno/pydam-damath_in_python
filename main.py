@@ -1096,8 +1096,13 @@ def start_game(mode):
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
                             
-                        if (-1 < row < ROWS) and (-1 < col < COLS):
-                            game.select(row, col)
+                        if CHEATS:
+                            if not cheats.ShowMenu:
+                                if (-1 < row < ROWS) and (-1 < col < COLS):
+                                    game.select(row, col)
+                        else:
+                            if (-1 < row < ROWS) and (-1 < col < COLS):
+                                game.select(row, col)
 
                     if CHEATS:
                         if cheats.ShowMenu:
