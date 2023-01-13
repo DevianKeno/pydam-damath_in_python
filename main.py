@@ -448,21 +448,32 @@ added = False
 def sidebar_display(func_called):
     global added
     if not added:
-        sidebar.add_option(2, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+        
+        play_icon = 'new_assets\icons\icon_play.png'
+        online_icon = 'new_assets\icons\icon_online.png'
+        help_icon = 'new_assets\icons\icon_help.png'
+        option_icon = 'new_assets\icons\icon_options.png'
+        exit_icon = 'new_assets\icons\icon_exit.png'
+
+        sidebar.add_option(3, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
-                        target=select_mode)
-        sidebar.add_option(2, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        icon=play_icon, target=select_mode)
+        sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Online', description='Play Online!', target=online_menu)
-        sidebar.add_option(2, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        text='Online', description='Play Online!', 
+                        icon=online_icon, target=online_menu)
+        sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Help', description='Learn Damath!', target=help_menu)
-        sidebar.add_option(2, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        text='Help', description='Learn Damath!', 
+                        icon=help_icon, icon_offset=55, target=help_menu)
+        sidebar.add_option(3, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Options', description='Adjust to your preferences!', target=options_menu)
-        sidebar.add_option(2, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/8, 
+                        text='Options', description='Adjust to your preferences!', 
+                        icon=option_icon, target=options_menu)
+        sidebar.add_option(3, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                            text='Exit', description='Quit the game... :<', target=sys.exit)
+                            text='Exit', description='Quit the game... :<', 
+                            icon=exit_icon, target=sys.exit)
         added = True
 
     target_functions = {
@@ -557,7 +568,9 @@ def select_mode():
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
                                 btn_size[0]), SCREEN_HEIGHT/2))
             start_select_btn.draw(((sidebar.sidebar_rect.width + 
-                                SCREEN_WIDTH)/2 - btn_size[0]//2, 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
+                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
+                                btn_size[0]), 
                                 SCREEN_HEIGHT/1.25))
 
         for event in pygame.event.get():

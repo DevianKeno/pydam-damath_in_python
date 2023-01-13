@@ -90,6 +90,8 @@ class Sidebar:
         self.sidebar_rect.update(self.x, self.y, nwidth, nheight)
         pygame.draw.rect(self.surface, self.color, self.sidebar_rect)
 
+
+
         if self.anim_idx >= self.anim_duration//4:
             if self.options is not None:
                 for option in self.options.keys():
@@ -98,6 +100,11 @@ class Sidebar:
         r, g, b, a = pygame.Color(self.color)
         gfxdraw.box(self.surface, self.sidebar_rect, (r, g, b, (a-(a*(self.anim_idx/self.anim_duration)))))
     
+        #if self.anim_idx == 0:
+        if self.anim_idx < self.anim_duration//4:
+            for option in self.options.keys():
+                self.options[option]._draw_icon(nx=self.sidebar_rect.x+self.current_w*0.5)
+
     def _animate(self):
         """
         Changes animation indexes, current width, and sidebar status
@@ -126,7 +133,7 @@ class Sidebar:
     def add_option(self, type: int, id: str, *, text: str, description: str, 
                     pos: tuple, width: float=None, height: float=None, default_color=OAR_BLUE, 
                     hovered_color=WHITE, selected_color=PERSIMMON_ORANGE, 
-                    icon=None, icon_placement='left', icon_offset=10, img=None, 
+                    icon=None, icon_placement='left', icon_offset=50, img=None, 
                     target: callable=None, args=None, index=None):
                     """
                     Adds options in the sidebar
@@ -137,7 +144,7 @@ class Sidebar:
                     - 3: Text with Icon (Unfinished)
                     """
                     
-                    if type not in [1, 2]:
+                    if type not in [1, 2, 3]:
                         raise ValueError('Type must be 1 or 2')
 
                     match type:
@@ -151,12 +158,11 @@ class Sidebar:
                                                     selected_color, target, args, index)
                         #TODO: finish TextIcon if ever icon for every options gets created
                         case 3:
-                            self.options[id] = TextIcon(id, pos, width, height,
-                                                    text, description,
-                                                    default_color, hovered_color,
-                                                    selected_color, icon,
-                                                    icon_placement, icon_offset,
-                                                    target, args, index)
+                            self.options[id] = TextIcon(self.surface, id, pos, text, 
+                                                    icon, icon_placement, icon_offset, description,
+                                                    self.fontstyle, self.fontsize,
+                                                    default_color, hovered_color, 
+                                                    selected_color, target, args, index)
 
     def set(self, *, state=None, status=None):
         """
@@ -353,18 +359,49 @@ class Text(SidebarOptions):
         return pygame.Rect(self.x, self.y, self.text_surface.get_width(), self.text_surface.get_height())
 
 class TextIcon(Text):
-    def __init__(self, id, pos, width, height,
-                    text, description, default_color, 
-                    hovered_color, selected_color, icon, 
-                    icon_placement, icon_offset, 
-                    target, args, index):
+    def __init__(self, surface, id, pos, text,
+                icon, icon_placement, icon_offset,
+                description, fontstyle, fontsize,
+                default_color, hovered_color, 
+                selected_color, target, args, index):
 
-                    super().__init__(id, pos, width, height,
-                                    text, description,
-                                    default_color, hovered_color,
-                                    selected_color, target,
-                                    args, index)
+                    super().__init__(surface, id, pos, text,
+                            description, fontstyle, fontsize,
+                            default_color, hovered_color, 
+                            selected_color, target, args, index)
+                    
+                    #self.init_icon = pygame.image.load(icon).convert_alpha()
+                    self.init_icon = pygame.transform.smoothscale(pygame.image.load(icon).convert_alpha(),
+                                (self.fontsize*1.15, self.fontsize*1.15))
 
-                    self.icon = icon
+                    self.icon_mask = pygame.mask.from_surface(self.init_icon)
+                    self.icon = self.icon_mask.to_surface().convert_alpha()
+                    
+                    self.icon.set_colorkey((0, 0, 0))
                     self.icon_placement = icon_placement
                     self.icon_offset = icon_offset
+    
+    def _draw(self, nx=None):
+        super()._draw(nx)
+        if self.state == NORMAL:
+            self.change_color(OAR_BLUE)
+        elif self.state == SELECTED:
+            self.change_color(PERSIMMON_ORANGE)
+        else:
+            self.change_color(WHITE)
+        self.surface.blit(self.icon, (self.text_rect.x - self.icon_offset, 
+                                        self.y))
+
+    def change_color(self, color):
+        icon_w, icon_h = self.icon.get_size()
+        for x in range(icon_w):
+            for y in range(icon_h):
+                if self.icon.get_at((x, y))[0] != 0:
+                    self.icon.set_at((x, y), color)
+
+    def _draw_icon(self, nx=None):
+        if self.state == SELECTED:
+            self.change_color(PERSIMMON_ORANGE)
+        else:
+            self.change_color(OAR_BLUE)
+        self.surface.blit(self.icon, (nx-self.icon.get_width()*0.5, self.y))
