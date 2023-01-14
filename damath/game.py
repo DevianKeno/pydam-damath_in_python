@@ -38,6 +38,7 @@ class Game:
             self.board.anim.update()
         if self.board.anim_capture:
             self.board.anim_capture.update()
+
         self.board.draw_contents(self.surface)
         self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
@@ -63,6 +64,7 @@ class Game:
     def winner(self):   
         if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
             red_score, blue_score = self.scoreboard.score()
+
             if red_score > blue_score:
                 return PLAYER_ONE 
             elif blue_score > red_score:
@@ -120,8 +122,7 @@ class Game:
         return False
 
     def _move(self, col, row):
-
-        piece = self.board.get_piece(col, row) #(color):number
+        piece = self.board.get_piece(col, row)
 
         if self.selected and piece.color == 0 and (col, row) in self.valid_moves:
             self.board.move(self.selected, col, row, piece.number)
@@ -134,6 +135,7 @@ class Game:
                 CAPTURE_SOUND.play()
                 self.board.piece_skipped(self.selected, col, row, bool=True)
                 operations = []
+
                 if len(skipped) > 1:
                     for i in range(len(skipped_list)-1, (len(skipped_list)-1)-len(skipped), -1):
                         operations.append(self.board.piece_landed(skipped_list[i][0], skipped_list[i][1]))

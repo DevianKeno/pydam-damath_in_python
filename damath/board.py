@@ -191,12 +191,12 @@ class Board:
             return
 
         if piece.color == PLAYER_ONE:
-            if piece.row == 0:
+            if piece.row == 7:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.blue_kings += 1
         else:
-            if piece.row == 7:
+            if piece.row == 0:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.orange_kings += 1
@@ -237,24 +237,27 @@ class Board:
         for piece in pieces:
             if piece.color == PLAYER_ONE: # Blue
                 captured_piece = Piece(p2_captured_pieces_surface, (0, 0), piece.color, piece.number)
+
                 if piece.IsKing:
                     captured_piece.IsKing = True
                 captured_piece.IsCaptured = True
                 self.blue_captured.append(captured_piece)
+
                 if len(self.blue_captured) <= 9:
                     captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - 2
                     captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h)
                 else:
                     captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - piece.w
                     captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.blue_captured) - 9) * piece.h)
-                
                 self.blue_pieces_count -= 1
             else:
                 captured_piece = Piece(p1_captured_pieces_surface, (0, 0), piece.color, piece.number)
+
                 if piece.IsKing:
                     captured_piece.IsKing = True
                 captured_piece.IsCaptured = True
                 self.orange_captured.append(captured_piece)
+
                 if len(self.orange_captured) <= 9:
                     captured_piece.x = (p1_captured_pieces_surface.get_width() // 2) - (piece.w)
                     captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5
@@ -289,7 +292,7 @@ class Board:
             # Down (Capture only)
             moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type))
             moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type))
-        else: # piece.color == LIGHT_BLUE:
+        else: # piece.color == ORANGE:
             # Up (Capture only)
             moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
             moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
