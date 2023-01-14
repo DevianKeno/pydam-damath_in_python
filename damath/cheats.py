@@ -193,8 +193,13 @@ class Cheats:
                     case 0:
                         self.change_turn()
                     case 1:
-                        print("1")
-                        # self.add_piece()
+                        self.remove_all()
+                    case 2:
+                        self.promote_all()
+                    case 3:
+                        self.demote_all()
+                    case 4:
+                        self.toggle_timer()
             case 1:
                 match self.selected:
                     case 0:
@@ -253,4 +258,26 @@ class Cheats:
     def change_turn(self):
         self.game.change_turn()
         print(f"[Cheats]: Changed turns, now {self.game.turn}")
+        self.hide_menus()
+        
+    def remove_all(self):
+        for row in range(8):
+            for col in range(8):
+                piece = self.game.board.get_piece(col, row)
+                self.game.board.remove(piece)
+        print(f"[Cheats]: Removed all pieces")
+        self.hide_menus()
+        
+    def promote_all(self):
+        for row in range(8):
+            for col in range(8):
+                self.game.board.get_piece(col, row).promote()
+        print(f"[Cheats]: Promoted all pieces")
+        self.hide_menus()
+        
+    def demote_all(self):
+        for row in range(8):
+            for col in range(8):
+                self.game.board.get_piece(col, row).demote()
+        print(f"[Cheats]: Demoted all pieces")
         self.hide_menus()
