@@ -69,6 +69,9 @@ class NButton:
 
                     self.transition_duration = transition_duration
                     self.color_idx = 0
+                    self.moved = False
+                    self.pos_reset = False
+                    self.will_call_target = False
 
                     if fontsize <= 0:
                         self.fontsize = int(self.height / 1.7)
@@ -212,7 +215,17 @@ class NButton:
         """
         Calls the target function stored in the button
         """
-        self.target(self.args)
+        self.set_state(self.Selected)
+        self.will_call_target = True
+
+    def _call_target(self):
+        if self.will_call_target:
+            if self.args:
+                return self.target(self.args)
+            else:
+                return self.target()
+        else:
+            return None
 
     def draw(self, pos: tuple=None):
         """
@@ -222,6 +235,7 @@ class NButton:
         """
 
         # checks for collision (hover)
+        self.pos_reset = False
         mx, my = pygame.mouse.get_pos()
         if self.btn_rect.collidepoint((mx, my)):
             self.set_state(self.Hovered)
@@ -247,11 +261,15 @@ class NButton:
         if self.toggled or (self.clicked and pygame.mouse.get_pressed()[0]):
             self.btn_rect.move_ip(0, self.shadow_offset/1.5)
             self.text_rect.move_ip(0, self.shadow_offset/1.5)
-
+            self.moved = True
         # if clicked and the mouse button is no longer pressed
         elif self.clicked and not pygame.mouse.get_pressed()[0]:
             self.set_state(self.Normal)
             self.clicked = False
+            if self.moved:
+                self.moved = False
+                self.pos_reset = True
+            self._call_target()
 
         # gets the current and previous shadow and button colors
         current_color = pygame.color.Color(self.states[self.get_state()][0])

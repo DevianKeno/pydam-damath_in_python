@@ -21,12 +21,21 @@ class Timer:
             self.starttime = time.time()
             self.starttime_started = True
 
-        self.endtime = self.starttime + self.duration 
         self.is_running = True
+        
+    def update(self):
+        self.endtime = self.starttime + self.duration 
         self.currenttime = time.time()
 
     def get_remaining_time(self):
         return self.remaining_time
+
+    def pause(self):
+        self.is_running = False
+
+    def resume(self):
+        self.starttime += ((time.time() - self.starttime) - (self.duration - self.remaining_time))
+        self.is_running = True
 
     def stop(self):
         self.is_running = False

@@ -147,7 +147,8 @@ def create_window(surface, pos: tuple,
                     width, height, color, *,
                     border_radius: int = 20,
                     border_thickness: int = 4,
-                    border_color = WHITE):
+                    border_color = WHITE, 
+                    cast_shadow = True):
     """
     Optional Keyword-Only Arguments:
         - border_radius (Default: 20)
@@ -159,4 +160,5 @@ def create_window(surface, pos: tuple,
 
     return RectWindow(surface, pos, width, 
             height, color, border_radius,
-            border_thickness, border_color)
+            border_thickness, border_color,
+            cast_shadow)

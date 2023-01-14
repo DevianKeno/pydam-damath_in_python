@@ -12,4 +12,4 @@ _MODES = [
     'Polynomials'
     ]
 
-MODE = _MODES[3]
+MODE = _MODES[1]

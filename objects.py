@@ -9,7 +9,7 @@ from ui_class.rect_window import RectWindow
 from ui_class.textlist import TextList
 from ui_class.tween import *
 from ui_class.window import Window
-
+from ui_class.rect_window import create_window
 
 # --------- Fonts --------- 
 
@@ -90,6 +90,7 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
                               (screen.get_width()*0.12, screen.get_height()*0.096))
 
 # --------- Buttons  --------- 
+
 btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
@@ -133,3 +134,52 @@ icon_promote_all = Image(ICON_PROMOTE_ALL, screen, (0, 0), (screen.get_width()*0
 icon_demote_all = Image(ICON_DEMOTE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_pause_timer = Image(ICON_PAUSE_TIMER, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_resume_timer = Image(ICON_RESUME_TIMER, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+
+# --------- Pause Window Objects  --------- 
+
+alpha_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+alpha_surface.fill(DARK_GRAY_BLUE)
+alpha_surface.set_alpha(125)
+
+pause_font = pygame.font.Font('font/CookieRun_Regular.ttf', int((SCREEN_HEIGHT*0.575)*0.1))
+pause_text = pause_font.render('Paused', True, WHITE)
+
+pause_window = create_window(screen, (0, 0), 
+                SCREEN_WIDTH*0.285, SCREEN_HEIGHT*0.575,
+                DARK_BLUE, border_radius=10,
+                cast_shadow=False)
+
+resume_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
+                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
+                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
+                (pause_window.h*0.25)), pause_window.w*0.45, 
+                btn_size[1], 'Resume', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
+                shadow_offset=(pause_window.w*0.45)*0.05)
+
+options_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
+                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
+                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
+                (pause_window.h*0.25+btn_size[1]*1.75)), pause_window.w*0.45, 
+                btn_size[1], 'Options', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
+                shadow_offset=(pause_window.w*0.45)*0.05)
+
+restart_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
+                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
+                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
+                (pause_window.h*0.25+btn_size[1]*3.5)), pause_window.w*0.45, 
+                btn_size[1], 'Restart', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
+                shadow_offset=(pause_window.w*0.45)*0.05)
+
+main_menu_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
+                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
+                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
+                (pause_window.h*0.25+btn_size[1]*5.25)), pause_window.w*0.45, 
+                btn_size[1], 'Main Menu', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
+                shadow_offset=(pause_window.w*0.45)*0.05)
+
+pause_btns = {
+    resume_btn : False,
+    options_btn : False,
+    restart_btn : False,
+    main_menu_btn : False    
+}

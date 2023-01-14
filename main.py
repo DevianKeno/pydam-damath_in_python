@@ -261,19 +261,6 @@ if chip_animation:
     big_blue_chip = SpinningChip(screen, 'blue')
     big_red_chip  = SpinningChip(screen, 'red')
 
-# --------- instantiating Pause objects ---------
-paused_rect     = pygame.Rect((SCREEN_WIDTH//2, SCREEN_HEIGHT//2-200, 350, 400))
-paused_surface  = pygame.Surface((paused_rect.w, paused_rect.h), pygame.SRCALPHA)
-#paused_surface.set_colorkey((0, 0, 0))
-
-# pause menu options
-pause_return_btn = Button(screen, 70, 70, (20, 20), 4, image=return_img, image_size=RETURN_DIMENSION) # w, h, (x, y), radius, image, text=None
-
-resume_btn        = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-265), 5, None, text='Resume', fontsize=24)
-restart_btn       = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-190), 5, None, text='Restart', fontsize=24)
-pause_options_btn = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-115), 5, None, text='Options', fontsize=24)
-quit_btn          = Button(screen, 250, 50, (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5-40), 5, None, text='Quit Game', fontsize=24)
-
 # --------- transition objects ---------
 # --------- instantiating Transition objects ---------
 transition_in_list = []
@@ -377,8 +364,6 @@ sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
 
 def main_menu():
-
-
 
     pygame.mixer.music.load('audio/DamPy.wav')
     pygame.mixer.music.play(-1)
@@ -511,28 +496,35 @@ def sidebar_display(func_called):
 
 # --------- button collision detection function ---------
 
-def btn_collided(x, y):
-    buttons = [key for key in toggle_btn.keys()]
+def btn_collided(x, y, *, btn_dict=None, 
+                is_toggle=False, main_btn=None):
+
+    buttons = [key for key in btn_dict.keys()]
 
     for btn in buttons:
         if btn.btn_rect.collidepoint((x, y)):
-            btn.toggled = not btn.toggled
-        if btn.toggled:
-            btn.set_state(btn.Toggled)
-            start_select_btn.set_target(btn.get_target())
-            start_select_btn.set_args(btn.get_args())
-            for rembtn in buttons:
-                if rembtn != btn and rembtn.toggled:
-                    rembtn.toggled = not rembtn.toggled
-                    rembtn.set_state(btn.Normal)
-        else:
-            btn.set_state(btn.Normal)
+            if is_toggle:
+                btn.toggled = not btn.toggled
+            else:
+                btn.set_state(btn.Selected)
+                btn.call_target()
+        if is_toggle:
+            if btn.toggled:
+                btn.set_state(btn.Toggled)
+                start_select_btn.set_target(btn.get_target())
+                start_select_btn.set_args(btn.get_args())
+                for rembtn in buttons:
+                    if rembtn != btn and rembtn.toggled:
+                        rembtn.toggled = not rembtn.toggled
+                        rembtn.set_state(btn.Normal)
+            else:
+                btn.set_state(btn.Normal)
     
-
     # check if there aren't any toggled buttons
-    if not any(btn.toggled for btn in buttons):
-        start_select_btn.set_target(None)
-        start_select_btn.set_args(None)
+    if is_toggle:
+        if not any(btn.toggled for btn in buttons):
+            main_btn.set_target(None)
+            main_btn.set_args(None)
 
 # --------- select mode function ---------
 
@@ -588,7 +580,8 @@ def select_mode():
                         except:
                             continue
                     else:
-                        btn_collided(x, y)
+                        btn_collided(x, y, btn_dict=toggle_btn, 
+                                    is_toggle=True, main_btn=start_select_btn)
 
         title_up_display()
         pygame.display.update()
@@ -717,82 +710,94 @@ def options_menu():
 
 # --------- pause function ---------
 
-def pause():
+def pause(mode):
+    global thread_running, paused
     paused = True
-    full_trans_reset()
 
-    restart_play_trans = False
-    pause_play_trans = False
+    turn_timer.pause()
+    global_timer.pause()
+
+    # a function to break the while loop since
+    # "break" isn't a function in itself, and 
+    # calling the previous caller function 
+    # will reset the game / requires more modification
+    # to create the desired behavior
+    def unpause():
+        global paused
+        paused = False
+
+    resume_btn.set_target(unpause)
+    options_btn.set_target(options_menu)
+    restart_btn.set_target(game.reset)
+    main_menu_btn.set_target(main_menu)
 
     while paused:
-        screen.fill(OAR_BLUE)
-        screen.blit(TITLE_BG, (0, 0))
 
-        if chip_animation:
-            if game.turn == RED:
-                big_red_chip.play()
-            else:
-                big_blue_chip.play()
+        screen.blit(side_menu_surface, (0, 0))
+        side_menu_surface.fill(DARK_GRAY_BLUE) 
+
+        screen.blit(game_side_surface, (0, 0))
+        game_side_surface.fill(DARK_GRAY_BLUE)
+
+        screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
+        board_area_surface.fill(OAR_BLUE)     
+        damath_board.display()
+
+        # Display side bar elements
+        mini_title.display()
+
+        screen.blit(text_scores,
+                    (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
+
+        screen.blit(global_timer_text,
+                    (game_side_surface.get_width()//2-global_timer_text.get_width()//2, game_side_surface.get_height()*0.825)) 
+
+        screen.blit(text_mode,
+                    (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
+    
+        # overlays the semi-transparent surface
+        screen.blit(alpha_surface, (0, 0))
+
+        # displays the pause window elements
+        pause_window.wupdate(x=SCREEN_WIDTH*0.5-pause_window.width*0.5, 
+                        y=SCREEN_HEIGHT*0.5-pause_window.h*0.5)
+        pause_window.draw()
+
+        screen.blit(pause_text, (pause_window.x+(pause_window.w*0.5-
+                            pause_text.get_width()*0.5), 
+                            SCREEN_HEIGHT*0.25))
+        
+        resume_btn.draw()
+        options_btn.draw()
+        restart_btn.draw()
+        main_menu_btn.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
+                    turn_timer.resume()
+                    global_timer.resume()
                     paused = not paused
-                    break
 
-        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
-        #print(mx, my)
-      
-        if resume_btn.top_rect.collidepoint((mx, my)):
-            resume_btn.hover_update(start_game)
-            restart_btn.reset()
-            pause_options_btn.reset()
-            quit_btn.reset()
-        elif restart_btn.top_rect.collidepoint((mx, my)):
-            restart_btn.hover_update()
-            pause_options_btn.reset()
-            quit_btn.reset()
-            if pygame.mouse.get_pressed()[0]:
-                restart_play_trans = True
-                game.reset()
-        elif pause_options_btn.top_rect.collidepoint((mx, my)):
-            pause_options_btn.hover_update(options_menu, param='pause')
-            resume_btn.reset()
-            restart_btn.reset()
-            quit_btn.reset()
-        elif quit_btn.top_rect.collidepoint((mx, my)):
-            resume_btn.reset()
-            restart_btn.reset()
-            pause_options_btn.reset()   
-            quit_btn.hover_update()  
-            if pygame.mouse.get_pressed()[0]:
-                pygame.mixer.music.play(-1)
-                pause_play_trans = True 
-        else:
-            quit_btn.reset()
-            resume_btn.reset()
-            restart_btn.reset()
-            pause_options_btn.reset()           
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x, y = event.pos
+                    btn_collided(x, y, btn_dict=pause_btns)
 
-        #pygame.draw.rect(paused_surface, BLACK, (0, 0, paused_rect.w, paused_rect.h), border_radius=25)
-        
-        resume_btn.draw()
-        restart_btn.draw()
-        pause_options_btn.draw()
-        quit_btn.draw() 
+        # the attribute pos_reset is checked to see
+        # if the NButton object has been previously clicked 
+        # and is now no longer clicked, which means the function
+        # is already called and the pause window should now close
+        # (used to prevent executing the function without the button 
+        # behaving in its selected state first once clicked)
+        if restart_btn.pos_reset:
+            start_game(mode)
 
-        if restart_play_trans or pause_play_trans:
-            transition_in.play()
-            if transition_in.get_finished():
-                if restart_play_trans:
-                    start_game()
-                else:
-                    main_menu()
-
+        game.update()
         pygame.display.update()
         clock.tick(FPS)
 
@@ -803,20 +808,23 @@ def timer_thread():
     global_timer.reset()
 
     thread_running = True
-    
+
+    turn_timer.start_timer()
+    global_timer.start_timer()  
+
     while thread_running:
         time.sleep(0.1)
         #print(turn_timer.remaining_time)
-        turn_timer.start_timer()
-        global_timer.start_timer()
         
-        if turn_timer.starttime_started:
+        if turn_timer.starttime_started and turn_timer.is_running:
+            turn_timer.update()
             if turn_timer.remaining_time >= 0:
                 turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
             else:
                 game.change_turn()
 
-        if global_timer.starttime_started:
+        if global_timer.starttime_started and global_timer.is_running:
+            global_timer.update()
             if ceil(global_timer.remaining_time) >= 0:
                 global_timer.remaining_time = global_timer.endtime - global_timer.currenttime
             else:
@@ -832,7 +840,7 @@ thread_running = True
 
 def start_game(mode):
 
-    global thread_running
+    global thread_running, text_mode, global_timer_text
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -930,9 +938,9 @@ def start_game(mode):
                         if cheats.ShowMenu:
                             cheats.hide_menus()
                         else:
-                            pause()
+                            pause(mode)
                     else:
-                        pause()
+                        pause(mode)
                     break
             # Legacy cheat codes
                 if CHEATS:
