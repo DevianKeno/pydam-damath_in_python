@@ -727,7 +727,7 @@ def pause(mode):
         paused = False
 
     resume_btn.set_target(unpause)
-    options_btn.set_target(options_menu)
+    options_btn.set_target(mini_options)
     restart_btn.set_target(game.reset)
     main_menu_btn.set_target(main_menu)
 
@@ -801,6 +801,34 @@ def pause(mode):
         pygame.display.update()
         clock.tick(FPS)
 
+def mini_options():
+    option_font = pygame.font.Font('font/CookieRun_Bold.ttf', 120)
+    option_text = option_font.render('NEEDS UI DESIGN >//<', True, WHITE)
+    x = 0
+    running = True
+    while running:
+        screen.fill(OAR_BLUE)
+        screen.blit(pygame.transform.smoothscale_by(option_text, 4),
+                        (SCREEN_WIDTH*0.5-
+                    option_text.get_width()*0.5+x, 
+                    SCREEN_HEIGHT*0.25))
+        screen.blit(option_text, (SCREEN_WIDTH*0.5-
+                    option_text.get_width()*0.5-x, 
+                    SCREEN_HEIGHT*0.1))
+
+        if x < 200:
+            x+=1
+        else:
+            running = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+
+        pygame.display.update()
+        clock.tick(FPS)
+        
 def timer_thread():
 
     global thread_running
