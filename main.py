@@ -48,11 +48,14 @@ clock = pygame.time.Clock()
 font  = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.05))    
 
 # --------- piece move function ---------
-def get_row_col_from_mouse(pos):
+def get_col_row_from_mouse(pos):
     x, y = pos
-    row = (y-selection_guide_rect.h) // square_size
     col = (x-selection_guide_rect.w) // square_size
-    return row, col
+    row = abs(((y-selection_guide_rect.h) // square_size) - 7)
+
+    if enableDebugMode:
+        print(f"[Debug]: Clicked on cell ({col}, {row})")
+    return col, row
 
 def anim_dim():
     return random.randrange(0-CHIP_WIDTH, SCREEN_WIDTH, 1), 0-CHIP_HEIGHT
@@ -880,7 +883,9 @@ def start_game(mode):
     text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
     TIMERTHREAD = threading.Thread(target=timer_thread)
 
-    print(f'[MODE]: {mode}')
+    if enableDebugMode:
+        print(f'[Debug]: Playing on {mode} mode')
+
     start_game_running = True
 
     pygame.mixer.music.stop()
@@ -979,7 +984,7 @@ def start_game(mode):
                         if _keys[pygame.K_w]: # king pieces
 
                             if _keys[pygame.K_1]: # blue pieces
-                                drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                                drow, dcol = get_col_row_from_mouse(pygame.mouse.get_pos())
                                 piece = game.board.get_piece(drow, dcol)
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
@@ -1005,7 +1010,7 @@ def start_game(mode):
                                             game.board.white_left += 1  
 
                             if _keys[pygame.K_2]: # red pieces
-                                drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                                drow, dcol = get_col_row_from_mouse(pygame.mouse.get_pos())
                                 piece = game.board.get_piece(drow, dcol)
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
@@ -1031,7 +1036,7 @@ def start_game(mode):
                                             game.board.red_left += 1  
 
                         elif _keys[pygame.K_1]: # add normal blue piece
-                            drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                            drow, dcol = get_col_row_from_mouse(pygame.mouse.get_pos())
                             piece = game.board.get_piece(drow, dcol)
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
@@ -1053,7 +1058,7 @@ def start_game(mode):
                                         game.board.white_left += 1  
 
                         elif _keys[pygame.K_2]: # add normal red piece
-                            drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                            drow, dcol = get_col_row_from_mouse(pygame.mouse.get_pos())
                             piece = game.board.get_piece(drow, dcol)
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
@@ -1108,7 +1113,7 @@ def start_game(mode):
                             game.board.red_left = 1
                             game.board.white_left = 1
                         if pygame.mouse.get_pressed()[2]: #removes the piece
-                            drow, dcol = get_row_col_from_mouse(pygame.mouse.get_pos())
+                            drow, dcol = get_col_row_from_mouse(pygame.mouse.get_pos())
                             piece = [game.board.get_piece(drow, dcol)]
                             game.board.move_to_graveyard(piece)
 
@@ -1139,7 +1144,7 @@ def start_game(mode):
                     
                     if board_rect.collidepoint(m_pos):
                         pos = pygame.mouse.get_pos()
-                        row, col = get_row_col_from_mouse(pos)
+                        col, row = get_col_row_from_mouse(pos)
 
                         if game.moved_piece != None:
                             if row != game.moved_piece.row or row != game.moved_piece.col:
@@ -1148,10 +1153,10 @@ def start_game(mode):
                         if CHEATS:
                             if not cheats.ShowMenu:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    game.select(row, col)
+                                    game.select(col, row)
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                game.select(row, col)
+                                game.select(col, row)
 
                     if CHEATS:
                         if cheats.ShowMenu:
@@ -1177,7 +1182,7 @@ def start_game(mode):
                 if CHEATS:
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
-                        row, col = get_row_col_from_mouse(m_pos)
+                        row, col = get_col_row_from_mouse(m_pos)
 
                         if not cheats.ShowEVWindow:
                             if (-1 < row < ROWS) and (-1 < col < COLS):

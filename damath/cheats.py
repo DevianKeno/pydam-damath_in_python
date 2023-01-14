@@ -38,13 +38,13 @@ class Cheats:
         self.game = game
 
         self.font = font_cookie_run_reg
-        self.text_box = RectWindow(surface, (0,0), 200, 56, DARK_CERULEAN, 9, 4, WHITE)
+        self.text_box = RectWindow(surface, (0, 0), 200, 56, DARK_CERULEAN, 9, 4, WHITE)
         self.pos = ()
         self.items = []
         self.icons = []
         self.text_list = None
 
-        self.piece = Piece(surface, 0, 0, 0, 0)
+        self.piece = Piece(surface, (0, 0), 0, 0)
         self.row = 0
         self.col = 0
         self.selected = None
@@ -86,7 +86,7 @@ class Cheats:
         self.ShowMenu = True
         self.pos = pos
         self.piece = self.game.board.board[row][col]
-        self.row, self.col = row, col
+        self.col, self.row = row, col
         
         window_color = DARK_CERULEAN
 
@@ -229,24 +229,24 @@ class Cheats:
     def add_piece(self):
         MOVE_SOUND.play()
         self.add_value = self.input.text
-        piece = Piece(chips_surface, self.row, self.col, self.add_color, int(self.add_value))
+        piece = Piece(chips_surface, (self.col, self.row), self.add_color, int(self.add_value))
         self.game.board.add_piece(piece)
-        self.game.moveable_pieces.append((self.row, self.col))
+        self.game.moveable_pieces.append((self.col, self.row))
         self.hide_menus()
 
     def remove(self):
-        piece = self.game.board.get_piece(self.row, self.col)
+        piece = self.game.board.get_piece(self.col, self.row)
         self.game.board.remove(piece)
         print(f"[Cheats]: Removed piece ({self.row}, {self.col})")
         self.hide_menus()
 
     def promote(self):
-        self.game.board.get_piece(self.row, self.col).promote()
+        self.game.board.get_piece(self.col, self.row).promote()
         print(f"[Cheats]: Promoted piece ({self.row}, {self.col})")
         self.hide_menus()
 
     def demote(self):
-        self.game.board.get_piece(self.row, self.col).demote()
+        self.game.board.get_piece(self.col, self.row).demote()
         print(f"[Cheats]: Demoted piece ({self.row}, {self.col})")
         self.hide_menus()
 

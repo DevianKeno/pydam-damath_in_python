@@ -9,12 +9,13 @@ class Piece(Image):
 
     mode = MODE
 
-    def __init__(self, surface, row, col, color, number):
+    def __init__(self, surface, cell=(), color=None, value=''):
         self.surface = surface
-        self.row = row
-        self.col = col
+        self.cell = cell
+        self.col = cell[0]
+        self.row = cell[1]
         self.color = color
-        self.number = number
+        self.number = value
         self.num = None
         self.CanMove = True
         self.HasPossibleCapture = False
@@ -49,7 +50,7 @@ class Piece(Image):
 
     def calc_pos(self):
         self.x = square_size * self.col + square_size//2 - self.w//2
-        self.y = square_size * self.row
+        self.y = square_size * abs(self.row-7)
 
     def make_king(self):
         self.IsOnPromotion = True
@@ -102,10 +103,9 @@ class Piece(Image):
             self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
             self.surface.blit(self.text_surface, self.text_rect) 
 
-
-    def move(self, row, col):
-        self.row = row
+    def move(self, col, row):
         self.col = col
+        self.row = row
         self.calc_pos()
 
     def __repr__(self):

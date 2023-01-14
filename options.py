@@ -2,6 +2,8 @@
 Game options.
 """
 
+enableDebugMode = True
+
 MANDATORY_CAPTURE = True
 CHEATS = True
 TIMER = True
