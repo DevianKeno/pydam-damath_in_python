@@ -4,6 +4,7 @@ from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.piece import Piece
 from display_constants import screen
 from objects import chips_surface, font_cookie_run_reg, cheats_window_blue, icon_add, icon_remove, icon_promote, icon_demote, icon_change_turn, icon_promote_all, icon_demote_all, icon_remove_all, icon_pause_timer, icon_resume_timer
+from options import enableAnimations
 from ui_class.colors import *
 from ui_class.font import *
 from ui_class.text import Text
@@ -57,9 +58,12 @@ class Cheats:
         self.TimerIsPaused = False
         self.IsTyping = False
 
-        self.dd = Dropdown(self.surface, self.text_list)
+        self.dropdown = Dropdown(self.surface, self.text_list)
 
-        # Add piece window elements
+        """
+        "Add Piece" window elements
+        """
+
         self.ev_window = RectWindow(surface, (ev_window_rect.topleft), ev_window_rect.w, ev_window_rect.h, DARK_CERULEAN, ev_window_radius, 4, WHITE)
 
         self.prompt = Text(surface, CookieRun_Regular, font_size, WHITE)
@@ -82,7 +86,11 @@ class Cheats:
         self.done_hover_area = self.done.text_surface.get_rect(center=(ev_window_rect.x+ev_window_rect.w*0.1, ev_window_rect.y+ev_window_rect.h*0.8), width=ev_window_rect.w*0.8)
         self.done.text = "Done"
 
-    def create_dd(self, pos, row, col, OnBoard=True):
+    def create_dropdown(self, pos, row, col, OnBoard=True):
+        """
+        Creates the main dropdown menu.
+        """
+        
         self.ShowMenu = True
         self.pos = pos
         self.piece = self.game.board.board[row][col]
@@ -121,11 +129,15 @@ class Cheats:
                 self.icons[4] = icon_resume_timer
 
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
-        self.dd = Dropdown(self.surface, self.text_list)
-        self.dd.create(pos, color=window_color)
-        self.dd.IsHoverable = True
+        self.dropdown = Dropdown(self.surface, self.text_list)
+        self.dropdown.create(pos, color=window_color)
+        self.dropdown.IsHoverable = True
 
     def create_ev_window(self):
+        """
+        Creates the "Enter Value" window.
+        """
+
         self.ShowEVWindow = True
         self.ev_window.wupdate(x=board_centerx, y=board_centery, width=0, height=0)
         
@@ -133,32 +145,40 @@ class Cheats:
         self.anim_ev_window_inner = Scale_Rect(self.ev_window.inner_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
         self.anim_ev_window_shadow = Scale_Rect(self.ev_window.shadow_surf_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
         
-
     def draw_menu(self):
         if not self.ShowMenu:
             return
 
-        self.dd.draw()
+        self.dropdown.draw()
 
         if not self.ShowEVWindow:
             return
         
-        self.dd.IsHoverable = False
+        self.dropdown.IsHoverable = False
         self.ev_window.draw()
 
         pygame.draw.rect(self.surface, WHITE, self.text_box_rect, 0, 6)
         self.prompt.draw()
         self.input_box.draw()
         self.done.draw()
-        
-        if self.anim_ev_window.IsFinished:
-            return
 
-        self.anim_ev_window.play()
-        self.anim_ev_window_inner.play()
-        self.anim_ev_window_shadow.play()
+        if enableAnimations:
+            if self.anim_ev_window.IsFinished:
+                return
+
+            self.anim_ev_window.play()
+            self.anim_ev_window_inner.play()
+            self.anim_ev_window_shadow.play()
 
     def hide_menus(self, windows=0):
+        """
+        Hides the menus.
+
+        Args
+        0: Hide all.
+        1: Hide dropdown menu.
+        2: Hide "Enter Value" window.
+        """
         match windows:
             case 0:
                 self.ShowMenu = False
@@ -181,7 +201,11 @@ class Cheats:
             self.selected_done = 0
 
     def invoke(self):
-        self.selected = self.dd.get_selected()
+        """
+        Executes the selected option.
+        """
+        
+        self.selected = self.dropdown.get_selected()
 
         if self.ShowEVWindow:
             self.add_piece()

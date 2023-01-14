@@ -63,14 +63,14 @@ class Scoreboard:
         if turn == PLAYER_ONE:
             scoreboard_p1_chip.display()
             scoreboard_p2_chip.display(100)
-            if TIMER:
+            if enableTimer:
                 if remtime > 10: timer_text = timerfont.render(str(remtime), True, (DARK_GRAY_BLUE))
                 else: timer_text = timerfont.render(str(remtime), True, (RED))
                 self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
             scoreboard_p2_chip.display()
             scoreboard_p1_chip.display(100)
-            if TIMER:
+            if enableTimer:
                 if remtime > 10: timer_text = timerfont.render(str(remtime), True, (PERSIMMON_ORANGE))
                 else: timer_text = timerfont.render(str(remtime), True, (RED))
                 self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))

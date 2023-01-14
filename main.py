@@ -257,7 +257,7 @@ board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
 
-if CHEATS:
+if enableCheats:
     cheats = Cheats(screen, game)
 
 if chip_animation:  
@@ -345,6 +345,7 @@ anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=pin
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
 
 # --------- Side menu rect tweenable --------- 
+
 TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
 
 anim_TEST_side_menu_breathe = Move_Rect(TEST_side_menu, (TEST_side_menu.x+200, TEST_side_menu.y), 1, ease_type=easeInOutSine, loop=ping_pong)
@@ -893,7 +894,7 @@ def start_game(mode):
 
     while start_game_running:
 
-        if TIMER:
+        if enableTimer:
             if not TIMERTHREAD.is_alive():
                 TIMERTHREAD.start() 
 
@@ -950,7 +951,7 @@ def start_game(mode):
         screen.blit(text_mode,
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
-        if CHEATS:
+        if enableCheats:
             if cheats.ShowMenu:
                 cheats.draw_menu()
 
@@ -967,7 +968,7 @@ def start_game(mode):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                    if CHEATS:
+                    if enableCheats:
                         if cheats.ShowMenu:
                             cheats.hide_menus()
                         else:
@@ -976,7 +977,7 @@ def start_game(mode):
                         pause(mode)
                     break
             # Legacy cheat codes
-                if CHEATS:
+                if enableCheats:
                     _keys = pygame.key.get_pressed()
                     
                     if _keys[pygame.K_LCTRL]:
@@ -1150,7 +1151,7 @@ def start_game(mode):
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
                             
-                        if CHEATS:
+                        if enableCheats:
                             if not cheats.ShowMenu:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
                                     game.select(col, row)
@@ -1158,7 +1159,7 @@ def start_game(mode):
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 game.select(col, row)
 
-                    if CHEATS:
+                    if enableCheats:
                         if cheats.ShowMenu:
                             if cheats.dd.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
                                 cheats.invoke()
@@ -1179,16 +1180,16 @@ def start_game(mode):
                                 cheats.IsTyping = False
                                 cheats.hide_menus()
                             
-                if CHEATS:
+                if enableCheats:
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
                         row, col = get_col_row_from_mouse(m_pos)
 
                         if not cheats.ShowEVWindow:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                cheats.create_dd(m_pos, row, col)
+                                cheats.create_dropdown(m_pos, row, col)
                             else:
-                                cheats.create_dd(m_pos, row, col, OnBoard=False)
+                                cheats.create_dropdown(m_pos, row, col, OnBoard=False)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

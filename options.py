@@ -4,9 +4,9 @@ Game options.
 
 enableDebugMode = True
 
-MANDATORY_CAPTURE = True
-CHEATS = True
-TIMER = True
+enableMandatoryCapture = True
+enableCheats = True
+enableTimer = True
 
 _MODES = [
     'Naturals', 'Integers', 
@@ -15,3 +15,5 @@ _MODES = [
     ]
 
 MODE = _MODES[1]
+
+enableAnimations = True

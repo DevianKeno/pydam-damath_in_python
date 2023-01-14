@@ -118,7 +118,9 @@ class Board:
 
         self.board = [[0]*COLS for i in range(ROWS)]
 
-        # Generate player one chips
+        """
+        Generate player one chips
+        """
         val_counter = 11
 
         for row in range(2, -1, -1):
@@ -134,7 +136,9 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        # Generate player two chips
+        """
+        Generate player two chips
+        """
         val_counter = 0
 
         for row in range(7, 4, -1):
@@ -150,12 +154,14 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        # Generate imaginary pieces :(
+        """
+        Generate imaginary pieces at the middle of the board
+        """
         for row in range(3, 5, 1):
             for col in range(COLS):
                 self.board[col][row] = Piece(surface, (col, row), 0, 0)
         
-        # print(f"Buffer")
+        # print(f"Buffer") # Debug
 
     def set_mode(self, mode):
         self.mode = mode
@@ -163,31 +169,38 @@ class Board:
         self.init_chips(self.surface)
         self.draw_chips(self.surface)
 
-    def move(self, piece, col, row, number):
+    def move_piece(self, piece, dest_cell=()):
+        """
+        Moves piece to destination cell.
+        """
         if enableDebugMode:
-            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({col}, {row})")
+            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({dest_cell[0]}, {dest_cell[1]})")
 
         _piece = self.board[piece.col][piece.row]
-        _piece_dest = self.board[col][row]
-        self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
-        self.anim.play()
+        _piece_dest = self.board[dest_cell[0]][dest_cell[1]]
+
+        # Play animation
+        if enableAnimations:
+            self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
+            self.anim.play()
 
         # Swap current piece with destination
-        self.board[piece.col][piece.row], self.board[col][row] = self.board[col][row], self.board[piece.col][piece.row]
+        self.board[piece.col][piece.row], self.board[dest_cell[0]][dest_cell[1]] = self.board[dest_cell[0]][dest_cell[1]], self.board[piece.col][piece.row]
         # Re-swap x and y variables
         _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
         _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
-        self.moveables.append((col, row))
+        # Set dest cell as movable
+        self.moveables.append((dest_cell[0], dest_cell[1]))
         del self.moveables[self.moveables.index((piece.col, piece.row))]
         
-        piece.move(col, row)
+        piece.move(dest_cell[0], dest_cell[1])
 
     def check_for_kings(self, piece):
-        if piece.IsKing:
-            return
-            
-        if piece.HasPossibleCapture:
+        """
+        Checks for possible kings. Executed once after every move.
+        """
+        if piece.IsKing and piece.HasPossibleCapture:
             return
 
         if piece.color == PLAYER_ONE:

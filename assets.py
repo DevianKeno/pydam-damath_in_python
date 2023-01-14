@@ -7,6 +7,10 @@ from damath.constants import *
 
 # --------- x --------- 
 
+TITLE = pygame.image.load('new_assets/title.png').convert_alpha()
+
+# --------- x --------- 
+
 BOARD = pygame.image.load('new_assets\\board_default.png').convert_alpha()
 BOARD_SHADOW = pygame.image.load('new_assets\\board_shadow_bg.png').convert()
 
