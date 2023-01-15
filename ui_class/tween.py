@@ -11,13 +11,17 @@ class Move:
     """
     Move animation.
     """
-    def __init__(self, object, pos=(), time_in_seconds=0, ease_type=linear, loop=none):
+    def __init__(self, object, pos=(), time_in_seconds=0, ease_type=linear, loop=none, init_pos=()):
         self.object = object
-        self.pos_x = object.x
-        self.pos_y = object.y
+
+        if len(init_pos) == 0:
+            self.pos_x = object.x
+            self.pos_y = object.y
+        else:
+            self.pos_x, self.pos_y = init_pos # added to store/update the initial position of the object
         self.new_pos = pos
-        self.distance_x = pos[0] - object.x
-        self.distance_y = pos[1] - object.y 
+        self.distance_x = pos[0] - self.pos_x
+        self.distance_y = pos[1] - self.pos_y 
         self.time_in_seconds = time_in_seconds
         self.ease_type = ease_type
         self.loop = loop
@@ -29,9 +33,9 @@ class Move:
         self.step = 0
         self.values = []
 
-        if pos[0] != object.x:
+        if pos[0] != self.pos_x:
             self.anim_x = True
-        if pos[1] != object.y:
+        if pos[1] != self.pos_y:
             self.anim_y = True
 
         if time_in_seconds != 0:

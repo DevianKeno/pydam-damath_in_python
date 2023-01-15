@@ -8,7 +8,9 @@ from ui_class.new_btn import NButton
 from ui_class.rect_window import RectWindow
 from ui_class.textlist import TextList
 from ui_class.tween import *
+from ui_class.main_menu import Sidebar
 from ui_class.window import Window
+from ui_class.mode_window import ModeWindow
 from ui_class.rect_window import create_window
 
 # --------- Fonts --------- 
@@ -121,6 +123,18 @@ toggle_btn = {
     custom_btn : False
 }
 
+# --------- Sidebar objects --------- 
+sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
+
+# --------- Mode Toggleables Window  --------- 
+
+mode_window = ModeWindow(screen, (sidebar.sidebar_rect.x+
+                (0.0075*sidebar.sidebar_rect.w), SCREEN_HEIGHT*0.5),
+                200, 300, '#486582', border_color='#425D78', 
+                border_radius=10, border_thickness=8, button_pos=(0, 0),
+                button_width=125, button_height=50, button_text=" ",
+                button_shadow_offset=8)
+
 # --------- Text Lists  --------- 
 
 icon_add = Image(ICON_ADD, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
@@ -183,3 +197,61 @@ pause_btns = {
     restart_btn : False,
     main_menu_btn : False    
 }
+
+# --------- Toggleables Window Objects  --------- 
+
+# ----- symbols  -----
+add_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '+', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            fontstyle='font/CookieRun_Bold.ttf')
+sub_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '-', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            fontstyle='font/CookieRun_Bold.ttf')
+mul_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '×', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            fontstyle='font/CookieRun_Bold.ttf')
+div_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '÷', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            fontstyle='font/CookieRun_Bold.ttf')
+random_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '?', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            fontstyle='font/CookieRun_Bold.ttf')
+
+symbols_btn = {
+    add_btn: False,
+    sub_btn: False,
+    mul_btn: False,
+    div_btn: False,
+    random_btn: False
+}
+
+for key in [symbol for symbol in symbols_btn.keys()][:4]:
+    key.toggled = True
+    key.set_state(NButton.Toggled)
+
+# ----- values  -----
+none_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), 'None', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.0275),
+            fontstyle='font/CookieRun_Bold.ttf')
+naturals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '1', shadow_offset=8,
+            fontstyle='font/CookieRun_Bold.ttf')
+integers_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '-2', shadow_offset=8,
+            fontstyle='font/CookieRun_Bold.ttf')
+rationals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '⅓', shadow_offset=8,
+            fontstyle='font/CookieRun_Bold.ttf')
+radicals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '√', shadow_offset=8,
+            fontstyle='font/CookieRun_Bold.ttf')
+polynomial_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), 'XY', shadow_offset=8,
+            border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.04),
+            fontstyle='font/CookieRun_Bold.ttf')

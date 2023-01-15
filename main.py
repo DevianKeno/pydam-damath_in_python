@@ -27,6 +27,7 @@ from ui_class.image import *
 from ui_class.tween import *
 from ui_class.slider import Slider
 from ui_class.rect_window import *
+from ui_class.mode_window import *
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -233,16 +234,17 @@ return_btn          = Button(screen, 70, 70, (20, 20), 4, image=return_img, imag
 # --------- list of available themes in the game ---------
 themes = ThemesList(screen)
 
-BOARDS = [BOARD_BLACK,   BOARD_GREEN, 
-          BOARD_BROWN,   BOARD_LIGHTBROWN,
-          BOARD_PINK,    BOARD_BROWN_2, 
-          BOARD_BROWN_3, BOARD_BLUE, 
-          BOARD_RED,     BOARD_COCO_MARTHEME]
+# BOARDS = [BOARD_BLACK,   BOARD_GREEN, 
+#           BOARD_BROWN,   BOARD_LIGHTBROWN,
+#           BOARD_PINK,    BOARD_BROWN_2, 
+#           BOARD_BROWN_3, BOARD_BLUE, 
+#           BOARD_RED,     BOARD_COCO_MARTHEME]
 
-for idx, board in enumerate(BOARDS):
-    themes.append(Themes(screen, board, idx))
+# for idx, board in enumerate(BOARDS):
+#     themes.append(Themes(screen, board, idx))
 
-BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
+# BOARD_DEFAULT_THEME = themes.list[themes.focused].board #black board
+BOARD_DEFAULT_THEME = BOARD_BLACK
 
 # --------- instantiating the Damath Board and Scoreboard  ---------
 
@@ -340,12 +342,15 @@ def full_trans_reset():
 
 title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
-              (title_surface.get_width()*0.942, title_surface.get_height()*0.261))
+              (TITLE.get_width(), TITLE.get_height()))
 
-anim_title_up = Move(title, (title.x, SCREEN_HEIGHT//10), 1, ease_type=easeInOutSine)
+anim_title_up = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine)
+anim_title_upper = Move(title, (title.x, 0-TITLE.get_height()), 1, ease_type=easeInOutSine, init_pos=(title.x, SCREEN_HEIGHT*0.1))
+anim_title_down = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine, init_pos=(title.x, 0-TITLE.get_height()))
 anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
+
 
 # --------- Side menu rect tweenable --------- 
 
@@ -366,9 +371,6 @@ fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_
 slider_color = (65, 87, 110)
 music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
 sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
-
-# --------- Sidebar objects --------- 
-sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
 
 def main_menu():
 
@@ -436,6 +438,109 @@ def title_up_display():
     title.display()
     screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
             sidebar.sidebar_rect.w-title_surface.get_width()//2, 0))
+
+def title_upper(*args):
+    anim_title_upper.play()
+    mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
+                (0.05*SCREEN_WIDTH),y=title.y+TITLE.get_height()*2,
+                width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
+                (sidebar.sidebar_rect.w+(0.05*SCREEN_WIDTH)),
+                height=SCREEN_HEIGHT*0.8-(title.y+TITLE.get_height()*2))
+    mode_window.rect_window.draw()
+
+    if anim_title_upper.IsFinished:
+        anim_title_down.reset()
+
+        heading = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
+        subheading = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.035))
+
+        board_text = heading.render('Board', True, WHITE)
+        pieces_text = heading.render('Pieces', True, WHITE)
+        symbols_text = subheading.render('Symbols', True, WHITE)
+        values_text = subheading.render('Values', True, WHITE)
+        promotion_text = subheading.render('Promotion', True, WHITE)
+
+        screen.blit(board_text, (mode_window.rect_window.x+
+                    mode_window.rect_window.w*0.025,
+                    mode_window.rect_window.y+
+                    mode_window.rect_window.h*0.05))
+        screen.blit(symbols_text, (mode_window.rect_window.x+
+                    mode_window.rect_window.w*0.025,
+                    mode_window.rect_window.y+
+                    mode_window.rect_window.h*0.05 + 
+                    board_text.get_height()*1.5))
+        screen.blit(pieces_text, (mode_window.rect_window.x+
+                    mode_window.rect_window.w*0.025,
+                    mode_window.rect_window.y+
+                    mode_window.rect_window.h*0.05 + 
+                    board_text.get_height()*2.5))
+        screen.blit(values_text, (mode_window.rect_window.x+
+                    mode_window.rect_window.w*0.025,
+                    mode_window.rect_window.y+
+                    mode_window.rect_window.h*0.05 + 
+                    board_text.get_height()*3.75))
+        screen.blit(promotion_text, (mode_window.rect_window.x+
+                    mode_window.rect_window.w*0.025,
+                    mode_window.rect_window.y+
+                    mode_window.rect_window.h*0.05 + 
+                    board_text.get_height()*5))
+
+        add_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.6,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*1.25))
+        sub_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.675,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*1.25))
+        mul_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.75,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*1.25))
+        div_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.825,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*1.25))
+        random_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.9,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*1.25))
+        
+        none_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.525,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
+        naturals_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.6,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
+        integers_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.675,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
+        rationals_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.75,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
+        radicals_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.825,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
+        polynomial_btn.draw((mode_window.rect_window.x+
+                        mode_window.rect_window.w*0.9,
+                        mode_window.rect_window.y+
+                        mode_window.rect_window.h*0.05 + 
+                        board_text.get_height()*3.5))
 
 added = False
 def sidebar_display(func_called):
@@ -541,8 +646,10 @@ def select_mode():
 
     classic_btn.set_target(start_game)
     speed_btn.set_target(start_game)
+    move_title = False
     running = True
     anim_title_up.play()
+    text_option = font.render('Modes', True, WHITE)
 
     while running:
     
@@ -550,28 +657,43 @@ def select_mode():
         sidebar_display(select_mode)
 
         if fade_screen.finished:
-            screen.blit(font.render('Modes', True, WHITE), 
-                                (sidebar.sidebar_rect.width + 
-                                (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
-                                SCREEN_HEIGHT/2.5))
+            screen.blit(text_option, (sidebar.sidebar_rect.width + 
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
+                        title.y+TITLE.get_height()*1.15))
             classic_btn.draw((sidebar.sidebar_rect.width + 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10, 
-                                SCREEN_HEIGHT/2))
+                                title.y+TITLE.get_height()*1.5))
             speed_btn.draw((((sidebar.sidebar_rect.width + 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 + 
                                 btn_size[0])+(sidebar.sidebar_rect.width + 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
-                                btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2))
+                                btn_size[0]))/2 - btn_size[0]/2, title.y+TITLE.get_height()*1.5))
             custom_btn.draw(((sidebar.sidebar_rect.width + 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
-                                btn_size[0]), SCREEN_HEIGHT/2))
+                                btn_size[0]), title.y+TITLE.get_height()*1.5))
             start_select_btn.draw(((sidebar.sidebar_rect.width + 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
                                 (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
                                 btn_size[0]), 
-                                SCREEN_HEIGHT/1.25))
+                                SCREEN_HEIGHT*0.85))
+
+            if move_title:
+                title_upper()
+            else:
+                if anim_title_upper.IsFinished:
+                    anim_title_down.play()
+                    if anim_title_down.IsFinished:
+                        anim_title_upper.reset()
+                mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
+                        (0.05*SCREEN_WIDTH),
+                        y=title.y+TITLE.get_height()*2.2,
+                        width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
+                        (sidebar.sidebar_rect.w+
+                        (0.05*SCREEN_WIDTH)),
+                        height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
+                mode_window.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -590,6 +712,10 @@ def select_mode():
                     else:
                         btn_collided(x, y, btn_dict=toggle_btn, 
                                     is_toggle=True, main_btn=start_select_btn)
+                        if custom_btn.toggled:
+                            move_title = True
+                        else:
+                            move_title = False
 
         title_up_display()
         screen.blit(CURSOR, pygame.mouse.get_pos())
@@ -635,10 +761,12 @@ def help_menu():
     anim_title_up.play()
     running = True
 
-    t1_rectwin = create_window(screen, (500, 350),200, 300, DARK_BLUE)
+    t1_rectwin = create_window(screen, (sidebar.sidebar_rect.x+(0.0075*sidebar.sidebar_rect.w), SCREEN_HEIGHT*0.5), 200, 300, '#486582', border_color='#425D78', border_radius=10, border_thickness=8, cast_shadow=False)
     t2_rectwin = create_window(screen, (750, 350), 200, 100, PERSIMMON_ORANGE, border_radius=8, border_thickness=2)
     t3_rectwin = create_window(screen, (1000, 350), 200, 100, DARK_ORANGE, border_thickness=10)
     t4_rectwin = create_window(screen, (750, 475), 475, 175, DARK_BLUE, border_thickness=16) 
+
+    expand_btn = NButton(screen, (0, 0), 125, 50, " ", border_radius=8, shadow_offset=8)
 
     while running:
         screen.fill(OAR_BLUE)
@@ -657,10 +785,61 @@ def help_menu():
                 pygame.quit()
                 sys.exit()
 
+        t1_rectwin.wupdate(x=sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w),
+                            width=SCREEN_WIDTH-(0.25*sidebar.sidebar_rect.w)-
+                            (sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w)),
+                            height=SCREEN_HEIGHT*0.125)
+
         t1_rectwin.draw()
-        t2_rectwin.draw()
-        t3_rectwin.draw()
-        t4_rectwin.draw()
+
+        expand_btn.draw((t1_rectwin.x+t1_rectwin.w*0.5-expand_btn.get_rect().w*0.5, 
+                        t1_rectwin.y+t1_rectwin.h-
+                        expand_btn.get_rect().h*0.5))
+
+        # gfxdraw.aatrigon(screen, int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
+        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25), 
+        #                     int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
+        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25),
+        #                     int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.5), 
+        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75), 
+        #                     pygame.Color('#425D78'))
+
+        gfxdraw.filled_polygon(screen, 
+                            [
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.515), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.485), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
+                            ],
+                            pygame.Color('#486582'))
+
+        gfxdraw.aapolygon(screen, 
+                            [
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.525), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.475), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
+                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
+                            ],
+                            pygame.Color('#425D78'))
+        # t2_rectwin.draw()
+        # t3_rectwin.draw()
+        # t4_rectwin.draw()
         title_up_display()
         screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
