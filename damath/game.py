@@ -83,17 +83,19 @@ class Game:
         turn_timer.stop()
         global_timer.stop()
         
-    def select(self, col, row):
+    def select(self, cell):
         """
         Selects a cell given the column and row arguments.
         """
         
+        col, row = self.board.get_col_row(cell)
+
         if self.selected:
             result = self._move(col, row)
 
             if not result:
                 self.selected = None
-                self.select(col, row)
+                self.select(cell)
 
         if self.moved_piece == None:
             piece = self.board.get_piece(col, row)

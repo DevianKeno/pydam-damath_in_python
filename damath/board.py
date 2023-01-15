@@ -73,6 +73,9 @@ class Board:
             self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
                                       spacing = board_y_coords_rect.h * 0.0775,
                                       padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
+                                      
+        if enableDebugMode:
+            print(f"[Debug]: Board flipped")
 
     def draw_coordinates(self):
         self.x_coordinates.draw(board_x_coords_surface, (0, 0))
@@ -120,6 +123,23 @@ class Board:
                     case 7:
                         self.symbol_map.update({(col, row):SYMBOLS_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
+
+    def get_col_row(self, cell):
+        """
+        Returns a board's column and row for the selected cell.
+        """
+        
+        if self.IsFlipped:
+            col = abs(cell[0] - 7)
+            row = cell[1]
+        else:
+            col = cell[0]
+            row = abs(cell[1] - 7)
+
+        if enableDebugMode:
+            print(f"[Debug]: Selected cell ({col}, {row}), board")
+
+        return col, row
 
     def init_chips(self, surface):
         val_counter = 0
