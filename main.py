@@ -37,6 +37,9 @@ pygame.init()
 pygame.font.init()
 pygame.mixer.init(44100, -16, 2, 2048)
 
+# --------- custom cursor ---------
+pygame.mouse.set_visible(False)
+
 # --------- defining constants / objects for screen  ---------
 
 ANIM_SPEED  = 20
@@ -384,7 +387,7 @@ def main_menu():
     anim_TEST_side_menu_breathe.play()
 
     while True:
-        
+
         screen.fill(OAR_BLUE)
         
         screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
@@ -417,6 +420,7 @@ def main_menu():
         # anim_TEST_side_menu_scale.update()
         # anim_TEST_side_menu_breathe.update()
         
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)     
 
@@ -588,6 +592,7 @@ def select_mode():
                                     is_toggle=True, main_btn=start_select_btn)
 
         title_up_display()
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)
 
@@ -618,6 +623,7 @@ def online_menu():
                 sys.exit()
 
         title_up_display()
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)
 
@@ -656,6 +662,7 @@ def help_menu():
         t3_rectwin.draw()
         t4_rectwin.draw()
         title_up_display()
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)
 
@@ -709,6 +716,7 @@ def options_menu():
                 sys.exit()
 
         title_up_display()
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)
 
@@ -798,9 +806,14 @@ def pause(mode):
         # is already called and the pause window should now close
         # (used to prevent executing the function without the button 
         # behaving in its selected state first once clicked)
+        if resume_btn.pos_reset:
+            turn_timer.resume()
+            global_timer.resume()
+
         if restart_btn.pos_reset:
             start_game(mode)
 
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         game.update()
         pygame.display.update()
         clock.tick(FPS)
@@ -830,6 +843,7 @@ def mini_options():
                 pygame.quit()
                 sys.exit()
 
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
         clock.tick(FPS)
         
@@ -1198,8 +1212,9 @@ def start_game(mode):
         # transition_out.play() 
 
         # return_btn.display_image() 
+        screen.blit(CURSOR, pygame.mouse.get_pos())
         game.update()
-        pygame.display.update()
+        #pygame.display.update()
         clock.tick(FPS)
  
 # --------- themes menu function ---------
