@@ -1123,6 +1123,12 @@ def start_game(mode):
         # damath_board_shadow.display()
         damath_board.display()
 
+        # Render coordinates surface
+        board_area_surface.blit(board_x_coords_surface, board_x_coords_rect)
+        board_area_surface.blit(board_y_coords_surface, board_y_coords_rect)
+        board_x_coords_surface.fill(DARK_GRAY_BLUE)
+        board_y_coords_surface.fill(DARK_GRAY_BLUE)
+
         # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
         
@@ -1354,7 +1360,7 @@ def start_game(mode):
 
                     if enableCheats:
                         if cheats.ShowMenu:
-                            if cheats.dd.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
+                            if cheats.dropdown.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
                                 cheats.invoke()
                             elif cheats.ShowEVWindow:
                                 if cheats.ev_window.collidepoint(m_pos):

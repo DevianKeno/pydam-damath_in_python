@@ -24,6 +24,9 @@ font_cookie_run_blk = pygame.font.Font('font\CookieRun_Black.ttf', int(SIDE_MENU
 game_side_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 board_area_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 
+
+# --------- Damath Board --------- 
+
 damath_board = Image(BOARD, board_area_surface,
                      (board_area_surface.get_width()//2, board_area_surface.get_height()//2),
                      (board_area_surface.get_width()*0.744, board_area_surface.get_height()*0.926))
@@ -32,11 +35,20 @@ damath_board_shadow = Image(BOARD_SHADOW, board_area_surface,
                      (board_area_surface.get_width()//2-1, board_area_surface.get_height()//2),
                      (board_area_surface.get_width(), board_area_surface.get_height()))
 
+# --------- Damath Board Coordinates --------- 
+
+board_x_coords_rect = pygame.Rect((damath_board.x+damath_board.w*0.08, damath_board.y+damath_board.h*0.924),
+                                  (damath_board.w*0.84, damath_board.h*0.034))
+board_y_coords_rect = pygame.Rect((damath_board.x+damath_board.w*0.045, damath_board.y+damath_board.h*0.08),
+                                  (damath_board.w*0.034, damath_board.h*0.84))
+
+board_x_coords_surface = pygame.Surface((board_x_coords_rect.w, board_x_coords_rect.h))
+board_y_coords_surface = pygame.Surface((board_y_coords_rect.w, board_y_coords_rect.h))
 
 tiles_rect = pygame.Rect((0, 0), (damath_board.w*0.833, damath_board.h*0.833))
 tiles_rect.center = (board_area_surface.get_width()//2, board_area_surface.get_height()//2)
 
-chips_surface = pygame.Surface((tiles_rect.w, tiles_rect.h+tiles_rect.h))
+chips_surface = pygame.Surface((tiles_rect.w, tiles_rect.h))
 
 p1_captured_pieces_rect = pygame.Rect((board_area_surface.get_width() * 0.843, board_area_surface.get_height() * 0.075),
                                       (board_area_surface.get_width() * 0.148, board_area_surface.get_height() * 0.876))

@@ -43,6 +43,7 @@ class Game:
         self.board.draw_contents(self.surface)
         self.draw_indicators(self.surface)
         self.board.draw_chips(self.surface)
+        self.board.draw_coordinates()
 
         self.scoreboard.draw_scores()
         self.scoreboard.draw_turn_indicator(self.turn)
@@ -105,6 +106,7 @@ class Game:
             if enableMandatoryCapture:
                 if not (piece.col, piece.row) in self.moveable_pieces:
                     return False
+
                 if self.RequiresCapture:
                     get_moves = "capture"
 

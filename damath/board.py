@@ -1,11 +1,12 @@
 import pygame
 from .piece import Piece
 from .constants import *
-from assets import BOARD
 from audio_constants import *
 from display_constants import BG_COLOR
+from ui_class.font import *
+from ui_class.textlist import TextList
 from ui_class.tween import *
-from objects import p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
+from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
 from options import *
 
 pygame.mixer.init()
@@ -20,6 +21,9 @@ class Board:
         self.board = []
         self.theme = theme    
         self.symbol_map = {}
+        self.x_coordinates = None
+        self.y_coordinates = None
+        self.IsFlipped = True
 
         self.blue_pieces_count = 12
         self.orange_pieces_count = 12
@@ -33,9 +37,47 @@ class Board:
         self.anim_capture = None
         
         self.init_chips(self.surface)
+        
+        self.font_size = int(board_y_coords_rect.w * 0.9)
+        self.font = pygame.font.Font(CookieRun_Regular, self.font_size)
+
+        self.rotate_180()
 
     def update_theme(self, theme):
         self.theme = theme
+
+    def rotate_180(self):
+        if self.IsFlipped:
+            self.IsFlipped = False        
+            _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
+            _y_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
+
+            self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates,
+                                        spacing = board_x_coords_rect.w * 0.105, 
+                                        padding = [0, board_x_coords_rect.w * 0.05, 0, board_x_coords_rect.h * 0.2],
+                                        vertical = False)
+            self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
+                                        spacing = board_y_coords_rect.h * 0.0775,
+                                      padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
+        else:
+            self.IsFlipped = True
+            _x_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
+            _y_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
+            
+            self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates, spacing=0)
+
+            self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates,
+                                        spacing = board_x_coords_rect.w * 0.10, 
+                                        padding = [0, board_x_coords_rect.w * 0.05, 0, board_x_coords_rect.h * 0.2],
+                                        vertical = False)
+            self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
+                                      spacing = board_y_coords_rect.h * 0.0775,
+                                      padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
+
+    def draw_coordinates(self):
+        self.x_coordinates.draw(board_x_coords_surface, (0, 0))
+        self.y_coordinates.draw(board_y_coords_surface, (0, 0))
+        pass
 
     def init_symbols(self, surface):
         surface.fill('#B9BABB')
