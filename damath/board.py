@@ -38,13 +38,24 @@ class Board:
         self.font_size = int(board_y_coords_rect.w * 0.9)
         self.font = pygame.font.Font(CookieRun_Regular, self.font_size)
 
-        self.IsFlipped = True
-        self.rotate_180()
-        
+        self.IsFlipped = False
+        self._init_rotation()
         self._init_chips(self.surface)
 
     def update_theme(self, theme):
         self.theme = theme
+
+    def _init_rotation(self):        
+        _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
+        _y_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
+
+        self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates,
+                                    spacing = board_x_coords_rect.w * 0.105, 
+                                    padding = [0, board_x_coords_rect.w * 0.05, 0, board_x_coords_rect.h * 0.2],
+                                    vertical = False)
+        self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
+                                    spacing = board_y_coords_rect.h * 0.0775,
+                                    padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
 
     def rotate_180(self):
         if self.IsFlipped:
@@ -67,18 +78,29 @@ class Board:
             self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates, spacing=0)
 
             self.x_coordinates = TextList(self.font, OAR_BLUE, _x_coordinates,
-                                        spacing = board_x_coords_rect.w * 0.10, 
+                                        spacing = board_x_coords_rect.w * 0.105, 
                                         padding = [0, board_x_coords_rect.w * 0.05, 0, board_x_coords_rect.h * 0.2],
                                         vertical = False)
             self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
                                       spacing = board_y_coords_rect.h * 0.0775,
                                       padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
-                           
-        for col in self.board:
-            self.board[col].reverse()
+        
+        # Reverse all board elements
+        for i, row in enumerate(self.board):
+            self.board[i].reverse()           
+        self.board.reverse()
+        self.reset_pieces()
 
-        if enableDebugMode:
-            print(f"[Debug]: Board flipped")
+    def reset_pieces(self):
+        """
+        Resets all piece's cells, and recalculates their x and y positions.
+        """
+        
+        for col in range(COLS):
+            for row in range(ROWS):
+                self.board[col][row].col = col
+                self.board[col][row].row = row
+                self.board[col][row].calc_pos()
 
     def draw_coordinates(self):
         self.x_coordinates.draw(board_x_coords_surface, (0, 0))
@@ -128,7 +150,8 @@ class Board:
 
     def get_col_row(self, cell):
         """
-        Returns a board-relative column and row for the selected cell.
+        Returns a cell relative to the board's coordinate given a raw cell.
+        This considers the board's orientation. 
         """
         
         if self.IsFlipped:
@@ -138,8 +161,62 @@ class Board:
             col = cell[0]
             row = abs(cell[1] - 7)
 
-        if enableDebugMode:
-            print(f"[Debug]: Selected cell ({col}, {row}), board")
+        # if enableDebugMode:
+        #     print(f"[Debug]: Selected cell ({col}, {row}), board")
+
+        return col, row
+
+    def get_piece(self, cell):
+        """
+        Returns the piece in the specified cell.
+        This considers the board's orientation. 
+        """
+        
+        if self.IsFlipped:
+            col = abs(cell[0] - 7)
+            row = abs(cell[1] - 7)
+        else:
+            col = cell[0]
+            row = cell[1]
+
+        return self.board[col][row]
+
+    def get_piece_raw(self, cell):
+        """
+        Returns the piece in the specified cell.
+        """
+        if self.IsFlipped:
+            col = abs(cell[0]-7)
+            row = cell[1]
+        else:
+            col = cell[0]
+            row = cell[1]
+        
+
+        return self.board[col][row]
+
+    def get_dest_from_cell(self, cell):
+        
+        if self.IsFlipped:
+            return cell[0], cell[1]
+        else:
+            col = cell[0]
+            row = abs(cell[1]-7)
+
+        return col, row
+
+    def get_move_relative(self, move):
+        """
+        Returns a move (coordinate) relative to the raw coordinates.
+        This considers the board's orientation. 
+        """
+
+        if self.IsFlipped:
+            col = abs(move[0] - 7)
+            row = move[1]
+        else:
+            col = move[0]
+            row = abs(move[1] - 7)
 
         return col, row
 
@@ -256,9 +333,9 @@ class Board:
         _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
         _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
-        # Set moved piece as movable
-        self.moveables.append((dest_cell[0], dest_cell[1]))
-        del self.moveables[self.moveables.index((piece.col, piece.row))]
+        # # Set moved piece as movable
+        # self.moveables.append((dest_cell[0], dest_cell[1]))
+        # del self.moveables[self.moveables.index((piece.col, piece.row))]
         
         piece.move(dest_cell[0], dest_cell[1])
 
@@ -292,8 +369,10 @@ class Board:
     def piece_landed(self, col, row):
         return self.symbol_map[(col, row)]
 
-    def get_piece(self, col, row):
-        return self.board[col][row]
+    def set_all_moveables(self, IsMovable=True):
+        for row in range(ROWS):
+            for col in range(COLS):
+                self.board[col][row].IsMovable = IsMovable
 
     def draw_contents(self, surface):
         self.init_symbols(surface)
@@ -354,7 +433,7 @@ class Board:
     def remove(self, piece):
         self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
 
-    def get_valid_moves(self, piece, type="all"):
+    def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
         moves = {}
         up = 1
         down = -1
@@ -362,44 +441,49 @@ class Board:
         below = piece.row-1
         
         if piece.HasPossibleCapture:
-            piece.can_capture(False)
+            piece.set_capture_status(False)
 
         if piece.color == PLAYER_ONE:
             # Up    
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
-            # Down (Capture only)
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type))
-        else: # piece.color == ORANGE:
-            # Up (Capture only)
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type))
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
             # Down
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type))
-
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+        else: # piece.color == ORANGE:
+            # Up
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            # Down
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+        
         return moves
 
-    def _check_left(self, piece, starting_row, direction, max_distance, type, skipped=[]):
+    def _check_left(self, piece, starting_row, direction, max_distance, type, BoardIsFlipped, skipped=[]):
         moves = {}
         moves_capture = {}
         can_capture = []
         next_enemy_piece = 0
         left = piece.col - 1
 
-        for r in range(starting_row, max_distance, direction):
-            # If left spot is out of bounds of the board
+        for row in range(starting_row, max_distance, direction):
+            # Break if spot is out of bounds of the board
             if left < 0:
                 break
 
+            # Break if there are two or more enemy pieces in succession
             if next_enemy_piece >= 2:
                 break
 
-            current_spot = self.board[left][r]
+            cell_to_check = self.board[left][row]
             
-            # Check if spot is empty
-            if current_spot.color == 0:
+            if BoardIsFlipped:
+                left = abs(left - 7)
+                row = abs(row - 7)
+
+            # Check if cell is empty
+            if cell_to_check.color == 0:
                 # Check if piece had captured previously
                 if piece.HasSkipped:
                     # If there's nobody to capture, 
@@ -413,86 +497,92 @@ class Board:
                     else:
                         if next_enemy_piece >= 2:
                             break
-                        piece.can_capture()
-                        moves[(left, r)] = can_capture
+                        piece.set_capture_status()
+                        moves[(left, row)] = can_capture
 
-                # Check if the backward movement is for capturing
+                # Check for backward movement
                 if piece.color == PLAYER_ONE:
                     if direction == -1: # Down
-                        # Piece can capture, allow movement
-                        if can_capture:
+                        # If board is flipped, downward movement is forward, thus allowed
+                        if BoardIsFlipped:
                             pass
-                        # Piece is not capturing, only king pieces can move
+                        # If board is not flipped, backward movement is for captures only
                         else:
-                            if not piece.IsKing:
-                                break
-                else: # if BLUE
+                            if can_capture:
+                                pass
+                            # Piece is not capturing, only king pieces can move backward
+                            else:
+                                if not piece.IsKing:
+                                    break
+                else: # if piece.color == PLAYER_TWO
                     if direction == 1: # Up
-                        if can_capture:
+                        # Same logic
+                        if BoardIsFlipped:
                             pass
                         else:
-                            if not piece.IsKing:
-                                break
+                            if can_capture:
+                                pass
+                            else:
+                                if not piece.IsKing:
+                                    break
 
-                # if skipped and not can_capture:
-                #     break
-                # el
-                if skipped:
-                    moves[(left, r)] = can_capture + skipped
+                # Piece can capture
+                if can_capture:
+                    piece.set_capture_status(True)
+                    moves_capture[(left, row)] = can_capture
                 else:
-                    if next_enemy_piece >= 2:
-                        break
-                    if can_capture:
-                        piece.can_capture(bool=True)
-                        moves_capture[(left, r)] = can_capture
-                    else:
-                        moves[(left, r)] = can_capture
+                    moves[(left, row)] = can_capture
 
-                    if not piece.IsKing:
-                        break
+                if not piece.IsKing:
+                    break
                     
                 if can_capture:
-                    piece.can_capture(bool=True)
+                    piece.set_capture_status(True)
                     if piece.IsKing:
                         pass
                     else:
                         break
-            
-            elif current_spot.color == piece.color:
+            # There's ally piece in cell
+            elif cell_to_check.color == piece.color:
                 break
-            # There's enemy piece
+            # There's enemy piece in cell
             else:
                 next_enemy_piece += 1
-                can_capture = [current_spot]
+                can_capture = [cell_to_check]
 
             left -= 1
 
-        if type == "move":
-            return moves
-        elif type == "capture":
-            return moves_capture
-        elif type == "all":
-            moves.update(moves_capture)
-            return moves
-
-    def _check_right(self, piece, starting_row, direction, max_distance, type, skipped=[]):
+        match type:
+            case "move":
+                return moves
+            case "capture":
+                return moves_capture
+            case"all":
+                moves.update(moves_capture)
+                return moves
+ 
+    def _check_right(self, piece, starting_row, direction, max_distance, type, BoardIsFlipped, skipped=[]):
         moves = {}
         moves_capture = {}
         can_capture = []
         next_enemy_piece = 0
         right = piece.col + 1
 
-        for r in range(starting_row, max_distance, direction):
+        for row in range(starting_row, max_distance, direction):
             if right >= COLS:
                 break
 
             if next_enemy_piece >= 2:
                 break
 
-            current_spot = self.board[right][r]
+            cell_to_check = self.board[right][row]
+            
+            if BoardIsFlipped:
+                right = abs(right - 7)
+                row = abs(row - 7)
 
             # Check if spot is empty
-            if current_spot.color == 0:
+            if cell_to_check.color == 0:
                 # Check if piece had captured once
                 if piece.HasSkipped:
                     if not can_capture:
@@ -506,63 +596,63 @@ class Board:
                         #  Will not be able to chain capture if there's two pieces in succession
                         if next_enemy_piece >= 2:
                             break
-                        piece.can_capture()
-                        moves[(right, r)] = can_capture + skipped
+                        piece.set_capture_status()
+                        moves[(right, row)] = can_capture + skipped
                         
                 # Checks for backward movement
                 if piece.color == PLAYER_ONE:
                     if direction == -1:
-                        if can_capture:
+                        if BoardIsFlipped:
                             pass
                         else:
-                            if not piece.IsKing:
-                                break
+                            if can_capture:
+                                pass
+                            else:
+                                if not piece.IsKing:
+                                    break
                 else: # if LIGHT_BLUE
                     if direction == 1:
-                        if can_capture:
+                        if BoardIsFlipped:
                             pass
                         else:
-                            if not piece.IsKing:
-                                break
+                            if can_capture:
+                                pass
+                            else:
+                                if not piece.IsKing:
+                                    break
 
-                if skipped and not can_capture:
-                    break
-                elif skipped:
-                    moves[(right, r)] = can_capture + skipped
+                if can_capture:
+                    piece.set_capture_status(True)
+                    moves_capture[(right, row)] = can_capture
                 else:
-                    if next_enemy_piece >= 2:
-                        break
-                    if can_capture:
-                        piece.can_capture(bool=True)
-                        moves_capture[(right, r)] = can_capture
-                    else:
-                        moves[(right, r)] = can_capture
+                    moves[(right, row)] = can_capture
 
-                    if not piece.IsKing:
-                        break
+                if not piece.IsKing:
+                    break
 
                 # After capturing king can move n spaces behind enemy, but not normal pieces
                 if can_capture:
-                    piece.can_capture(bool=True)
+                    piece.set_capture_status(True)
                     if piece.IsKing:
                         pass
                     else:
                         break
             # Piece is ally
-            elif current_spot.color == piece.color:
+            elif cell_to_check.color == piece.color:
                 break
             # Piece is enemy
             else:
                 next_enemy_piece += 1
-                can_capture = [current_spot]
+                can_capture = [cell_to_check]
                 
             # Move right by 1 tile
             right += 1
 
-        if type == "move":
-            return moves
-        elif type == "capture":
-            return moves_capture
-        elif type == "all":
-            moves.update(moves_capture)
-            return moves
+        match type:
+            case "move":
+                return moves
+            case "capture":
+                return moves_capture
+            case"all":
+                moves.update(moves_capture)
+                return moves

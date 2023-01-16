@@ -1195,7 +1195,7 @@ def start_game(mode):
 
                             if _keys[pygame.K_1]: # blue pieces
                                 drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                piece = game.board.get_piece(drow, dcol)
+                                piece = game.board.get_piece((drow, dcol))
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
                                         if piece.color == RED:
@@ -1221,7 +1221,7 @@ def start_game(mode):
 
                             if _keys[pygame.K_2]: # red pieces
                                 drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                piece = game.board.get_piece(drow, dcol)
+                                piece = game.board.get_piece((drow, dcol))
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
                                         if piece.color == LIGHT_BLUE:
@@ -1247,7 +1247,7 @@ def start_game(mode):
 
                         elif _keys[pygame.K_1]: # add normal blue piece
                             drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                            piece = game.board.get_piece(drow, dcol)
+                            piece = game.board.get_piece((drow, dcol))
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
                                     if piece.color == RED:
@@ -1269,7 +1269,7 @@ def start_game(mode):
 
                         elif _keys[pygame.K_2]: # add normal red piece
                             drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                            piece = game.board.get_piece(drow, dcol)
+                            piece = game.board.get_piece((drow, dcol))
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
                                     if piece.color == LIGHT_BLUE:
@@ -1324,7 +1324,7 @@ def start_game(mode):
                             game.board.white_left = 1
                         if pygame.mouse.get_pressed()[2]: #removes the piece
                             drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                            piece = [game.board.get_piece(drow, dcol)]
+                            piece = [game.board.get_piece((drow, dcol))]
                             game.board.move_to_graveyard(piece)
 
                     if _keys[pygame.K_m]:

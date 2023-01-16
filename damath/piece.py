@@ -17,12 +17,12 @@ class Piece(Image):
         self.color = color
         self.number = value
         self.num = None
-        self.CanMove = True
         self.HasPossibleCapture = False
         self.IsKing = False
         self.IsOnPromotion = False
         self.HasSkipped = False
         self.IsCaptured = False
+        self.IsMovable = True
         self.x = 0
         self.y = 0
         self.w = square_size * 0.874
@@ -65,7 +65,7 @@ class Piece(Image):
     def done_promote(self):
         self.IsOnPromotion = False
 
-    def can_capture(self, bool=True):
+    def set_capture_status(self, bool=True):
         self.HasPossibleCapture = bool
 
     def display(self):

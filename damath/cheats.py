@@ -5,6 +5,7 @@ from damath.piece import Piece
 from display_constants import screen
 from objects import chips_surface, font_cookie_run_reg, cheats_window_blue, icon_add, icon_remove, icon_promote, icon_demote, icon_change_turn, icon_promote_all, icon_demote_all, icon_remove_all, icon_pause_timer, icon_resume_timer
 from options import enableAnimations
+from .timer import *
 from ui_class.colors import *
 from ui_class.font import *
 from ui_class.text import Text
@@ -124,7 +125,7 @@ class Cheats:
             self.items = [" Change Turns", " Remove All", " Promote All", " Demote All", " Pause Timer", " Flip Board"]
             self.icons = [icon_change_turn, icon_remove_all, icon_promote_all, icon_demote_all, icon_pause_timer, icon_change_turn]
 
-            if self.TimerIsPaused:
+            if not turn_timer.is_running:
                 self.items[4] = " Resume Timer"
                 self.icons[4] = icon_resume_timer
 
@@ -244,6 +245,8 @@ class Cheats:
                         self.remove()
                     case 1:
                         self.demote()  
+        
+        self.hide_menus()
 
     def add_blue(self):
         self.ev_window.change_color(window_color=DARK_CERULEAN)
@@ -263,50 +266,52 @@ class Cheats:
         piece = Piece(chips_surface, (self.col, self.row), self.add_color, int(self.add_value))
         self.game.board.add_piece(piece)
         self.game.moveable_pieces.append((self.col, self.row))
-        self.hide_menus()
 
     def remove(self):
-        piece = self.game.board.get_piece(self.col, self.row)
+        piece = self.game.board.get_piece((self.col, self.row))
         self.game.board.remove(piece)
         print(f"[Cheats]: Removed piece ({self.row}, {self.col})")
-        self.hide_menus()
 
     def promote(self):
-        self.game.board.get_piece(self.col, self.row).promote()
+        self.game.board.get_piece((self.col, self.row)).promote()
         print(f"[Cheats]: Promoted piece ({self.row}, {self.col})")
-        self.hide_menus()
 
     def demote(self):
-        self.game.board.get_piece(self.col, self.row).demote()
+        self.game.board.get_piece((self.col, self.row)).demote()
         print(f"[Cheats]: Demoted piece ({self.row}, {self.col})")
-        self.hide_menus()
 
     def change_turn(self):
         self.game.change_turn()
         print(f"[Cheats]: Changed turns, now {self.game.turn}")
-        self.hide_menus()
         
     def remove_all(self):
         for row in range(8):
             for col in range(8):
-                piece = self.game.board.get_piece(col, row)
+                piece = self.game.board.get_piece((col, row))
                 self.game.board.remove(piece)
         print(f"[Cheats]: Removed all pieces")
-        self.hide_menus()
-        
+
     def promote_all(self):
         for row in range(8):
             for col in range(8):
-                self.game.board.get_piece(col, row).promote()
+                self.game.board.get_piece((col, row)).promote()
         print(f"[Cheats]: Promoted all pieces")
-        self.hide_menus()
         
     def demote_all(self):
         for row in range(8):
             for col in range(8):
-                self.game.board.get_piece(col, row).demote()
+                self.game.board.get_piece((col, row)).demote()
         print(f"[Cheats]: Demoted all pieces")
-        self.hide_menus()
-    
+
+    def toggle_timer(self):
+        if self.TimerIsPaused:
+            self.TimerIsPaused = False
+            turn_timer.resume()
+            global_timer.resume()
+        else:
+            self.TimerIsPaused = True
+            turn_timer.pause()
+            global_timer.pause()
+
     def flip_board(self):
         self.game.board.rotate_180()

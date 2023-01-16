@@ -37,6 +37,12 @@ class Timer:
         self.starttime += ((time.time() - self.starttime) - (self.duration - self.remaining_time))
         self.is_running = True
 
+    def toggle(self):
+        if self.is_running:
+            self.pause()
+        else:
+            self.resume()
+
     def stop(self):
         self.is_running = False
 
