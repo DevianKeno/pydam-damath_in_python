@@ -23,7 +23,6 @@ class Board:
         self.symbol_map = {}
         self.x_coordinates = None
         self.y_coordinates = None
-        self.IsFlipped = True
 
         self.blue_pieces_count = 12
         self.orange_pieces_count = 12
@@ -36,12 +35,13 @@ class Board:
         self.anim = None
         self.anim_capture = None
         
-        self.init_chips(self.surface)
-        
         self.font_size = int(board_y_coords_rect.w * 0.9)
         self.font = pygame.font.Font(CookieRun_Regular, self.font_size)
 
+        self.IsFlipped = True
         self.rotate_180()
+        
+        self._init_chips(self.surface)
 
     def update_theme(self, theme):
         self.theme = theme
@@ -73,20 +73,22 @@ class Board:
             self.y_coordinates = TextList(self.font, OAR_BLUE, _y_coordinates,
                                       spacing = board_y_coords_rect.h * 0.0775,
                                       padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
-                                      
+                           
+        for col in self.board:
+            self.board[col].reverse()
+
         if enableDebugMode:
             print(f"[Debug]: Board flipped")
 
     def draw_coordinates(self):
         self.x_coordinates.draw(board_x_coords_surface, (0, 0))
         self.y_coordinates.draw(board_y_coords_surface, (0, 0))
-        pass
 
     def init_symbols(self, surface):
         surface.fill('#B9BABB')
         surface.set_colorkey('#B9BABB')
-        SYMBOLS_ONE = ["-", "x", "-", "x"]
-        SYMBOLS_TWO = ["+", "÷", "+", "÷"]
+        SYMBOLS_SET_ONE = ["-", "x", "-", "x"]
+        SYMBOLS_SET_TWO = ["+", "÷", "+", "÷"]
         symbol_counter = 0
         symbol_counter_reversed = 3
         
@@ -100,33 +102,33 @@ class Board:
                     
                 match col:
                     case 0:
-                        self.symbol_map.update({(col, row):SYMBOLS_ONE[symbol_counter]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter]})
                         symbol_counter += 1
                     case 1:
-                        self.symbol_map.update({(col, row):SYMBOLS_TWO[symbol_counter]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter]})
                         symbol_counter += 1
                     case 2:
-                        self.symbol_map.update({(col, row):SYMBOLS_TWO[symbol_counter]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter]})
                         symbol_counter += 1
                     case 3:
-                        self.symbol_map.update({(col, row):SYMBOLS_ONE[symbol_counter]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter]})
                         symbol_counter += 1
                     case 4:
-                        self.symbol_map.update({(col, row):SYMBOLS_ONE[symbol_counter_reversed]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
                     case 5:
-                        self.symbol_map.update({(col, row):SYMBOLS_TWO[symbol_counter_reversed]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
                     case 6:
-                        self.symbol_map.update({(col, row):SYMBOLS_TWO[symbol_counter_reversed]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
                     case 7:
-                        self.symbol_map.update({(col, row):SYMBOLS_ONE[symbol_counter_reversed]})
+                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter_reversed]})
                         symbol_counter_reversed -= 1
 
     def get_col_row(self, cell):
         """
-        Returns a board's column and row for the selected cell.
+        Returns a board-relative column and row for the selected cell.
         """
         
         if self.IsFlipped:
@@ -141,7 +143,7 @@ class Board:
 
         return col, row
 
-    def init_chips(self, surface):
+    def _init_chips(self, surface):
         val_counter = 0
         
         match self.mode:
@@ -228,13 +230,15 @@ class Board:
     def set_mode(self, mode):
         self.mode = mode
         self.board = []
-        self.init_chips(self.surface)
+
+        self._init_chips(self.surface)
         self.draw_chips(self.surface)
 
     def move_piece(self, piece, dest_cell=()):
         """
         Moves piece to destination cell.
         """
+
         if enableDebugMode:
             print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({dest_cell[0]}, {dest_cell[1]})")
 
@@ -252,7 +256,7 @@ class Board:
         _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
         _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
 
-        # Set dest cell as movable
+        # Set moved piece as movable
         self.moveables.append((dest_cell[0], dest_cell[1]))
         del self.moveables[self.moveables.index((piece.col, piece.row))]
         

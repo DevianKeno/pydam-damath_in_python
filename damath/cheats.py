@@ -121,8 +121,8 @@ class Cheats:
                     pass
         else:
             self.window_type = 0
-            self.items = [" Change Turns", " Remove All", " Promote All", " Demote All", " Pause Timer"]
-            self.icons = [icon_change_turn, icon_remove_all, icon_promote_all, icon_demote_all, icon_pause_timer]
+            self.items = [" Change Turns", " Remove All", " Promote All", " Demote All", " Pause Timer", " Flip Board"]
+            self.icons = [icon_change_turn, icon_remove_all, icon_promote_all, icon_demote_all, icon_pause_timer, icon_change_turn]
 
             if self.TimerIsPaused:
                 self.items[4] = " Resume Timer"
@@ -224,6 +224,8 @@ class Cheats:
                         self.demote_all()
                     case 4:
                         self.toggle_timer()
+                    case 5:
+                        self.flip_board()
             case 1:
                 match self.selected:
                     case 0:
@@ -305,3 +307,6 @@ class Cheats:
                 self.game.board.get_piece(col, row).demote()
         print(f"[Cheats]: Demoted all pieces")
         self.hide_menus()
+    
+    def flip_board(self):
+        self.game.board.rotate_180()

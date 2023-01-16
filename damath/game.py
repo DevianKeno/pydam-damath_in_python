@@ -91,7 +91,7 @@ class Game:
         col, row = self.board.get_col_row(cell)
 
         if self.selected:
-            result = self._move(col, row)
+            result = self._move(cell)
 
             if not result:
                 self.selected = None
@@ -132,10 +132,12 @@ class Game:
 
         return False
 
-    def _move(self, col, row):
+    def _move(self, cell):
         """
-        Moves a piece along the board.
+        Moves a piece to the specified cell.
         """
+
+        col, row = self.board.get_col_row(cell)
         
         piece = self.board.get_piece(col, row)
 
@@ -156,7 +158,7 @@ class Game:
                         operations.append(self.board.piece_landed(skipped_list[i][0], skipped_list[i][1]))
                 else:
                     operations.append(self.board.piece_landed(col, row))
-                self.scoreboard.score_update(self.selected.color, self.selected, skipped, operations)
+                self.scoreboard.score_update(self.selected, skipped, operations)
                 
                 self.board.move_to_graveyard(skipped)
             else:

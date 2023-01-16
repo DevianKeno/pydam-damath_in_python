@@ -1353,8 +1353,7 @@ def start_game(mode):
                 if pygame.mouse.get_pressed()[0]:
                     
                     if board_rect.collidepoint(m_pos):
-                        pos = pygame.mouse.get_pos()
-                        cell = get_cell_from_mouse_raw(pos)
+                        cell = get_cell_from_mouse_raw(m_pos)
                         col, row = cell
 
                         if game.moved_piece != None:
@@ -1393,13 +1392,14 @@ def start_game(mode):
                 if enableCheats:
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
-                        row, col = get_cell_from_mouse(m_pos)
+                        cell = get_cell_from_mouse(m_pos)
+                        col, row = cell
 
                         if not cheats.ShowEVWindow:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                cheats.create_dropdown(m_pos, row, col)
+                                cheats.create_dropdown(m_pos, col, row)
                             else:
-                                cheats.create_dropdown(m_pos, row, col, OnBoard=False)
+                                cheats.create_dropdown(m_pos, col, row, OnBoard=False)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))
