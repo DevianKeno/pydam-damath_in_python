@@ -4,9 +4,10 @@ Scoreboard class.
 
 import pygame
 import operator
+import re
 from math import sqrt, ceil
 from .constants import *
-from ui_class.colors import DARK_GRAY_BLUE
+from ui_class.colors import LIGHT_GRAY
 from ui_class.fade import fade
 from ui_class.font import *
 from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
@@ -68,20 +69,26 @@ class Scoreboard:
             scoreboard_p2_chip.display(100)
 
             if enableTimer:
-                if remaining_time > 10:
-                    timer_text = timerfont.render(str(remaining_time), True, (DARK_GRAY_BLUE))
+                if not turn_timer.is_running:
+                    timer_color = LIGHT_GRAY
+                elif remaining_time > 10:
+                    timer_color = DARK_GRAY_BLUE
                 else:
-                    timer_text = timerfont.render(str(remaining_time), True, (RED))
+                    timer_color = RED
+                timer_text = timerfont.render(str(remaining_time), True, timer_color)
                 self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
             scoreboard_p2_chip.display()
             scoreboard_p1_chip.display(100)
 
             if enableTimer:
-                if remaining_time > 10:
-                    timer_text = timerfont.render(str(remaining_time), True, (PERSIMMON_ORANGE))
+                if not turn_timer.is_running:
+                    timer_color = LIGHT_GRAY
+                elif remaining_time > 10:
+                    timer_color = PERSIMMON_ORANGE
                 else:
-                    timer_text = timerfont.render(str(remaining_time), True, (RED))
+                    timer_color = RED
+                timer_text = timerfont.render(str(remaining_time), True, timer_color)
                 self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
 
     def score_update(self, piece, numbers, operations):
@@ -94,33 +101,39 @@ class Scoreboard:
         piece_num = piece.number
         nums = list(num.number for num in numbers)
 
-        if self.mode == 'Rationals':
-            
-            rationals_dict = {
-                '10/10': 10/10, '7/10': 7/10, '2/10': 2/10,
-                '5/10': 5/10, '1/10': 1/10, '4/10': 4/10,
-                '11/10': 11/10, '8/10': 8/10, '12/10': 12/10,
-                '9/10': 9/10, '6/10': 6/10, '3/10': 3/10
-            } 
+        if self.mode != 'Integers' and self.mode != 'Naturals':
+            if self.mode == 'Rationals':
+                
+                val_dict = {
+                    '10/10': 10/10, '7/10': 7/10, '2/10': 2/10,
+                    '5/10': 5/10, '1/10': 1/10, '4/10': 4/10,
+                    '11/10': 11/10, '8/10': 8/10, '12/10': 12/10,
+                    '9/10': 9/10, '6/10': 6/10, '3/10': 3/10
+                } 
 
-            nums = list(rationals_dict.get(i) for i in nums)
-            piece_num = rationals_dict.get(piece.number)
+                nums = list(val_dict.get(i) for i in nums)
+                piece_num = val_dict.get(piece.number)
 
-        elif self.mode == 'Radicals':
+            elif self.mode == 'Radicals':
 
-            radicals_dict = {
-                    '9√2': 9*sqrt(2), '-√8':sqrt(8), '4√18':4*sqrt(18), 
-                    '16√32':16*sqrt(32), '-49√8':-49*sqrt(8), '-25√18':-25*sqrt(18), 
-                    '36√32':36*sqrt(32), '64√2':64*sqrt(2), '-121√18':-121*sqrt(18), 
-                    '-81√32':-81*sqrt(32), '100√2':100*sqrt(2), '144√8':144*sqrt(8)
-            }
+                val_dict = {
+                        '-9√2': -9*sqrt(2), '-√8':-(sqrt(8)), '4√18':4*sqrt(18), 
+                        '16√32':16*sqrt(32), '-49√8':-49*sqrt(8), '-25√18':-25*sqrt(18), 
+                        '36√32':36*sqrt(32), '64√2':64*sqrt(2), '-121√18':-121*sqrt(18), 
+                        '-81√32':-81*sqrt(32), '100√2':100*sqrt(2), '144√8':144*sqrt(8)
+                }
 
-            nums = list(radicals_dict.get(i) for i in nums)
-            piece_num = radicals_dict.get(piece.number)
+                nums = list(val_dict.get(i) for i in nums)
+                piece_num = val_dict.get(piece.number)
 
-        elif self.mode == 'Polynomials':
-            #TODO: needs fixing of the assignment of values for row and col
-            pass
+            if self.mode == 'Polynomials':
+                #TODO: needs fixing of the assignment of values for row and col
+                nums = []
+                for num in numbers:
+                    product = polynomial_get_value(num.number, piece)
+                    nums.append(product)
+
+                piece_num = polynomial_get_value(piece.number, piece)
 
         for num, operation in zip(nums, operations):
             op = OPERATOR_MAP.get(operation)
@@ -137,7 +150,15 @@ class Scoreboard:
                         result *= 2.
 
             if enableDebugMode:  
-                print("+", result)
+                print(f"[DEBUG][@scoreboard] {piece.color} Piece" \
+                        f" {piece.number} landed on: ({piece.col}, {piece.row})")
+                print(f"[DEBUG][@scoreboard] {piece.color} Piece" \
+                        f" {piece.number} current value: {piece_num}")
+                print(f"[DEBUG][@scoreboard] Captured piece(s) value:" \
+                        f"{nums}")
+                for n, op in zip(nums, operations):
+                    print(f"[Score][@scoreboard] {piece_num} {op} ({n})")
+                print(f"[Score][@scoreboard] Added score: +({result}) in {piece.color}")
 
         if piece.color == PLAYER_ONE:
             self.p1_score += result
@@ -155,3 +176,32 @@ class Scoreboard:
     def reset(self):
         self.p1_score = 0 # Blue
         self.p2_score = 0 # Orange
+
+
+def polynomial_get_value(num, piece):
+
+    try:
+        var_idx = str(num).index('x')
+    except:
+        var_idx = str(num).index('y')
+    
+    coeff = str(num)[:var_idx]
+    if not bool(re.search(r'\d', coeff)):
+        coeff = 1
+
+    product = 1
+    if 'x' in str(num):
+        if '²' in str(num):
+            product *= piece.col ** 2
+        product *= int(coeff) * piece.col
+        if 'y' in str(num):
+            if '²' in str(num):
+                product *= piece.row ** 2
+            product *= piece.row
+    else:
+        if 'y' in str(num):
+            if '²' in str(num):
+                product *= piece.row ** 2
+            product *= int(coeff) * piece.row
+
+    return product

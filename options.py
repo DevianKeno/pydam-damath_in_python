@@ -14,6 +14,6 @@ _MODES = [
     'Polynomials'
     ]
 
-MODE = _MODES[1]
+MODE = _MODES[4]
 
 enableAnimations = True

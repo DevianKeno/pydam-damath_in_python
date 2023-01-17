@@ -74,7 +74,7 @@ def get_cell_from_mouse_raw(pos):
 def anim_dim():
     return random.randrange(0-CHIP_WIDTH, SCREEN_WIDTH, 1), 0-CHIP_HEIGHT
 
-def show_score():
+def show_score():   
     score = round(max(game.scoreboard.score()), 2)
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 100).render(str(score), True, WHITE)
     #score_rect = pygame.Rect(255, 165, 535, 235)
@@ -1102,7 +1102,11 @@ def start_game(mode):
                 TIMERTHREAD.start() 
 
         mins, secs = global_timer.get_remaining_time()
-        global_timer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, WHITE)
+        if global_timer.is_running:
+            timer_color = WHITE
+        else:
+            timer_color = LIGHT_GRAY
+        global_timer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, timer_color)
 
         change_volume(SOUND_VOLUME)
         #screen.blit(CLEAR_BG, (0, 0)) 
