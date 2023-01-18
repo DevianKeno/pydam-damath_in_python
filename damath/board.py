@@ -172,12 +172,15 @@ class Board:
         This considers the board's orientation. 
         """
         
-        if self.IsFlipped:
-            col = abs(cell[0] - 7)
-            row = abs(cell[1] - 7)
-        else:
-            col = cell[0]
-            row = cell[1]
+        # if self.IsFlipped:
+        #     col = cell[0]
+        #     row = abs(cell[1] - 7)
+        # else:
+        #     col = cell[0]
+        #     row = abs(cell[1] - 7)
+
+        col = cell[0]
+        row = abs(cell[1] - 7)
 
         return self.board[col][row]
 
@@ -311,33 +314,33 @@ class Board:
         self._init_chips(self.surface)
         self.draw_chips(self.surface)
 
-    def move_piece(self, piece, dest_cell=()):
+    def swap_pieces(self, piece, destination_piece):
         """
         Moves piece to destination cell.
         """
 
         if enableDebugMode:
-            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({dest_cell[0]}, {dest_cell[1]})")
+            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_piece.col}, {destination_piece.row})")
 
-        _piece = self.board[piece.col][piece.row]
-        _piece_dest = self.board[dest_cell[0]][dest_cell[1]]
+        # _piece = self.board[piece.col][piece.row]
+        # _piece_dest = self.board[dest_cell[0]][dest_cell[1]]
 
         # Play animation
         if enableAnimations:
-            self.anim = Move(_piece, (_piece_dest.x, _piece_dest.y), 0.5, ease_type=easeOutQuint)
+            self.anim = Move(piece, (destination_piece.x, destination_piece.y), 0.5, ease_type=easeOutQuint)
             self.anim.play()
 
         # Swap current piece with destination
-        self.board[piece.col][piece.row], self.board[dest_cell[0]][dest_cell[1]] = self.board[dest_cell[0]][dest_cell[1]], self.board[piece.col][piece.row]
+        self.board[piece.col][piece.row], self.board[destination_piece.col][destination_piece.row] = self.board[destination_piece.col][destination_piece.row], self.board[piece.col][piece.row]
         # Re-swap x and y variables
-        _piece.x, _piece_dest.x = _piece_dest.x, _piece.x
-        _piece.y, _piece_dest.y = _piece_dest.y, _piece.y
+        piece.x, destination_piece.x = destination_piece.x, piece.x
+        piece.y, destination_piece.y = destination_piece.y, piece.y
 
         # # Set moved piece as movable
         # self.moveables.append((dest_cell[0], dest_cell[1]))
         # del self.moveables[self.moveables.index((piece.col, piece.row))]
         
-        piece.move(dest_cell[0], dest_cell[1])
+        piece.move(destination_piece.col, destination_piece.row)
 
     def check_for_kings(self, piece):
         """
@@ -435,28 +438,29 @@ class Board:
 
     def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
         moves = {}
-        up = 1
-        down = -1
-        above = piece.row+1
-        below = piece.row-1
+        up = -1
+        down = 1
+        # Raw coordinates
+        above = abs(piece.row - 7) - 1
+        below = abs(piece.row - 7) + 1
         
         if piece.HasPossibleCapture:
             piece.set_capture_status(False)
 
         if piece.color == PLAYER_ONE:
             # Up    
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
             # Down
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
         else: # piece.color == ORANGE:
             # Up
-            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
-            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_left(piece, starting_row=above, direction=up, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=above, direction=up, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
             # Down
-            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
-            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=-1, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
+            moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
         
         return moves
 
@@ -476,11 +480,11 @@ class Board:
             if next_enemy_piece >= 2:
                 break
 
-            cell_to_check = self.board[left][row]
+            cell_to_check = self.get_piece((left, row))
             
-            if BoardIsFlipped:
-                left = abs(left - 7)
-                row = abs(row - 7)
+            # if BoardIsFlipped:
+            #     left = abs(left - 7)
+            #     row = abs(row - 7)
 
             # Check if cell is empty
             if cell_to_check.color == 0:
@@ -502,7 +506,7 @@ class Board:
 
                 # Check for backward movement
                 if piece.color == PLAYER_ONE:
-                    if direction == -1: # Down
+                    if direction == 1: # Down
                         # If board is flipped, downward movement is forward, thus allowed
                         if BoardIsFlipped:
                             pass
@@ -515,7 +519,7 @@ class Board:
                                 if not piece.IsKing:
                                     break
                 else: # if piece.color == PLAYER_TWO
-                    if direction == 1: # Up
+                    if direction == -1: # Up
                         # Same logic
                         if BoardIsFlipped:
                             pass
@@ -575,11 +579,11 @@ class Board:
             if next_enemy_piece >= 2:
                 break
 
-            cell_to_check = self.board[right][row]
+            cell_to_check = self.get_piece((right, row))
             
-            if BoardIsFlipped:
-                right = abs(right - 7)
-                row = abs(row - 7)
+            # if BoardIsFlipped:
+            #     right = abs(right - 7)
+            #     row = abs(row - 7)
 
             # Check if spot is empty
             if cell_to_check.color == 0:
@@ -601,7 +605,7 @@ class Board:
                         
                 # Checks for backward movement
                 if piece.color == PLAYER_ONE:
-                    if direction == -1:
+                    if direction == 1:
                         if BoardIsFlipped:
                             pass
                         else:
@@ -611,7 +615,7 @@ class Board:
                                 if not piece.IsKing:
                                     break
                 else: # if LIGHT_BLUE
-                    if direction == 1:
+                    if direction == -1:
                         if BoardIsFlipped:
                             pass
                         else:
