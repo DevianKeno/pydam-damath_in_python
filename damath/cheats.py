@@ -87,25 +87,33 @@ class Cheats:
         self.done_hover_area = self.done.text_surface.get_rect(center=(ev_window_rect.x+ev_window_rect.w*0.1, ev_window_rect.y+ev_window_rect.h*0.8), width=ev_window_rect.w*0.8)
         self.done.text = "Done"
 
-    def create_dropdown(self, pos, row, col, OnBoard=True):
+    def select(self, cell):
+        """
+        Selects the cell for invocation purposes.
+        """
+        
+        self.selected_cell = cell
+        self.selected_piece = self.game.board.get_piece(self.selected_cell)
+
+    def create_dropdown(self, pos, OnBoard=True):
         """
         Creates the main dropdown menu.
         """
         
         self.ShowMenu = True
         self.pos = pos
-        self.piece = self.game.board.board[row][col]
-        self.col, self.row = row, col
-        
         window_color = DARK_CERULEAN
+        # self.piece = self.game.board.board[col][row]
+        # self.col, self.row = col, row
+        
 
         if OnBoard:
-            if self.piece.color == 0:
+            if self.selected_piece.color == 0:
                 self.window_type = 1
                 self.items = [" Add Blue", " Add Orange"]
                 self.icons = [icon_add, icon_add]
             else:
-                if not self.piece.IsKing:
+                if not self.selected_piece.IsKing:
                     self.window_type = 2
                     self.items = [" Remove", " Promote"]
                     self.icons = [icon_remove, icon_promote]
@@ -114,7 +122,7 @@ class Cheats:
                     self.items = [" Remove", " Demote"]
                     self.icons = [icon_remove, icon_demote]
             
-                if self.piece.color == PLAYER_ONE:
+                if self.selected_piece.color == PLAYER_ONE:
                     window_color = DARK_CERULEAN
                     pass
                 else:
@@ -268,17 +276,16 @@ class Cheats:
         self.game.moveable_pieces.append((self.col, self.row))
 
     def remove(self):
-        piece = self.game.board.get_piece((self.col, self.row))
-        self.game.board.remove(piece)
-        print(f"[Cheats]: Removed piece ({self.row}, {self.col})")
+        self.game.board.remove(self.selected_cell)
+        print(f"[Cheats]: Removed piece ({self.col}, {self.row})")
 
     def promote(self):
         self.game.board.get_piece((self.col, self.row)).promote()
-        print(f"[Cheats]: Promoted piece ({self.row}, {self.col})")
+        print(f"[Cheats]: Promoted piece ({self.col}, {self.row})")
 
     def demote(self):
         self.game.board.get_piece((self.col, self.row)).demote()
-        print(f"[Cheats]: Demoted piece ({self.row}, {self.col})")
+        print(f"[Cheats]: Demoted piece ({self.col}, {self.row})")
 
     def change_turn(self):
         self.game.change_turn()
@@ -315,3 +322,5 @@ class Cheats:
 
     def flip_board(self):
         self.game.board.rotate_180()
+        self.game.refresh()
+        self.game.check_for_captures()

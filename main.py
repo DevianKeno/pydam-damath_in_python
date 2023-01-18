@@ -1396,14 +1396,16 @@ def start_game(mode):
                 if enableCheats:
                     if pygame.mouse.get_pressed()[2]:
                         # Right click
-                        cell = get_cell_from_mouse(m_pos)
+                        cell = get_cell_from_mouse_raw(m_pos)
                         col, row = cell
 
                         if not cheats.ShowEVWindow:
+                            cheats.select(cell)
+
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                cheats.create_dropdown(m_pos, col, row)
+                                cheats.create_dropdown(m_pos)
                             else:
-                                cheats.create_dropdown(m_pos, col, row, OnBoard=False)
+                                cheats.create_dropdown(m_pos, OnBoard=False)
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

@@ -37,8 +37,8 @@ class Game:
 
     def update(self):
         if enableAnimations:
-            if self.board.anim:
-                self.board.anim.update()
+            if self.board.anim_move_piece:
+                self.board.anim_move_piece.update()
             if self.board.anim_capture:
                 self.board.anim_capture.update()
 
@@ -99,7 +99,6 @@ class Game:
             self._move_piece(self.selected, self.selected_cell)
         else:
             self.selected = None
-        return
 
     def select_piece(self, cell):
         """
@@ -158,7 +157,6 @@ class Game:
             col = destination[0]
             row = abs(destination[0] - 7)
         else:
-            
             col = destination[0]
             row = abs(destination[0] - 7)
 
@@ -169,13 +167,13 @@ class Game:
         Moves a piece to the specified cell.
         """
 
-        # col, row = self.board.get_col_row(self.selected)
-        destination_piece = self.board.get_piece(self.selected_cell)
-        col, row = destination_piece.col, destination_piece.row
+        self.moved_piece = self.selected
+        piece_on_destination = self.board.get_piece(destination)
+        destination_cell = piece_on_destination.col, piece_on_destination.row
+        col, row = destination_cell
 
-        if destination_piece.color == 0 and (destination) in self.valid_moves:
-            self.board.swap_pieces(self.selected, destination_piece)
-            self.moved_piece = destination_piece
+        if piece_on_destination.color == 0 and (destination) in self.valid_moves:
+            self.board.move_piece(self.selected, (col, row))
             skipped_list = list(self.valid_moves)
 
             # Get the skipped piece of the move:skipped_piece pair
@@ -197,14 +195,13 @@ class Game:
             else:
                 MOVE_SOUND.play()
 
-            if not self.board.piece_had_skipped(self.selected, col, row):
+            if not self.selected.HasSkipped:
                 self.board.piece_skipped(self.selected, col, row, bool=False)
                 self.change_turn()
+            else:
+                self.check_for_captures()
         else:
-            self.selected = None
-            return False
-        self.selected = None
-        return True
+            return
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -232,13 +229,17 @@ class Game:
                     capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
+    def refresh(self):
+        self.selected = None
+        self.moved_piece = None
+        self.valid_moves = {}
+        self.capturing_pieces.clear()
+
     def change_turn(self):
         if self.selected:
             self.board.check_for_kings(self.selected)
 
-        self.selected = None
-        self.moved_piece = None
-        self.valid_moves = {}
+        self.refresh()
 
         if self.turn == PLAYER_ONE:
             self.turn = PLAYER_TWO
@@ -251,8 +252,6 @@ class Game:
             print(f"[Debug]: Turns changed, now {self.turn}")
 
         if enableMandatoryCapture:
-            self.capturing_pieces.clear()
-            self.board.set_all_moveables(False)
             self.check_for_captures()
 
     def check_for_captures(self):
@@ -262,6 +261,9 @@ class Game:
         
         if enableDebugMode:
             print(f"[Debug]: Checking for possible captures for {self.turn}...")
+            
+        self.capturing_pieces.clear()
+        self.board.set_all_moveables(False)
 
         blue_count = self.board.blue_pieces_count + self.board.blue_kings
         orange_count = self.board.orange_pieces_count + self.board.orange_kings

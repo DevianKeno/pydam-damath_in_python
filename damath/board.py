@@ -6,7 +6,7 @@ from display_constants import BG_COLOR
 from ui_class.font import *
 from ui_class.textlist import TextList
 from ui_class.tween import *
-from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
+from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, chips_surface, p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
 from options import *
 
 pygame.mixer.init()
@@ -32,7 +32,7 @@ class Board:
         self.orange_captured = []
         self.moveables = []
 
-        self.anim = None
+        self.anim_move_piece = None
         self.anim_capture = None
         
         self.font_size = int(board_y_coords_rect.w * 0.9)
@@ -154,12 +154,12 @@ class Board:
         This considers the board's orientation. 
         """
         
-        if self.IsFlipped:
-            col = abs(cell[0] - 7)
-            row = cell[1]
-        else:
-            col = cell[0]
-            row = abs(cell[1] - 7)
+        # if self.IsFlipped:
+        #     col = abs(cell[0] - 7)
+        #     row = cell[1]
+        # else:
+        col = cell[0]
+        row = abs(cell[1] - 7)
 
         # if enableDebugMode:
         #     print(f"[Debug]: Selected cell ({col}, {row}), board")
@@ -314,24 +314,32 @@ class Board:
         self._init_chips(self.surface)
         self.draw_chips(self.surface)
 
-    def swap_pieces(self, piece, destination_piece):
+    def move_piece(self, piece, destination):
         """
         Moves piece to destination cell.
         """
+        destination_col = destination[0]
+        destination_row = destination[1]
+        destination_piece = self.board[destination_col][destination_row]
 
         if enableDebugMode:
-            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_piece.col}, {destination_piece.row})")
+            print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_col}, {destination_row})")
 
         # _piece = self.board[piece.col][piece.row]
         # _piece_dest = self.board[dest_cell[0]][dest_cell[1]]
 
+        # Swap current piece with destination
+        # self.board[piece.col][piece.row], self.board[destination.col][destination.row] = self.board[destination.col][destination.row], self.board[piece.col][piece.row]
+        
         # Play animation
         if enableAnimations:
-            self.anim = Move(piece, (destination_piece.x, destination_piece.y), 0.5, ease_type=easeOutQuint)
-            self.anim.play()
+            self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), chipMoveAnimationSpeed, ease_type=easeOutQuint)
+            self.anim_move_piece.play()
 
-        # Swap current piece with destination
-        self.board[piece.col][piece.row], self.board[destination_piece.col][destination_piece.row] = self.board[destination_piece.col][destination_piece.row], self.board[piece.col][piece.row]
+        self.board[destination_col][destination_row] = piece
+        self.board[piece.col][piece.row] = Piece(chips_surface, (piece.col, piece.row), 0, 0)
+
+
         # Re-swap x and y variables
         piece.x, destination_piece.x = destination_piece.x, piece.x
         piece.y, destination_piece.y = destination_piece.y, piece.y
@@ -340,7 +348,7 @@ class Board:
         # self.moveables.append((dest_cell[0], dest_cell[1]))
         # del self.moveables[self.moveables.index((piece.col, piece.row))]
         
-        piece.move(destination_piece.col, destination_piece.row)
+        piece.move(destination_col, destination_row)
 
     def check_for_kings(self, piece):
         """
@@ -433,8 +441,13 @@ class Board:
         self.board[piece.col][piece.row] = piece
         self.moveables.append((piece.col, piece.row))
 
-    def remove(self, piece):
-        self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
+    def remove(self, cell):
+        """
+        Removes a piece from the board, given raw cell arguments.
+        Doesn't put piece in graveyard.
+        """
+        
+        self.board[cell[0], cell[1]] = Piece(self.surface, (cell[0], cell[1]), 0, 0)
 
     def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
         moves = {}
