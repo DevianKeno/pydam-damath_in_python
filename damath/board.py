@@ -153,16 +153,9 @@ class Board:
         Returns a cell relative to the board's coordinate given a raw cell.
         This considers the board's orientation. 
         """
-        
-        # if self.IsFlipped:
-        #     col = abs(cell[0] - 7)
-        #     row = cell[1]
-        # else:
+
         col = cell[0]
         row = abs(cell[1] - 7)
-
-        # if enableDebugMode:
-        #     print(f"[Debug]: Selected cell ({col}, {row}), board")
 
         return col, row
 
@@ -171,57 +164,11 @@ class Board:
         Returns the piece in the specified cell.
         This considers the board's orientation. 
         """
-        
-        # if self.IsFlipped:
-        #     col = cell[0]
-        #     row = abs(cell[1] - 7)
-        # else:
-        #     col = cell[0]
-        #     row = abs(cell[1] - 7)
 
         col = cell[0]
         row = abs(cell[1] - 7)
 
         return self.board[col][row]
-
-    def get_piece_raw(self, cell):
-        """
-        Returns the piece in the specified cell.
-        """
-        if self.IsFlipped:
-            col = abs(cell[0]-7)
-            row = cell[1]
-        else:
-            col = cell[0]
-            row = cell[1]
-        
-
-        return self.board[col][row]
-
-    def get_dest_from_cell(self, cell):
-        
-        if self.IsFlipped:
-            return cell[0], cell[1]
-        else:
-            col = cell[0]
-            row = abs(cell[1]-7)
-
-        return col, row
-
-    def get_move_relative(self, move):
-        """
-        Returns a move (coordinate) relative to the raw coordinates.
-        This considers the board's orientation. 
-        """
-
-        if self.IsFlipped:
-            col = abs(move[0] - 7)
-            row = move[1]
-        else:
-            col = move[0]
-            row = abs(move[1] - 7)
-
-        return col, row
 
     def _init_chips(self, surface):
         val_counter = 0
@@ -325,12 +272,6 @@ class Board:
         if enableDebugMode:
             print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_col}, {destination_row})")
 
-        # _piece = self.board[piece.col][piece.row]
-        # _piece_dest = self.board[dest_cell[0]][dest_cell[1]]
-
-        # Swap current piece with destination
-        # self.board[piece.col][piece.row], self.board[destination.col][destination.row] = self.board[destination.col][destination.row], self.board[piece.col][piece.row]
-        
         # Play animation
         if enableAnimations:
             self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), chipMoveAnimationSpeed, ease_type=easeOutQuint)
@@ -339,16 +280,7 @@ class Board:
         self.board[destination_col][destination_row] = piece
         self.board[piece.col][piece.row] = Piece(chips_surface, (piece.col, piece.row), 0, 0)
 
-
-        # Re-swap x and y variables
-        piece.x, destination_piece.x = destination_piece.x, piece.x
-        piece.y, destination_piece.y = destination_piece.y, piece.y
-
-        # # Set moved piece as movable
-        # self.moveables.append((dest_cell[0], dest_cell[1]))
-        # del self.moveables[self.moveables.index((piece.col, piece.row))]
-        
-        piece.move(destination_col, destination_row)
+        piece.move(destination_col, destination_row)        
 
     def check_for_kings(self, piece):
         """
@@ -380,9 +312,6 @@ class Board:
 
     def piece_had_skipped(self, piece, col, row):
         return piece.HasSkipped
-        
-    def has_possible_capture(self, piece):
-        return piece.HasPossibleCapture
     
     def piece_landed(self, col, row):
         return self.symbol_map[(col, row)]

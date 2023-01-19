@@ -194,9 +194,6 @@ class Game:
             else:
                 self.board.piece_skipped(self.selected_piece, col, row, bool=False)
                 self.change_turn()
-
-        else:
-            return
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -225,10 +222,14 @@ class Game:
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
     def refresh(self):
+        """
+        Refreshes the game, removing all selections.
+        """
+        
         self.selected_piece = None
         self.moved_piece = None
         self.valid_moves = {}
-        self.capturing_pieces.clear()
+        # self.capturing_pieces.clear()
 
     def change_turn(self):
         if self.selected_piece:
