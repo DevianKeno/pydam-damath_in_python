@@ -8,6 +8,8 @@ enableMandatoryCapture = True
 enableCheats = True
 enableTimer = True
 
+allowMovementOfOpponentPieces = False
+
 _MODES = [
     'Naturals', 'Integers', 
     'Rationals', 'Radicals', 

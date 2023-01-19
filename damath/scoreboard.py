@@ -184,6 +184,7 @@ def polynomial_get_value(num, piece):
         var_idx = str(num).index('x')
     except:
         var_idx = str(num).index('y')
+    # Returns error if both x and y aren't found
     
     coeff = str(num)[:var_idx]
     if not bool(re.search(r'\d', coeff)):

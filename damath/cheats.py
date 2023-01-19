@@ -47,8 +47,8 @@ class Cheats:
         self.text_list = None
 
         self.piece = Piece(surface, (0, 0), 0, 0)
-        self.row = 0
         self.col = 0
+        self.row = 0
         self.selected = None
         self.selected_done = 0
         self.add_value = '0'
@@ -93,6 +93,7 @@ class Cheats:
         """
         
         self.selected_cell = cell
+        self.col, self.row = self.game.board.get_col_row(self.selected_cell)
         self.selected_piece = self.game.board.get_piece(self.selected_cell)
 
     def create_dropdown(self, pos, OnBoard=True):
@@ -149,6 +150,7 @@ class Cheats:
 
         self.ShowEVWindow = True
         self.ev_window.wupdate(x=board_centerx, y=board_centery, width=0, height=0)
+        self.input.text = '0'
         
         self.anim_ev_window = Scale_Rect(self.ev_window, (ev_window_dimensions[0], ev_window_dimensions[1]), 0.2, True, easeOutBack, none, False)
         self.anim_ev_window_inner = Scale_Rect(self.ev_window.inner_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
@@ -253,8 +255,6 @@ class Cheats:
                         self.remove()
                     case 1:
                         self.demote()  
-        
-        self.hide_menus()
 
     def add_blue(self):
         self.ev_window.change_color(window_color=DARK_CERULEAN)
@@ -271,44 +271,54 @@ class Cheats:
     def add_piece(self):
         MOVE_SOUND.play()
         self.add_value = self.input.text
-        piece = Piece(chips_surface, (self.col, self.row), self.add_color, int(self.add_value))
+
+        if self.add_value == '':
+            self.add_value = '0'
+
+        piece = Piece(chips_surface, (self.col, self.row), self.add_color, self.add_value)
         self.game.board.add_piece(piece)
-        self.game.moveable_pieces.append((self.col, self.row))
+        self.hide_menus()
 
     def remove(self):
         self.game.board.remove(self.selected_cell)
         print(f"[Cheats]: Removed piece ({self.col}, {self.row})")
+        self.hide_menus()
 
     def promote(self):
-        self.game.board.get_piece((self.col, self.row)).promote()
+        self.game.board.get_piece(self.selected_cell).promote()
         print(f"[Cheats]: Promoted piece ({self.col}, {self.row})")
+        self.hide_menus()
 
     def demote(self):
-        self.game.board.get_piece((self.col, self.row)).demote()
+        self.game.board.get_piece(self.selected_cell).demote()
         print(f"[Cheats]: Demoted piece ({self.col}, {self.row})")
+        self.hide_menus()
 
     def change_turn(self):
         self.game.change_turn()
         print(f"[Cheats]: Changed turns, now {self.game.turn}")
+        self.hide_menus()
         
     def remove_all(self):
         for row in range(8):
             for col in range(8):
-                piece = self.game.board.get_piece((col, row))
-                self.game.board.remove(piece)
+                self.game.board.remove((col, row))
         print(f"[Cheats]: Removed all pieces")
+        self.hide_menus()
 
     def promote_all(self):
         for row in range(8):
             for col in range(8):
                 self.game.board.get_piece((col, row)).promote()
         print(f"[Cheats]: Promoted all pieces")
+        self.hide_menus()
         
     def demote_all(self):
         for row in range(8):
             for col in range(8):
                 self.game.board.get_piece((col, row)).demote()
         print(f"[Cheats]: Demoted all pieces")
+        self.hide_menus()
 
     def toggle_timer(self):
         if self.TimerIsPaused:
@@ -319,8 +329,10 @@ class Cheats:
             self.TimerIsPaused = True
             turn_timer.pause()
             global_timer.pause()
+        self.hide_menus()
 
     def flip_board(self):
         self.game.board.rotate_180()
         self.game.refresh()
         self.game.check_for_captures()
+        self.hide_menus()

@@ -357,13 +357,20 @@ class Board:
         if piece.IsKing and piece.HasPossibleCapture:
             return
 
+        if self.IsFlipped:
+            orange_home_row = 0
+            blue_home_row = 7
+        else:
+            orange_home_row = 7
+            blue_home_row = 0
+
         if piece.color == PLAYER_ONE:
-            if piece.row == 7:
+            if piece.row == orange_home_row:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.blue_kings += 1
-        else:
-            if piece.row == 0:
+        else: # piece.color == PLAYER_TWO
+            if piece.row == blue_home_row:
                 piece.make_king()
                 CAPTURE_SOUND.play()
                 self.orange_kings += 1
@@ -438,16 +445,23 @@ class Board:
             self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
 
     def add_piece(self, piece):
+        """
+        Adds a piece to the board, given a piece object.
+        """
         self.board[piece.col][piece.row] = piece
         self.moveables.append((piece.col, piece.row))
 
     def remove(self, cell):
         """
         Removes a piece from the board, given raw cell arguments.
-        Doesn't put piece in graveyard.
         """
-        
-        self.board[cell[0], cell[1]] = Piece(self.surface, (cell[0], cell[1]), 0, 0)
+        col, row = self.get_col_row(cell)
+        self.board[col][row] = Piece(self.surface, (col, row), 0, 0)
+
+    def capture(self, cell):
+        """
+        Captures a piece from the board, given raw cell arguments.
+        """
 
     def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
         moves = {}
@@ -531,6 +545,18 @@ class Board:
                             else:
                                 if not piece.IsKing:
                                     break
+                    else: # Up
+                        # If board is flipped, backward movement is for captures only
+                        if BoardIsFlipped:
+                            if can_capture:
+                                pass
+                            # Piece is not capturing, only king pieces can move backward
+                            else:
+                                if not piece.IsKing:
+                                    break
+                        # Forward movement
+                        else:
+                            pass
                 else: # if piece.color == PLAYER_TWO
                     if direction == -1: # Up
                         # Same logic
@@ -542,6 +568,17 @@ class Board:
                             else:
                                 if not piece.IsKing:
                                     break
+                    else:
+                        if BoardIsFlipped:
+                            if can_capture:
+                                pass
+                            # Piece is not capturing, only king pieces can move backward
+                            else:
+                                if not piece.IsKing:
+                                    break
+                        # If board is not flipped, backward movement is for captures only
+                        else:
+                            pass
 
                 # Piece can capture
                 if can_capture:
@@ -627,6 +664,17 @@ class Board:
                             else:
                                 if not piece.IsKing:
                                     break
+                    else:
+                        if BoardIsFlipped:
+                            if can_capture:
+                                pass
+                            # Piece is not capturing, only king pieces can move backward
+                            else:
+                                if not piece.IsKing:
+                                    break
+                        # If board is not flipped, backward movement is for captures only
+                        else:
+                            pass
                 else: # if LIGHT_BLUE
                     if direction == -1:
                         if BoardIsFlipped:
@@ -637,6 +685,17 @@ class Board:
                             else:
                                 if not piece.IsKing:
                                     break
+                    else:
+                        if BoardIsFlipped:
+                            if can_capture:
+                                pass
+                            # Piece is not capturing, only king pieces can move backward
+                            else:
+                                if not piece.IsKing:
+                                    break
+                        # If board is not flipped, backward movement is for captures only
+                        else:
+                            pass
 
                 if can_capture:
                     piece.set_capture_status(True)
