@@ -4,7 +4,7 @@ Game options.
 
 enableDebugMode = True
 
-enableMandatoryCapture = True
+enableMandatoryCapture = False
 enableCheats = True
 enableTimer = True
 

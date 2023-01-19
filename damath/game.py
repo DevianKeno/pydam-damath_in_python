@@ -95,7 +95,11 @@ class Game:
         if self.selected_piece:
             self.select_move(cell)
         else:
-            self.select_piece(piece_to_select)
+            if self.TurnRequiresCapture:
+                if piece_to_select.HasPossibleCapture:
+                    self.select_piece(piece_to_select)
+            else:
+                self.select_piece(piece_to_select)
         
     def select_move(self, cell):
         """
@@ -103,7 +107,7 @@ class Game:
         """
 
         if not self.selected_piece:
-            raise RuntimeError("No piece selected, select a piece using select_piece(piece) first.")
+            raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
         
         if (cell) in self.valid_moves:
             self._move_piece(self.selected_piece, cell)
@@ -114,12 +118,6 @@ class Game:
         """
         Selects a piece, given a piece object.
         """
-
-        # # If the piece had captured, only allow that piece to be selected
-        # if self.moved_piece == None:
-        #     piece_to_select = piece
-        # else:
-        #     piece_to_select = self.moved_piece
         
         if piece.color != self.turn:
             INVALID_SOUND.play()
@@ -206,8 +204,9 @@ class Game:
     def draw_valid_moves(self, moves):
         color = YELLOW
 
-        if self.TurnRequiresCapture:
-            color = LIME
+        if enableMandatoryCapture:
+            if self.TurnRequiresCapture:
+                color = LIME
 
         if moves:
             for move in moves:
@@ -215,7 +214,7 @@ class Game:
                 pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
     
     def draw_selected_piece_indicator(self, surface):
-        col, row = self.selected_cell
+        col, row = self.board.get_col_row((self.selected_piece.col, self.selected_piece.row))
 
         selected_piece_rect = pygame.Rect((col * square_size, row * square_size),
                                             (square_size, square_size))
