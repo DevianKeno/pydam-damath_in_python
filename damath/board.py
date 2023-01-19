@@ -299,13 +299,13 @@ class Board:
         if piece.color == PLAYER_ONE:
             if piece.row == orange_home_row:
                 piece.make_king()
-                CAPTURE_SOUND.play()
                 self.blue_kings += 1
+                CAPTURE_SOUND.play()
         else: # piece.color == PLAYER_TWO
             if piece.row == blue_home_row:
                 piece.make_king()
-                CAPTURE_SOUND.play()
                 self.orange_kings += 1
+                CAPTURE_SOUND.play()
     
     def piece_skipped(self, piece, col, row, bool):
         piece.HasSkipped = bool

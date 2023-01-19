@@ -86,38 +86,46 @@ class Game:
         # Tile = cell relative to the board's coordinates, regardless of orientation
         self.selected_tile = self.board.get_col_row(cell)
 
-        # If a piece is selected
-        if self.selected_piece:
-            self.select_move()
-        else:
-            self.select_piece(cell)
-        
-    def select_move(self):
-        """
-        Selects a valid move.
-        """
-        
-        if (self.selected_cell) in self.valid_moves:
-            self._move_piece(self.selected_piece, self.selected_cell)
-        else:
-            self.selected_piece = None
-
-    def select_piece(self, cell):
-        """
-        Selects a piece.
-        """
-
-        # If the piece had captured, only allow that piece to be selected
         if self.moved_piece == None:
             piece_to_select = self.board.get_piece(cell)
         else:
             piece_to_select = self.moved_piece
+
+        # If a piece is selected
+        if self.selected_piece:
+            self.select_move(cell)
+        else:
+            self.select_piece(piece_to_select)
         
-        if piece_to_select.color != self.turn:
+    def select_move(self, cell):
+        """
+        Selects a valid move, given a raw cell argument.
+        """
+
+        if not self.selected_piece:
+            raise RuntimeError("No piece selected, select a piece using select_piece(piece) first.")
+        
+        if (cell) in self.valid_moves:
+            self._move_piece(self.selected_piece, cell)
+        else:
+            self.selected_piece = None
+
+    def select_piece(self, piece):
+        """
+        Selects a piece, given a piece object.
+        """
+
+        # # If the piece had captured, only allow that piece to be selected
+        # if self.moved_piece == None:
+        #     piece_to_select = piece
+        # else:
+        #     piece_to_select = self.moved_piece
+        
+        if piece.color != self.turn:
             INVALID_SOUND.play()
             return
 
-        self.selected_piece = piece_to_select
+        self.selected_piece = piece
 
         if enableDebugMode:
             print(f"[Debug]: Selected piece ({self.selected_piece.col}, {self.selected_piece.row})")
@@ -131,7 +139,7 @@ class Game:
             if self.TurnRequiresCapture:
                 moves_to_get = "capture"
         
-        col, row  = self.board.get_col_row(cell)
+        col, row  = piece.col, piece.row
 
         self.valid_moves = self._get_moves_of(self.selected_piece, moves_to_get)
 
@@ -188,7 +196,7 @@ class Game:
             # Check if piece had captured
             if self.selected_piece.HasSkipped:
                 if self.check_for_captures(self.moved_piece):
-                    pass
+                    self.select_piece(self.moved_piece)
                 else:
                     self.change_turn()
             else:
@@ -229,7 +237,7 @@ class Game:
         self.selected_piece = None
         self.moved_piece = None
         self.valid_moves = {}
-        # self.capturing_pieces.clear()
+        self.capturing_pieces.clear()
 
     def change_turn(self):
         if self.selected_piece:
