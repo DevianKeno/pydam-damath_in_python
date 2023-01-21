@@ -4,9 +4,10 @@ Game options.
 
 enableDebugMode = True
 
-enableMandatoryCapture = False
+enableMandatoryCapture = True
 enableCheats = True
 enableTimer = True
+enableTouchMove = True
 
 allowMovementOfOpponentPieces = False
 

@@ -19,8 +19,8 @@ class Game:
         self.board = board
         self.scoreboard = scoreboard
         self.theme = theme
-        self.selected_cell = None       # Raw cell
-        self.selected_cell_board = None # Cell relative to board's coordinates
+        self.selected_cell = None   # Cell | Raw cell
+        self.selected_tile = None   # Tile | Cell relative to board's coordinates
 
     def _init(self):
         self.moved_piece = None
@@ -81,15 +81,18 @@ class Game:
         """
         Selects a cell or move given raw cell arguments.
         """
+        
         # Cell = raw coordinates
         self.selected_cell = cell
         # Tile = cell relative to the board's coordinates, regardless of orientation
         self.selected_tile = self.board.get_col_row(cell)
 
-        if self.moved_piece == None:
-            piece_to_select = self.board.get_piece(cell)
-        else:
-            piece_to_select = self.moved_piece
+        piece_to_select = self.board.get_piece(cell)
+
+        # If a piece had already captured
+        if self.moved_piece:
+            if piece_to_select == self.moved_piece:
+                piece_to_select = self.moved_piece
 
         # If a piece is selected
         if self.selected_piece:
@@ -260,7 +263,7 @@ class Game:
     @dispatch(Piece)
     def check_for_captures(self, piece):
         """
-        Checks the piece for possible captures.
+        Checks a piece for possible captures.
         """
         
         col, row = self.board.get_col_row((piece.col, piece.row))
