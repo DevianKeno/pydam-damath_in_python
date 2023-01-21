@@ -7,6 +7,7 @@ import sys
 import random 
 import threading
 from math import ceil
+from damath.actions import Actions
 from damath.board import Board
 from damath.cheats import Cheats
 from damath.game import Game
@@ -274,6 +275,9 @@ game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
 
 if enableCheats:
     cheats = Cheats(screen, game)
+
+if enableActions:
+    actions = Actions(screen, game)
 
 if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -1164,13 +1168,15 @@ def start_game(mode):
         screen.blit(text_mode,
                     (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
-        if enableCheats:
-            if cheats.ShowMenu:
-                cheats.draw_menu()
+        if enableActions:
+            actions.draw_menu()
 
-                if cheats.ShowEVWindow:
-                    if cheats.ev_window.collidepoint(m_pos):
-                        cheats.check_for_hover(m_pos)
+        if enableCheats:
+            cheats.draw_menu()
+
+            if cheats.ShowEVWindow:
+                if cheats.ev_window.collidepoint(m_pos):
+                    cheats.check_for_hover(m_pos)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1371,6 +1377,13 @@ def start_game(mode):
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 game.select(cell)
+                                
+                    if enableActions:
+                        if actions.ShowMenu:
+                            if actions.dropdown.window.collidepoint(m_pos):
+                                actions.invoke()
+                            else:
+                                actions.hide_menus()
 
                     if enableCheats:
                         if cheats.ShowMenu:
@@ -1404,8 +1417,14 @@ def start_game(mode):
 
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 cheats.create_dropdown(m_pos)
+                                actions.hide_menus()
                             else:
-                                cheats.create_dropdown(m_pos, OnBoard=False)
+                                if not game_side_surface.get_rect().collidepoint(m_pos):
+                                    cheats.create_dropdown(m_pos, OnBoard=False)
+                                    actions.hide_menus()
+                                else:
+                                    actions.create_dropdown(m_pos)
+                                    cheats.hide_menus()
 
         # game_side_surface.blit(scoreboard_surface, (scoreboard_rect))
         # screen.blit(scoreboard_surface, (scoreboard_rect.x, scoreboard_rect.y))

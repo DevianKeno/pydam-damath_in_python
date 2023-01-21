@@ -104,9 +104,6 @@ class Cheats:
         self.ShowMenu = True
         self.pos = pos
         window_color = DARK_CERULEAN
-        # self.piece = self.game.board.board[col][row]
-        # self.col, self.row = col, row
-        
 
         if OnBoard:
             if self.selected_piece.color == 0:

@@ -8,6 +8,7 @@ enableMandatoryCapture = True
 enableCheats = True
 enableTimer = True
 enableTouchMove = True
+enableActions = True
 
 allowMovementOfOpponentPieces = False
 
