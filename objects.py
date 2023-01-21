@@ -154,6 +154,9 @@ icon_remove = Image(ICON_REMOVE, screen, (0, 0), (screen.get_width()*0.0166, scr
 icon_promote = Image(ICON_PROMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_demote = Image(ICON_DEMOTE, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 
+icon_forfeit = Image(ICON_FORFEIT, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+icon_offer_draw = Image(ICON_OFFER_DRAW, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
+
 icon_change_turn = Image(ICON_CHANGE_TURN, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_remove_all = Image(ICON_REMOVE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))
 icon_promote_all = Image(ICON_PROMOTE_ALL, screen, (0, 0), (screen.get_width()*0.0166, screen.get_height()*0.03))

@@ -45,6 +45,9 @@ ICON_REMOVE = pygame.image.load('new_assets\icons\icon_remove.png').convert_alph
 ICON_PROMOTE = pygame.image.load('new_assets\icons\icon_promote.png').convert_alpha()
 ICON_DEMOTE = pygame.image.load('new_assets\icons\icon_demote.png').convert_alpha()
 
+ICON_FORFEIT = pygame.image.load('new_assets\icons\icon_forfeit.png').convert_alpha()
+ICON_OFFER_DRAW = pygame.image.load('new_assets\icons\icon_offer_draw.png').convert_alpha()
+
 ICON_CHANGE_TURN = pygame.image.load('new_assets\icons\icon_change_turn.png').convert_alpha()
 ICON_REMOVE_ALL = pygame.image.load('new_assets\icons\icon_remove_all.png').convert_alpha()
 ICON_PROMOTE_ALL = pygame.image.load('new_assets\icons\icon_promote_all.png').convert_alpha()

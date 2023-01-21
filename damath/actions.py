@@ -1,6 +1,6 @@
 import pygame
 from display_constants import screen
-from objects import cheats_window_blue, icon_add
+from objects import cheats_window_blue, icon_forfeit, icon_offer_draw
 from ui_class.colors import *
 from ui_class.dropdown_menu import Dropdown
 from ui_class.font import *
@@ -35,7 +35,7 @@ class Actions:
         window_color = DARK_CERULEAN
 
         self.items = [" Forfeit", " Offer Draw"]
-        self.icons = [icon_add, icon_add]
+        self.icons = [icon_forfeit, icon_offer_draw]
 
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
         self.dropdown = Dropdown(self.surface, self.text_list)
