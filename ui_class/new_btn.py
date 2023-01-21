@@ -1,10 +1,12 @@
 import pygame
 from typing import Callable, Iterable
+from .tooltip import Tooltip
+from .colors import *
 
 state = str
 args = Iterable
 
-class NButton:
+class NButton(Tooltip):
 
     Normal = 'Normal'
     Hovered = 'Hovered'
@@ -22,7 +24,7 @@ class NButton:
                     shadow_selected_color=(54, 103, 126), shadow_disabled_color=(10, 10, 10),
                     shadow_toggled_color=(149, 49, 30), transition_duration = 20,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
-                    shadow_offset: int=0, target: Callable = None, args: Iterable=[]): 
+                    shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[]): 
                     """
                     Creates an NButton (New Button) object
 
@@ -105,6 +107,9 @@ class NButton:
                     self.text_rect = pygame.Rect((self.btn_rect.x + self.btn_rect.w//2 - self.text_surface.get_width()//2,
                                                 self.btn_rect.y + self.btn_rect.h//2 - self.text_surface.get_height()//2),
                                                 self.text_surface.get_size())
+
+                    #TODO: Pass the text object and text.get_width()*1.25 as the tooltip rect's width
+                    super().__init__(self.surface, 0, 0, self.width*1.25, self.height, PERSIMMON_ORANGE, (255, 255, 255), tooltip_text, shadow_offset=2)
 
     def get_state(self) -> state:
         """

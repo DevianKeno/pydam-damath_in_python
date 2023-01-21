@@ -108,19 +108,22 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
 btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
-                        SCREEN_HEIGHT/2), btn_size[0], btn_size[1], 'Classic', args='Classic')
+                        SCREEN_HEIGHT/2), btn_size[0], btn_size[1], 'Classic', args='Classic',
+                        tooltip_text="The classic game of Damath.")
 speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
                         btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
-                        btn_size[0], btn_size[1], 'Speed', args='Speed')
+                        btn_size[0], btn_size[1], 'Speed', args='Speed',
+                        tooltip_text='Fast-paced game of Damath.')
 custom_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
-                        btn_size[1], 'Custom', args='Custom')
+                        btn_size[1], 'Custom', args='Custom',
+                        tooltip_text='Create your own variation!')
 start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                             SCREEN_WIDTH)/2 - btn_size[0]//2,
                             SCREEN_HEIGHT/1.25), btn_size[0],

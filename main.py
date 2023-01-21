@@ -621,15 +621,27 @@ def sidebar_display(func_called):
     screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
     fade_screen.change_pos((sidebar.sidebar_rect.width, 0))
 
-# --------- button collision detection function ---------
+# --------- button hover detection function ---------
 
-def btn_collided(x, y, *, btn_dict=None, 
+def btn_hovered(pos, btn_dict):
+
+    btns = [btn for btn in btn_dict.keys()]
+
+    for btn in btns:
+        if btn.btn_rect.collidepoint((pos)):
+            btn.show_tooltip(1)
+
+
+# --------- button states function ---------
+
+def btn_selected(x, y, *, btn_dict=None, 
                 is_toggle=False, main_btn=None):
 
     buttons = [key for key in btn_dict.keys()]
 
     for btn in buttons:
         if btn.btn_rect.collidepoint((x, y)):
+
             if is_toggle:
                 btn.toggled = not btn.toggled
             else:
@@ -724,12 +736,14 @@ def select_mode():
                         except:
                             continue
                     else:
-                        btn_collided(x, y, btn_dict=toggle_btn, 
+                        btn_selected(x, y, btn_dict=toggle_btn, 
                                     is_toggle=True, main_btn=start_select_btn)
                         if custom_btn.toggled:
                             move_title = True
                         else:
                             move_title = False
+
+        btn_hovered(pygame.mouse.get_pos(), toggle_btn)
 
         title_up_display()
         screen.blit(CURSOR, pygame.mouse.get_pos())
@@ -991,7 +1005,7 @@ def pause(mode):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = event.pos
-                    btn_collided(x, y, btn_dict=pause_btns)
+                    btn_selected(x, y, btn_dict=pause_btns)
 
         # the attribute pos_reset is checked to see
         # if the NButton object has been previously clicked 
