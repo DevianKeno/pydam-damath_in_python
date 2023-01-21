@@ -8,7 +8,7 @@ from damath.constants import *
 # --------- x --------- 
 
 TITLE = pygame.transform.smoothscale_by(pygame.image.load('new_assets/title.png').convert_alpha(), 0.45)
-CURSOR = pygame.transform.smoothscale(pygame.image.load('new_assets\cursor.png').convert_alpha(), (20, 20))
+CURSOR = pygame.transform.smoothscale(pygame.image.load('new_assets\cursor.png').convert_alpha(), (32, 42))
 
 # --------- x --------- 
 
