@@ -1,4 +1,5 @@
 import pygame
+from damath.constants import PLAYER_ONE, PLAYER_TWO
 from display_constants import screen
 from objects import cheats_window_blue, icon_forfeit, icon_offer_draw
 from ui_class.colors import *
@@ -33,6 +34,11 @@ class Actions:
         self.ShowMenu = True
         self.pos = pos
         window_color = DARK_CERULEAN
+
+        if self.game.turn == PLAYER_ONE:
+            window_color = DARK_CERULEAN
+        else:
+            window_color = PERSIMMON_ORANGE
 
         self.items = [" Forfeit", " Offer Draw"]
         self.icons = [icon_forfeit, icon_offer_draw]

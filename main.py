@@ -6,6 +6,7 @@ import pygame
 import sys
 import random 
 import threading
+from console import Console
 from math import ceil
 from damath.actions import Actions
 from damath.board import Board
@@ -272,6 +273,7 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
+console = Console(game)
 
 if enableCheats:
     cheats = Cheats(screen, game)
@@ -1112,6 +1114,8 @@ def start_game(mode):
 
     pygame.mixer.music.stop()
     full_trans_reset()
+
+    console.start()
 
     while start_game_running:
 
