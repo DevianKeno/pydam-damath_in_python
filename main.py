@@ -30,6 +30,10 @@ from ui_class.tween import *
 from ui_class.slider import Slider
 from ui_class.rect_window import *
 from ui_class.mode_window import *
+# Multiplayer
+from match import Match
+from client import Client
+from server import Server
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -273,7 +277,17 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
-console = Console(game)
+
+# IsMultiplayer = True
+
+# if IsMultiplayer:
+#     client = Client()
+#     console = Console(game, client)
+#     server = Server(console)
+#     server.start()
+# else:
+#     console = Console(game)
+
 
 if enableCheats:
     cheats = Cheats(screen, game)
@@ -431,6 +445,9 @@ def main_menu():
                 if event.key == pygame.K_SPACE:
                     start_game('Classic')
                     break
+
+                if event.key == pygame.K_EQUALS:
+                    start_game('Classic', True)
 
         anim_title_breathe.update()
         anim_title_squeeze.update()
@@ -1093,9 +1110,23 @@ thread_running = True
 # --------- start game function ---------
 # (when Start button is pressed)
 
-def start_game(mode):
+def start_game(mode, IsMultiplayer=False):
 
     global thread_running, text_mode, global_timer_text
+
+    # game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME, IsMultiplayer)
+
+    if IsMultiplayer:
+        client = Client()
+        console = Console(game, client)
+        server = Server(console)
+        server.start()
+        console.ServerIsRunning = True
+        
+        print(f'Hosting a local server on {server.ip}')
+    else:
+        console = Console(game)
+
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -1107,8 +1138,6 @@ def start_game(mode):
     text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
     TIMERTHREAD = threading.Thread(target=timer_thread)
 
-    if enableDebugMode:
-        print(f'[Debug]: Playing on {mode} mode')
 
     start_game_running = True
 

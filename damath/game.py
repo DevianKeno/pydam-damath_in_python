@@ -14,13 +14,16 @@ pygame.mixer.init()
 
 class Game:
 
-    def __init__(self, surface, board, scoreboard, theme):
+    def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=False):
         self.surface = surface
         self.board = board
         self.scoreboard = scoreboard
         self.theme = theme
         self.selected_cell = None   # Cell | Raw cell
         self.selected_tile = None   # Tile | Cell relative to board's coordinates
+        self.IsMultiplayer = IsMultiplayer
+        self.ControlsIsEnabled = True
+
 
     def _init(self):
         self.moved_piece = None
@@ -37,6 +40,9 @@ class Game:
         self.board.set_mode(mode)
 
     def update(self):
+        if self.IsMultiplayer:
+            print("multi")
+            
         if enableAnimations:
             #TODO: Needs optimization
             if self.board.anim_move_piece:
@@ -81,6 +87,10 @@ class Game:
         """
         Selects a cell or move given raw cell arguments.
         """
+
+        if self.IsMultiplayer:
+            if not self.ControlsIsEnabled:
+                return
         
         # Cell = raw coordinates
         self.selected_cell = cell
