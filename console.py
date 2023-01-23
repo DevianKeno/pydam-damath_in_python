@@ -230,6 +230,7 @@ class Console:
                 return
         except:
             self.server = server
+            self.server.console = self
             self.server.start()
             print(f"Hosted local server on {self.server.get_ip()}")
 
@@ -286,6 +287,6 @@ class Console:
             return
 
         col, row = self.game.board.get_col_row(cell)
-        destination_col, destination_row = self.game.board.get_col_row(destination)
+        destination_col, destination_row = destination
         self.game.select((col, row), self.IsOperator)
         self.game.select_move((destination_col, destination_row))

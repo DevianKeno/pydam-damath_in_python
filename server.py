@@ -11,6 +11,7 @@ class Server:
     def __init__(self):
         # reserve a port on your computer in our
         # case it is 12345 but it can be anything
+        self.console = None
         self.port = 12345
         self.msg = ''
         self.reply = ''
@@ -85,6 +86,7 @@ class Server:
                         c.send('ping'.encode())
                     else:
                         print(f"\n<Client> ", self.reply)
+                        self.console.run_command(self.reply)
                         self.reply = ''
                         # c.send('ping'.encode())
                 else:
