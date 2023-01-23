@@ -22,8 +22,8 @@ class Game:
         self.selected_cell = None   # Cell | Raw cell
         self.selected_tile = None   # Tile | Cell relative to board's coordinates
         self.IsMultiplayer = IsMultiplayer
+        self.command = ''
         self.ControlsIsEnabled = True
-
 
     def _init(self):
         self.moved_piece = None
@@ -83,10 +83,18 @@ class Game:
         turn_timer.stop()
         global_timer.stop()
 
-    def select(self, cell):
+    def select(self, cell, IsOperator=False):
         """
         Selects a cell or move given raw cell arguments.
         """
+
+        if IsOperator:
+            if self.selected_piece:
+                self.select_move(cell)
+                return
+            else:
+                self.select_piece(self.board.get_piece(cell), IsOperator)
+                return
 
         if self.IsMultiplayer:
             if not self.ControlsIsEnabled:
@@ -106,7 +114,7 @@ class Game:
 
         # If a piece is selected
         if self.selected_piece:
-            self.select_move(cell)
+            return self.select_move(cell)
         else:
             if self.TurnRequiresCapture:
                 if piece_to_select.HasPossibleCapture:
@@ -123,18 +131,25 @@ class Game:
             raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
         
         if (cell) in self.valid_moves:
+            # Send to console
+            if self.IsMultiplayer:
+                self.command = "selmove {} {} {} {}".format(self.selected_piece.col, self.selected_piece.row, cell[0], cell[1])
             self._move_piece(self.selected_piece, cell)
+            return self.command
         else:
             self.selected_piece = None
 
-    def select_piece(self, piece):
+    def select_piece(self, piece, IsOperator=False):
         """
         Selects a piece, given a piece object.
         """
         
-        if piece.color != self.turn:
-            INVALID_SOUND.play()
-            return
+        if IsOperator:
+            pass
+        else:
+            if piece.color != self.turn:
+                INVALID_SOUND.play()
+                return
 
         self.selected_piece = piece
 

@@ -1,10 +1,11 @@
-# Import socket module
+"""
+Server.
+"""
+
 import socket
 from _thread import *
 import threading  
 
-# Create a socket object
-     
 class Client:
 
     def __init__(self) -> None:
@@ -14,33 +15,43 @@ class Client:
         self.localhost = '127.0.0.1'
         self.msg = ''
         self.IsConnected = False
-        self.IsSender = False 
+        self.IsConnecting = False
+        self.IsSender = False
+        self.max_connection_retries = 5
         
         self.ChatIsRunning = False
-        self.chat_thread = threading.Thread(target=self.chat)
+        self.chat_thread = threading.Thread(target=self.start_chat_service)
 
     def connect(self, ip):
+        """
+        Connect client to target ip.
+        """
+        
         self.ip = ip
         self.client_thread = threading.Thread(target=self.run_client, args=(ip, self.port))
         self.client_thread.start()
 
-        if not self.IsConnected:
-            print(f"Attempting to reconnect to {ip}...")
-            self.connect(ip)
+    def reconnect(self, ip):
+        pass
 
     def run_client(self, addr, port):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(f"\nConnecting to local server {addr}...")
+        c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        if self.IsConnecting:
+            return
+        self.IsConnecting = True
+
+        print(f"Connecting to server...")
         try:
-            s.connect((addr, port))
+            c.connect((addr, port))
         except:
-            print(f"Failed to connect to {addr}")
+            print(f"Failed to connect to local server")
+            self.IsConnecting = False
             return
 
         print(f"Connected to local server {addr}")
+        self.IsConnecting = False
         self.IsConnected = True
-        self.HasDisconnected = True
         
         if not self.ChatIsRunning:
             self.chat_thread.start()
@@ -48,24 +59,24 @@ class Client:
         while self.IsConnected:
             try:
                 #print("Receiving")
-                reply = s.recv(1024).decode('UTF-8').strip()
+                reply = c.recv(1024).decode('UTF-8').strip()
 
-                if msg != '':
-                    s.send(msg.encode())
-                    msg = ''
+                if self.msg != '':
+                    c.send(self.msg.encode())
+                    self.msg = ''
                 elif reply == 'ping':
                     #print("Received Ping")
-                    s.send('pong'.encode())
+                    c.send('pong'.encode())
                 else:
                     print(f"{addr}: {reply}")
                     self.IsSender = True
             except:
-                print("\nYou disconnected from the host.")
-                s.close()
+                print(f"Disconnected from the host.")
+                c.close()
                 self.IsConnected = False
                 self.connect(self.ip)
 
-    def chat(self):
+    def start_chat_service(self):
         """
         Chat.
         """
@@ -77,7 +88,7 @@ class Client:
             # Establish connection with client.
             if self.IsConnected:
                 if self.IsSender == True:
-                    input_msg = input("Enter message> ")
+                    input_msg = input("[Client]> ")
                     self.msg = input_msg
                     self.IsSender = False
             

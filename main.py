@@ -278,22 +278,11 @@ board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
 
-# IsMultiplayer = True
+client = Client()
+server = Server()
 
-# if IsMultiplayer:
-#     client = Client()
-#     console = Console(game, client)
-#     server = Server(console)
-#     server.start()
-# else:
-#     console = Console(game)
-
-
-if enableCheats:
-    cheats = Cheats(screen, game)
-
-if enableActions:
-    actions = Actions(screen, game)
+console = Console()
+console.start()
 
 if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -1115,18 +1104,15 @@ def start_game(mode, IsMultiplayer=False):
     global thread_running, text_mode, global_timer_text
 
     # game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME, IsMultiplayer)
+    # game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
 
-    if IsMultiplayer:
-        client = Client()
-        console = Console(game, client)
-        server = Server(console)
-        server.start()
-        console.ServerIsRunning = True
-        
-        print(f'Hosting a local server on {server.ip}')
-    else:
-        console = Console(game)
+    console.game = game
 
+    if enableCheats:
+        cheats = Cheats(screen, game)
+
+    if enableActions:
+        actions = Actions(screen, game)
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -1143,8 +1129,6 @@ def start_game(mode, IsMultiplayer=False):
 
     pygame.mixer.music.stop()
     full_trans_reset()
-
-    console.start()
 
     while start_game_running:
 
@@ -1420,7 +1404,10 @@ def start_game(mode, IsMultiplayer=False):
                         if enableCheats:
                             if not cheats.ShowMenu:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    game.select(cell)
+                                    if IsMultiplayer:
+                                        console.listen(game.select(cell))
+                                    else:
+                                        game.select(cell)
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 game.select(cell)
