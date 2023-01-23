@@ -1,4 +1,6 @@
 import pygame
+import random
+import time
 from multipledispatch import dispatch
 from .board import Board
 from .piece import Piece
@@ -31,6 +33,7 @@ class Game:
         self.valid_moves = {}
         self.TurnRequiresCapture = False
         self.turn = PLAYER_ONE
+        self.movables = {}
         self.evaluate()
 
     def set_mode(self, mode):
@@ -109,7 +112,7 @@ class Game:
 
     def get_all_possible_moves(self):
 
-        movables = {}
+        self.movables = {}
 
         for r in range(ROWS):
             for c in range(COLS):
@@ -123,14 +126,14 @@ class Game:
                         moves = list(self._get_moves_of(piece, "all").keys())
                     
                     if moves:
-                        movables[(piece.color, piece.number)] = moves
+                        self.movables[piece] = moves
         
         #BUG: Bug in some king pieces where no valid moves are returned on first click,
         #     causing the function to fail to count those moves, and will only do so 
         #     after the player reselects the affected king piece
-        piece_movables = list(movables.keys())
+        piece_movables = list(self.movables.keys())
         valid_moves = []
-        for move in list(movables.values()):
+        for move in list(self.movables.values()):
             valid_moves.extend(move)
 
         if enableDebugMode:
@@ -257,13 +260,13 @@ class Game:
             if self.selected_piece.HasSkipped:
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
+                    if versusAI:
+                        self.versus_ai()
                 else:
                     self.change_turn()
             else:
                 self.board.piece_skipped(self.selected_piece, col, row, bool=False)
                 self.change_turn()
-
-            self.evaluate()
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -322,6 +325,10 @@ class Game:
 
         if enableMandatoryCapture:
             self.check_for_captures()
+
+        self.evaluate()
+        if versusAI:
+            self.versus_ai()
 
     @dispatch(Piece)
     def check_for_captures(self, piece):
@@ -412,3 +419,34 @@ class Game:
         else:
             self.TurnRequiresCapture = True
             return self.TurnRequiresCapture
+
+    def versus_ai(self):
+        
+        # her name is Xena
+        
+        #TODO: create a more complex algorithm to choose the best possible move for the player
+        #           - making a move that will result to a positive score for the AI
+        #           - making a move that will result to a negative score for the opponent
+        #           - making a move that will lead the chips to promotion
+        #           - making a move that will quickly end the game if the AI's score is significantly
+        #               bigger than the opponent's
+
+        if self.turn == PLAYER_TWO:
+            
+            self.get_all_possible_moves()
+
+            random_piece_num = random.randint(0, len(list(self.movables.keys()))-1)
+            chosen_piece = list(self.movables.keys())[random_piece_num]
+
+            random_move_num = random.randint(0, len(list(self.movables.get(chosen_piece)))-1)
+            chosen_move = list(self.movables.get(chosen_piece))[random_move_num]
+
+            if not self.moved_piece:
+                self.selected_piece = chosen_piece
+                self.select_piece(self.selected_piece)
+                if self.selected_piece:
+                    self.select_move(chosen_move)
+            else:
+                self.select_move(chosen_move)
+            mcol, mrow = self.board.get_col_row(chosen_move)
+            print(f"[AI Xena] Xena moved {chosen_piece} ({chosen_piece.number}) to {(mcol, mrow)}")

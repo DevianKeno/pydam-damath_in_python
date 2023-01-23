@@ -20,5 +20,7 @@ _MODES = [
 
 MODE = _MODES[1]
 
+versusAI = True
+
 enableAnimations = True
 chipMoveAnimationSpeed = 0.5

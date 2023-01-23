@@ -1104,7 +1104,10 @@ def start_game(mode):
         turn_timer.set_duration(15)
         global_timer.set_duration(300)
 
-    text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
+    if versusAI:
+        text_mode = font_cookie_run_reg.render(str(mode)+" (vs Xena)", True, OAR_BLUE)
+    else:
+        text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
     TIMERTHREAD = threading.Thread(target=timer_thread)
 
     if enableDebugMode:
@@ -1391,10 +1394,18 @@ def start_game(mode):
                         if enableCheats:
                             if not cheats.ShowMenu:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    game.select(cell)
+                                    if versusAI:
+                                        if game.turn == PLAYER_ONE:
+                                            game.select(cell)
+                                    else:
+                                        game.select(cell)
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
-                                game.select(cell)
+                                if versusAI:
+                                    if game.turn == PLAYER_ONE:
+                                        game.select(cell)
+                                else:
+                                    game.select(cell)
                                 
                     if enableActions:
                         if actions.ShowMenu:
