@@ -18,7 +18,7 @@ _MODES = [
     'Polynomials'
     ]
 
-MODE = _MODES[4]
+MODE = _MODES[1]
 
 enableAnimations = True
 chipMoveAnimationSpeed = 0.5

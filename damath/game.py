@@ -23,6 +23,7 @@ class Game:
         self.selected_tile = None   # Tile | Cell relative to board's coordinates
 
     def _init(self):
+        self.game_evaluation = 0
         self.moved_piece = None
         self.selected_piece = None
         self.board = Board(self.surface, self.theme) # for game reset
@@ -30,6 +31,7 @@ class Game:
         self.valid_moves = {}
         self.TurnRequiresCapture = False
         self.turn = PLAYER_ONE
+        self.evaluate()
 
     def set_mode(self, mode):
         Piece.mode = mode
@@ -77,11 +79,68 @@ class Game:
         turn_timer.stop()
         global_timer.stop()
 
+    def evaluate(self):
+        
+        # this function only works in Naturals and Integers for now
+        
+        p1_eval = self.scoreboard.p1_score
+        p2_eval = self.scoreboard.p2_score
+
+        # get the values of all the remaining pieces on the board
+        for r in range(ROWS):
+            for c in range(COLS):
+                piece = self.board.get_piece((self.board.get_col_row((r, c))))
+                if piece.color != 0:
+                    if piece.color == PLAYER_ONE:
+                        if piece.IsKing:
+                            p1_eval+=int(piece.number * 2)
+                        p1_eval+=int(piece.number)
+                    else:
+                        if piece.IsKing:
+                            p2_eval+=int(piece.number * 2)
+                        p2_eval+=int(piece.number)
+
+        # positive game evaluation value means PLAYER_ONE (Blue) is winning
+        self.game_evaluation = p1_eval - p2_eval
+        
+        if enableDebugMode:
+            print(f"[Evaluation] Game Value: {self.game_evaluation}")
+        self.get_all_possible_moves()
+
+    def get_all_possible_moves(self):
+
+        movables = {}
+
+        for r in range(ROWS):
+            for c in range(COLS):
+                piece = self.board.get_piece((c, r))
+                if piece.color == self.turn:
+                    _move = self._get_moves_of(piece, "all")
+                    #print(_move)
+                    if self.TurnRequiresCapture:
+                        moves = list(self._get_moves_of(piece, "capture").keys())
+                    else:
+                        moves = list(self._get_moves_of(piece, "all").keys())
+                    
+                    if moves:
+                        movables[(piece.color, piece.number)] = moves
+        
+        #BUG: Bug in some king pieces where no valid moves are returned on first click,
+        #     causing the function to fail to count those moves, and will only do so 
+        #     after the player reselects the affected king piece
+        piece_movables = list(movables.keys())
+        valid_moves = []
+        for move in list(movables.values()):
+            valid_moves.extend(move)
+
+        if enableDebugMode:
+            print(f"[Evaluation] Number of valid moves: {len(valid_moves)}")
+            print(f"[Evaluation] Number of movables pieces: {len(piece_movables)}")
+
     def select(self, cell):
         """
         Selects a cell or move given raw cell arguments.
         """
-        
         # Cell = raw coordinates
         self.selected_cell = cell
         # Tile = cell relative to the board's coordinates, regardless of orientation
@@ -203,6 +262,8 @@ class Game:
             else:
                 self.board.piece_skipped(self.selected_piece, col, row, bool=False)
                 self.change_turn()
+
+            self.evaluate()
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -214,6 +275,7 @@ class Game:
         if moves:
             for move in moves:
                 col, row = move
+
                 pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
     
     def draw_selected_piece_indicator(self, surface):
@@ -242,6 +304,7 @@ class Game:
         self.capturing_pieces.clear()
 
     def change_turn(self):
+
         if self.selected_piece:
             self.board.check_for_kings(self.selected_piece)
 
