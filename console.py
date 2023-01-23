@@ -1,6 +1,7 @@
 import pygame
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.piece import Piece
+from damath.timer import *
 from objects import chips_surface
 from options import *
 from client import Client
@@ -59,7 +60,7 @@ class Console:
 
         print(command)
         self.message = command
-        # self.send(self.message)
+        self.send(self.message)
 
     def send(self, message):
         if self.server != None:
@@ -175,14 +176,16 @@ class Console:
                     except:
                         self.invalid_usage(args[0])      
                 case "selmove":
-                    try:
-                        if args[1]:
-                            if args[2]:
-                                if args[3]:
-                                    if args[4]:
-                                        self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
-                    except:
-                        self.invalid_usage(args[0])             
+                    # try:
+                    if args[1]:
+                        if args[2]:
+                            if args[3]:
+                                if args[4]:
+                                    self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
+                    # except:
+                    #     self.invalid_usage(args[0])             
+                case "timerp":
+                    self.command_timerp()
                 case _:
                     print("Invalid command, type /help for available commands")
         except:
@@ -272,6 +275,7 @@ class Console:
         print("/restart     : restarts the match")
         print("/select      : selects a piece")
         print("/selmove     : selects and moves a piece")
+        print("/timerp")
 
     def command_remove(self, cell):
         self.game.board.remove(cell)
@@ -291,5 +295,13 @@ class Console:
 
         col, row = self.game.board.get_col_row(cell)
         destination_col, destination_row = destination
-        self.game.select((col, row), self.IsOperator)
-        self.game.select_move((destination_col, destination_row))
+
+        if self.game.selected_piece.HasSkipped:
+            self.game.select_move((destination_col, destination_row))
+        else:
+            self.game.select((col, row), self.IsOperator)
+            self.game.select_move((destination_col, destination_row))
+
+    def command_timerp(self):
+        turn_timer.toggle()
+        pass
