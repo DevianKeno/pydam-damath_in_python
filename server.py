@@ -74,18 +74,19 @@ class Server:
 
         while self.IsConnected:
             try:
-                if self.msg != '':
-                    c.send(self.msg.encode())
-                    self.clear()
-                else:
+                if self.msg == '':
                     c.send('ping'.encode())
-                    # print(f"[Server]: Sending ping to client {addr}...")
                     self.reply = c.recv(1024).decode('UTF-8').strip()
 
-                    if self.reply != 'pong':
+                    if self.reply == 'pong':
+                        # print(f"[Server]: Received pong from client {addr}...")
+                        # print(f"[Server]: Sending ping to client {addr}...")
+                        c.send('ping'.encode())
+                    else:
                         print(f"<Client> ", self.reply)
-                    # else:
-                    #     print(f"[Server]: Received pong from client {addr}...")
+                else:
+                    c.send(self.msg.encode())
+                    self.clear()
             except:
                 print(f"{addr} has disconnected.")
                 self.connected_clients_count -= 1
@@ -108,6 +109,7 @@ class Server:
                 self.msg = input("[Server]> ")
 
     def listen_for_commands(self, command):
+        
         pass
 
     def get_ip(self):

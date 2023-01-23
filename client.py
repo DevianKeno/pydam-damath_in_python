@@ -60,19 +60,18 @@ class Client:
 
         while self.IsConnected:
             try:
-                    
-                if self.msg != '':
-                    c.send(self.msg.encode())
-                    self.clear()
-                else:
-                    c.send('pong'.encode())
-                    # print(f"[Client]: Sending pong to server...")
+                if self.msg == '':
                     self.reply = c.recv(1024).decode('UTF-8').strip()
                     
-                    if self.reply != 'ping':
+                    if self.reply == 'ping':
+                        # print("[Client]: Received ping from server.")
+                        # print(f"[Client]: Sending pong to server...")
+                        c.send('pong'.encode())
+                    else:
                         print(f"<Server> ", self.reply)
-                    # else:
-                    #     print("[Client]: Received ping from server.")
+                else:
+                    c.send(self.msg.encode())
+                    self.clear()
             except:
                 print(f"Disconnected from the host.")
                 c.close()
