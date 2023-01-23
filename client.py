@@ -66,9 +66,10 @@ class Client:
                         # print(f"[Client]: Sending pong to server...")
                         c.send('pong'.encode())
                     else:
-                        print(f"<Server> ", self.reply)
+                        print(f"\n<Server> ", self.reply)
+                        self.command = self.reply
                         self.reply = ''
-                        c.send('pong'.encode())
+                        # c.send('pong'.encode())
                     # else:
                 else:
                     c.send(self.msg.encode())
@@ -93,5 +94,5 @@ class Client:
         while True:
             # Establish connection with client.
             if self.IsConnected:
-                self.msg = input("[Client]> ")
+                self.msg = input()
             

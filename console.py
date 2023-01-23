@@ -53,12 +53,17 @@ class Console:
         Listen for commands.
         """
 
+        if command == None:
+            return
         self.message = command
         self.send(self.message)
 
     def send(self, message):
         if self.server != None:
             self.server.msg = message
+
+        msg = self.client.command
+        self.run_command(msg)
 
     def read_user_input(self):
         """

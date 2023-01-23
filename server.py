@@ -84,9 +84,9 @@ class Server:
                         # print(f"[Server]: Sending ping to client {addr}...")
                         c.send('ping'.encode())
                     else:
-                        print(f"<Client> ", self.reply)
+                        print(f"\n<Client> ", self.reply)
                         self.reply = ''
-                        c.send('ping'.encode())
+                        # c.send('ping'.encode())
                 else:
                     c.send(self.msg.encode())
                     self.msg = ''
@@ -109,7 +109,7 @@ class Server:
         while True:
             # Establish connection with client.
             if self.IsConnected:
-                self.msg = input("[Server]> ")
+                self.msg = input()
 
     def listen_for_commands(self, command):
         
@@ -135,7 +135,7 @@ class Match:
             # Establish connection with client.
             if self.IsConnected:
                 if self.IsSender == True:
-                    input_msg = input("[Server]> ")
+                    input_msg = input("")
                     self.msg = input_msg
                     self.IsSender = False
 
