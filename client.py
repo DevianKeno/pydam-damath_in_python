@@ -18,6 +18,7 @@ class Client:
         self.IsConnecting = False
         self.IsSender = False
         self.max_connection_retries = 5
+        self.command = None
         
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)

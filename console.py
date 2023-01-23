@@ -62,7 +62,9 @@ class Console:
         if self.server != None:
             self.server.msg = message
 
-        msg = self.client.command
+        while msg is None:
+            msg = self.client.command
+        self.client.command = None
         self.run_command(msg)
 
     def read_user_input(self):
