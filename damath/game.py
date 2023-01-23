@@ -132,6 +132,10 @@ class Game:
             if self.IsMultiplayer:
                 self.command = "selmove {} {} {} {}".format(self.selected_piece.col, self.selected_piece.row, cell[0], cell[1])
             self._move_piece(self.selected_piece, cell)
+
+            if not self.selected_piece.HasPossibleCapture:
+                self.change_turn()
+
             return self.command
         else:
             self.selected_piece = None
@@ -217,14 +221,14 @@ class Game:
             # Check if piece had captured
             if self.selected_piece.HasSkipped:
                 self.moved_piece.HasSkipped = False
-
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
                 else:
-                    self.change_turn()
+                    return
             else:
                 self.moved_piece.HasSkipped = False
-                self.change_turn()
+                return
+
         
     def draw_valid_moves(self, moves):
         color = YELLOW

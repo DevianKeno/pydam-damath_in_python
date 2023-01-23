@@ -57,12 +57,15 @@ class Console:
         if command == None:
             return
 
+        print(command)
         self.message = command
-        self.send(self.message)
+        # self.send(self.message)
 
     def send(self, message):
         if self.server != None:
             self.server.msg = message
+        if self.client != None:
+            self.client.msg = message
 
     def read_user_input(self):
         """
