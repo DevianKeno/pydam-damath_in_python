@@ -111,7 +111,14 @@ class Game:
 
         # If a piece is selected
         if self.selected_piece:
-            return self.select_move(cell)
+            if piece_to_select.color == self.turn:
+                if self.TurnRequiresCapture:
+                    if piece_to_select.HasPossibleCapture:
+                        self.select_piece(piece_to_select)
+                else:
+                    self.select_piece(piece_to_select)
+            else:
+                return self.select_move(cell)
         else:
             if self.TurnRequiresCapture:
                 if piece_to_select.HasPossibleCapture:
@@ -130,7 +137,8 @@ class Game:
         if (cell) in self.valid_moves:
             # Send to console
             if self.IsMultiplayer:
-                self.command = "selmove {} {} {} {}".format(self.selected_piece.col, self.selected_piece.row, cell[0], cell[1])
+                col, row = self.board.get_col_row(cell)
+                self.command = "selmove {} {} {} {}".format(self.selected_piece.col, self.selected_piece.row, col, row)
             self._move_piece(self.selected_piece, cell)
 
             if not self.selected_piece.HasPossibleCapture:

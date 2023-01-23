@@ -58,7 +58,7 @@ class Console:
         if command == None:
             return
 
-        print(command)
+        print(f"[Debug]: Command: {command}")
         self.message = command
         self.send(self.message)
 
@@ -100,7 +100,7 @@ class Console:
                                         self.command_add((int(args[1]), int(args[2])), int(args[3]), int(args[4]))
                     except:
                         self.invalid_usage(args[0])
-                case "connect":
+                case "connect" | "join":
                     try:
                         if args[1]:
                             self.command_connect(args[1])
@@ -142,8 +142,8 @@ class Console:
                             case "select":
                                 print("Usage: /select <col> <row>")
                                 print("Selects a cell given board column and row arguments.")
-                            case "selmove":
-                                print("Usage: /select <piece_col> <piece_row> <col> <row>")
+                            case "smove":
+                                print("Usage: /smove <piece_col> <piece_row> <col> <row>")
                                 print("Selects and immediately moves the piece to the given board column and row arguments.")
                     except:
                         self.command_help()
@@ -156,36 +156,36 @@ class Console:
                         self.command_move((args[1]))
                     except:
                         self.invalid_usage(args[0])
-                case "move":
+                case "move" | "mov":
                     try:
                         self.command_move((int(args[1]), int(args[2])))
                     except:
                         self.invalid_usage(args[0])
                 case "op":
                     self.command_op()
-                case "remove":
+                case "remove" | "rm":
                     try:
                         self.command_remove((int(args[1]), int(args[2])))
                     except:
                         self.invalid_usage(args[0])
                 case "restart":
                     self.command_restart()
-                case "select":
+                case "select" | "sel":
                     try:
                         self.command_select((int(args[1]), int(args[2])))
                     except:
                         self.invalid_usage(args[0])      
-                case "selmove":
-                    # try:
-                    if args[1]:
-                        if args[2]:
-                            if args[3]:
-                                if args[4]:
-                                    self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
-                    # except:
-                    #     self.invalid_usage(args[0])             
+                case "smove" | "sm":
+                    try:
+                        if args[1]:
+                            if args[2]:
+                                if args[3]:
+                                    if args[4]:
+                                        self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
+                    except:
+                        self.invalid_usage(args[0])             
                 case "timerp":
-                    self.command_timerp()
+                    self.command_timer()
                 case _:
                     print("Invalid command, type /help for available commands")
         except:
@@ -246,13 +246,17 @@ class Console:
     def command_match(self, mode):
         pass
 
-    def command_move(self, cell):
+    def command_move(self, destination):
         if not self.game.selected_piece:
             print("No piece selected. Select a piece with /select first")
             return
 
-        col, row = self.game.board.get_col_row(cell)
-        self.game.select_move((col, row))
+        if self.game.board.IsFlipped:
+            destination_col, destination_row = self.game.board.to_raw(destination)
+        else:
+            destination_col, destination_row = self.game.board.get_col_row(destination)
+
+        self.game.select_move((destination_col, destination_row))
 
     def command_op(self):
         self.IsOperator = True
@@ -274,8 +278,8 @@ class Console:
         print("/remove      : removes a piece")
         print("/restart     : restarts the match")
         print("/select      : selects a piece")
-        print("/selmove     : selects and moves a piece")
-        print("/timerp")
+        print("/smove       : selects and moves a piece")
+        print("/timer       : toggle timer")
 
     def command_remove(self, cell):
         self.game.board.remove(cell)
@@ -284,7 +288,11 @@ class Console:
         pass
 
     def command_select(self, cell):
-        col, row = self.game.board.get_col_row(cell)
+        if self.game.board.IsFlipped:
+            col, row = self.game.board.to_raw(cell)
+        else:
+            col, row = self.game.board.get_col_row(cell)
+
         self.game.select((col, row), self.IsOperator)
 
     def command_selmove(self, cell, destination):
@@ -294,25 +302,11 @@ class Console:
             return
         
         if self.game.selected_piece:
-            destination_col, destination_row = self.game.board.get_col_row(destination)
-            self.game.select_move((destination_col, destination_row))  
+            self.command_move(destination)  
             return
 
-        col, row = self.game.board.get_col_row(cell)
-        self.game.select((col, row), self.IsOperator)
+        self.command_select(cell)
+        self.command_move(destination)
 
-        destination_col, destination_row = self.game.board.get_col_row(destination)
-        self.game.select_move((destination_col, destination_row))  
-
-        # if self.game.selected_piece.HasSkipped:
-        #     print("has skipped")
-        #     self.game.select((col, row), self.IsOperator)
-        #     self.game.select_move((destination_col, destination_row))  
-        # else:
-        #     print("didn't skipped")
-        #     self.game.select((col, row), self.IsOperator)
-        #     self.game.select_move((destination_col, destination_row))  
-
-    def command_timerp(self):
+    def command_timer(self):
         turn_timer.toggle()
-        pass

@@ -159,6 +159,28 @@ class Board:
 
         return col, row
 
+    def to_raw(self, cell):
+        """
+        Converts a board-relative coordinate to raw coordinates.
+        This considers the board's orientation. 
+        """
+
+        col = abs(cell[0] - 7)
+        row = cell[1]
+
+        return col, row
+
+    def move_to_raw(self, move):
+        """
+        Converts a board-relative move to raw coordinates.
+        This considers the board's orientation. 
+        """
+
+        col = move[0]
+        row = abs(move[1] - 7)
+
+        return col, row
+
     def get_piece(self, cell):
         """
         Returns the piece in the specified cell.
