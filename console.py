@@ -288,11 +288,10 @@ class Console:
         self.game.select((col, row), self.IsOperator)
 
     def command_selmove(self, cell, destination):
-        # if self.game == None:
-        #     if self.ShowFeedback:
-        #         print("No match started yet. Start a match with /match first")
-        #     return
-        
+        if self.game == None:
+            if self.ShowFeedback:
+                print("No match started yet. Start a match with /match first")
+            return
         
         if self.game.selected_piece:
             destination_col, destination_row = self.game.board.get_col_row(destination)
