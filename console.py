@@ -16,8 +16,9 @@ class Console:
         self.game = None
         self.server = None
         self.client = client
-        self.ip_address = ''
+        self.client.console = self
 
+        self.ip_address = ''
         self.command = ''
         self.message = ''
 
@@ -55,17 +56,13 @@ class Console:
 
         if command == None:
             return
+
         self.message = command
         self.send(self.message)
 
     def send(self, message):
         if self.server != None:
             self.server.msg = message
-
-        while msg is None:
-            msg = self.client.command
-        self.client.command = None
-        self.run_command(msg)
 
     def read_user_input(self):
         """

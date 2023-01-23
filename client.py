@@ -19,6 +19,7 @@ class Client:
         self.IsSender = False
         self.max_connection_retries = 5
         self.command = None
+        self.console = None
         
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)
@@ -68,7 +69,7 @@ class Client:
                         c.send('pong'.encode())
                     else:
                         print(f"\n<Server> ", self.reply)
-                        self.command = self.reply
+                        self.console.run_command(self.reply)
                         self.reply = ''
                         # c.send('pong'.encode())
                     # else:
