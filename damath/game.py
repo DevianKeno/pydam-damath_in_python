@@ -164,17 +164,15 @@ class Game:
 
             if self.TurnRequiresCapture:
                 moves_to_get = "capture"
-        
-        col, row  = piece.col, piece.row
 
         self.valid_moves = self._get_moves_of(self.selected_piece, moves_to_get)
 
         if not self.valid_moves:
-            if not self.board.piece_had_skipped(self.selected_piece, col, row):
+            if self.selected_piece.HasSkipped:
                 INVALID_SOUND.play()
                 return
 
-            self.board.piece_skipped(self.selected_piece, col, row, bool=False)
+            self.selected_piece.HasSkipped = False
         else:
             SELECT_SOUND.play()
 
@@ -205,7 +203,7 @@ class Game:
 
             if skipped_piece:
                 CAPTURE_SOUND.play()
-                self.board.piece_skipped(self.selected_piece, col, row, bool=True)
+                self.moved_piece.HasSkipped = True
                 operations = []
 
                 if len(skipped_piece) > 1:
@@ -221,12 +219,14 @@ class Game:
 
             # Check if piece had captured
             if self.selected_piece.HasSkipped:
+                self.moved_piece.HasSkipped = False
+
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
                 else:
                     self.change_turn()
             else:
-                self.board.piece_skipped(self.selected_piece, col, row, bool=False)
+                self.moved_piece.HasSkipped = False
                 self.change_turn()
         
     def draw_valid_moves(self, moves):

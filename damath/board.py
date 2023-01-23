@@ -306,13 +306,7 @@ class Board:
                 piece.make_king()
                 self.orange_kings += 1
                 CAPTURE_SOUND.play()
-    
-    def piece_skipped(self, piece, col, row, bool):
-        piece.HasSkipped = bool
 
-    def piece_had_skipped(self, piece, col, row):
-        return piece.HasSkipped
-    
     def piece_landed(self, col, row):
         return self.symbol_map[(col, row)]
 
