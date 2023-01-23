@@ -72,10 +72,11 @@ class Server:
         if not self.ChatIsRunning:
             self.chat_thread.start()
 
+        c.send('ping'.encode())
+
         while self.IsConnected:
             try:
                 if self.msg == '':
-                    c.send('ping'.encode())
                     self.reply = c.recv(1024).decode('UTF-8').strip()
 
                     if self.reply == 'pong':
@@ -84,9 +85,11 @@ class Server:
                         c.send('ping'.encode())
                     else:
                         print(f"<Client> ", self.reply)
+                        self.reply = ''
+                        c.send('ping'.encode())
                 else:
                     c.send(self.msg.encode())
-                    self.clear()
+                    self.msg = ''
             except:
                 print(f"{addr} has disconnected.")
                 self.connected_clients_count -= 1
