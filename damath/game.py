@@ -220,10 +220,10 @@ class Game:
 
             # Check if piece had captured
             if self.selected_piece.HasSkipped:
-                self.moved_piece.HasSkipped = False
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
                 else:
+                    self.moved_piece.HasSkipped = False
                     return
             else:
                 self.moved_piece.HasSkipped = False

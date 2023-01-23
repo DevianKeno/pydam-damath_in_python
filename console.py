@@ -288,19 +288,31 @@ class Console:
         self.game.select((col, row), self.IsOperator)
 
     def command_selmove(self, cell, destination):
-        if self.game == None:
-            if self.ShowFeedback:
-                print("No match started yet. Start a match with /match first")
+        # if self.game == None:
+        #     if self.ShowFeedback:
+        #         print("No match started yet. Start a match with /match first")
+        #     return
+        
+        
+        if self.game.selected_piece:
+            destination_col, destination_row = self.game.board.get_col_row(destination)
+            self.game.select_move((destination_col, destination_row))  
             return
 
         col, row = self.game.board.get_col_row(cell)
-        destination_col, destination_row = destination
+        self.game.select((col, row), self.IsOperator)
 
-        if self.game.selected_piece.HasSkipped:
-            self.game.select_move((destination_col, destination_row))
-        else:
-            self.game.select((col, row), self.IsOperator)
-            self.game.select_move((destination_col, destination_row))
+        destination_col, destination_row = self.game.board.get_col_row(destination)
+        self.game.select_move((destination_col, destination_row))  
+
+        # if self.game.selected_piece.HasSkipped:
+        #     print("has skipped")
+        #     self.game.select((col, row), self.IsOperator)
+        #     self.game.select_move((destination_col, destination_row))  
+        # else:
+        #     print("didn't skipped")
+        #     self.game.select((col, row), self.IsOperator)
+        #     self.game.select_move((destination_col, destination_row))  
 
     def command_timerp(self):
         turn_timer.toggle()
