@@ -16,10 +16,13 @@ class Console:
         self.game = None
         self.server = None
         self.client = client
-        self.command = ""
+        self.ip_address = ''
+
+        self.command = ''
+        self.message = ''
+
         self.IsRunning = False
         self.ServerIsRunning = False
-        self.ip_address = ''
         self.IsOperator = False
         self.ShowFeedback = True
 
@@ -49,7 +52,13 @@ class Console:
         """
         Listen for commands.
         """
-        print(f"{command}")
+
+        self.message = command
+        self.send(self.message)
+
+    def send(self, message):
+        if self.server != None:
+            self.server.msg = message
 
     def read_user_input(self):
         """
@@ -93,6 +102,8 @@ class Console:
                     self.command_change_turn()
                 case "deop":
                     self.command_deop()
+                case "exit":
+                    self.command_exit()
                 case "help":
                     try:
                         match args[1]:
@@ -130,6 +141,8 @@ class Console:
                         self.command_help()
                 case "host":
                     self.command_host()
+                case "lock":
+                    self.command_lock()
                 case "match":
                     try:
                         self.command_move((args[1]))
@@ -166,7 +179,7 @@ class Console:
                 case _:
                     print("Invalid command, type /help for available commands")
         except:
-            print("Type /help for available commands")
+            pass
 
     def invalid_usage(self, command):
         """
@@ -203,6 +216,9 @@ class Console:
         if self.ShowFeedback:
             print("Removed console operator privileges.")
 
+    def command_exit(self):
+        self.stop()
+
     def command_host(self):
         try:
             if self.server.IsRunning:
@@ -212,6 +228,9 @@ class Console:
             self.server = server
             self.server.start()
             print(f"Hosted local server on {self.server.get_ip()}")
+
+    def command_lock(self):
+        self.game.ControlsIsEnabled = not self.game.ControlsIsEnabled
 
     def command_match(self, mode):
         pass

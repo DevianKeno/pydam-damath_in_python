@@ -56,25 +56,31 @@ class Client:
         if not self.ChatIsRunning:
             self.chat_thread.start()
 
+        self.reply = c.recv(1024).decode('UTF-8').strip()
+
         while self.IsConnected:
             try:
-                #print("Receiving")
-                reply = c.recv(1024).decode('UTF-8').strip()
-
+                    
                 if self.msg != '':
                     c.send(self.msg.encode())
-                    self.msg = ''
-                elif reply == 'ping':
-                    #print("Received Ping")
-                    c.send('pong'.encode())
+                    self.clear()
                 else:
-                    print(f"{addr}: {reply}")
-                    self.IsSender = True
+                    c.send('pong'.encode())
+                    # print(f"[Client]: Sending pong to server...")
+                    self.reply = c.recv(1024).decode('UTF-8').strip()
+                    
+                    if self.reply != 'ping':
+                        print(f"<Server> ", self.reply)
+                    # else:
+                    #     print("[Client]: Received ping from server.")
             except:
                 print(f"Disconnected from the host.")
                 c.close()
                 self.IsConnected = False
                 self.connect(self.ip)
+
+    def clear(self):
+        self.msg = ''
 
     def start_chat_service(self):
         """
@@ -87,8 +93,5 @@ class Client:
         while True:
             # Establish connection with client.
             if self.IsConnected:
-                if self.IsSender == True:
-                    input_msg = input("[Client]> ")
-                    self.msg = input_msg
-                    self.IsSender = False
+                self.msg = input("[Client]> ")
             

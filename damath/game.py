@@ -14,7 +14,7 @@ pygame.mixer.init()
 
 class Game:
 
-    def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=False):
+    def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=True):
         self.surface = surface
         self.board = board
         self.scoreboard = scoreboard
@@ -39,10 +39,7 @@ class Game:
         Scoreboard.mode = mode
         self.board.set_mode(mode)
 
-    def update(self):
-        if self.IsMultiplayer:
-            print("multi")
-            
+    def update(self):            
         if enableAnimations:
             #TODO: Needs optimization
             if self.board.anim_move_piece:

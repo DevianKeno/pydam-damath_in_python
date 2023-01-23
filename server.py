@@ -74,28 +74,53 @@ class Server:
 
         while self.IsConnected:
             try:
-                if self.msg == '':
+                if self.msg != '':
+                    c.send(self.msg.encode())
+                    self.clear()
+                else:
                     c.send('ping'.encode())
-                    #print("Sending ping")
+                    # print(f"[Server]: Sending ping to client {addr}...")
                     self.reply = c.recv(1024).decode('UTF-8').strip()
 
-                    if (self.reply != 'pong'):
-                        print(f"{addr}: {self.reply}")
-                        # self.run_console_command(reply)
-                        self.IsSender = True
-                else:
-                    c.send(self.msg.encode())
-                    self.msg = ''
-                    self.IsSender = False
+                    if self.reply != 'pong':
+                        print(f"<Client> ", self.reply)
+                    # else:
+                    #     print(f"[Server]: Received pong from client {addr}...")
             except:
-                print(f"{addr} has disconnected")
+                print(f"{addr} has disconnected.")
                 self.connected_clients_count -= 1
                 self.IsConnected = False
-                # self.server_thread.start()
+
+    def clear(self):
+        self.msg = ''
 
     def start_chat_service(self):
         """
         Chat.
+        """
+        
+        self.ChatIsRunning = True
+
+        # while game is running
+        while True:
+            # Establish connection with client.
+            if self.IsConnected:
+                self.msg = input("[Server]> ")
+
+    def listen_for_commands(self, command):
+        pass
+
+    def get_ip(self):
+        return self.ip
+
+class Match:
+
+    def __init__(self) -> None:
+        pass
+
+    def host_match(self):
+        """
+        Hosts the match.
         """
         
         self.ChatIsRunning = True
@@ -109,8 +134,9 @@ class Server:
                     self.msg = input_msg
                     self.IsSender = False
 
-    def listen_for_commands(self, command):
-        pass
+    def out(self, message):
+        """
+        Sends a message to client.
+        """
 
-    def get_ip(self):
-        return self.ip
+        self.msg = message
