@@ -105,7 +105,7 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
 
 # --------- Buttons  --------- 
 
-btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.06)
+btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.075)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
                         SCREEN_HEIGHT/2), btn_size[0], btn_size[1], 'Classic', args='Classic',
@@ -273,3 +273,30 @@ polynomial_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), 'XY', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.04),
             fontstyle='font/CookieRun_Bold.ttf')
+
+# --------- Multi Menu Button Objects  --------- 
+multi_local_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
+                        btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                        btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
+                        btn_size[0], btn_size[1], 'Local', args='Local',
+                        tooltip_text='Play with your friends!')
+multi_online_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
+                        (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
+                        btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
+                        btn_size[1], 'Online', args='Online',
+                        tooltip_text='Not available yet.')
+multi_online_btn.set_state(NButton.Disabled)
+
+multi_join_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
+                            SCREEN_WIDTH)/2 - btn_size[0]//2,
+                            SCREEN_HEIGHT/1.25), btn_size[0],
+                            btn_size[1], 'Join', rect_color=(38, 73, 89), 
+                            hover_color=(30, 58, 71), selected_color=(30, 58, 71),
+                            shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
+                            shadow_selected_color=(16, 30, 37), border_radius=10)
+
+multi_join_btn.set_state(NButton.Disabled)

@@ -367,7 +367,6 @@ anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSi
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
 
-
 # --------- Side menu rect tweenable --------- 
 
 TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
@@ -446,6 +445,7 @@ def title_up_display():
     """
     For moving the title img up + fade animation 
     """
+
     title_surface.fill(OAR_BLUE)
     title_surface.set_colorkey(OAR_BLUE)
     anim_title_up.update()
@@ -455,8 +455,14 @@ def title_up_display():
     screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
             sidebar.sidebar_rect.w-title_surface.get_width()//2, 0))
 
-def title_upper(*args):
+def title_upper(func=None):
+
     anim_title_upper.play()
+    if anim_title_down.IsFinished:
+        anim_title_upper.play()
+        if anim_title_upper.IsFinished:
+            anim_title_down.reset()
+
     mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
                 (0.05*SCREEN_WIDTH),y=title.y+TITLE.get_height()*2,
                 width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
@@ -465,7 +471,10 @@ def title_upper(*args):
     mode_window.rect_window.draw()
 
     if anim_title_upper.IsFinished:
-        anim_title_down.reset()
+        if func is not None:
+            func()
+
+def _custom_window():
 
         heading = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
         subheading = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.035))
@@ -558,6 +567,32 @@ def title_upper(*args):
                         mode_window.rect_window.h*0.05 + 
                         board_text.get_height()*3.5))
 
+buffering_icon = pygame.transform.smoothscale(ICON_BUFFERING, (int(multi_join_btn.height*2), int(multi_join_btn.height*2)))   
+rot_idx = 360
+
+def _multi_window():
+    global rot_idx
+    multi_join_btn.draw(((sidebar.sidebar_rect.width + 
+            (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
+            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
+            btn_size[0]), 
+            SCREEN_HEIGHT*0.85))
+    
+    window_text = pygame.font.Font('font/CookieRun_Regular.ttf', int(multi_join_btn.height*0.6))
+    window_text_surface = window_text.render("Searching for available matches...", True, OAR_BLUE)
+    screen.blit(window_text_surface, (mode_window.rect_window.x + mode_window.rect_window.w*0.5 - window_text_surface.get_width()*0.5,
+                mode_window.rect_window.y+(mode_window.rect_window.h*0.55)))
+
+    #NOTE: a make-do rotate function for now as I can't seem to move the previously instantiated tween object and it only stays in the middle of the screen
+    rotated_image = pygame.transform.rotate(buffering_icon, rot_idx)
+    centered = rotated_image.get_rect(center=(mode_window.rect_window.x + mode_window.rect_window.w*0.5, mode_window.rect_window.y+(mode_window.rect_window.h*0.45)))
+    screen.blit(rotated_image, centered)
+    
+    if rot_idx < 0:
+        rot_idx = 360
+    else:
+        rot_idx-=4
+
 added = False
 def sidebar_display(func_called):
     global added
@@ -574,7 +609,7 @@ def sidebar_display(func_called):
                         icon=play_icon, target=select_mode)
         sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Online', description='Play Online!', 
+                        text='Multi', description='Play with friends!', 
                         icon=online_icon, target=online_menu)
         sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
                         side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
@@ -625,9 +660,13 @@ def sidebar_display(func_called):
 
 # --------- button hover detection function ---------
 
-def btn_hovered(pos, btn_dict):
+def btn_hovered(pos, btn_list):
 
-    btns = [btn for btn in btn_dict.keys()]
+    try:
+        # if btn_list passed is a dict
+        btns = [btn for btn in btn_list.keys()]
+    except:
+        btns = [btn for btn in btn_list]
 
     for btn in btns:
         if btn.btn_rect.collidepoint((pos)):
@@ -636,10 +675,13 @@ def btn_hovered(pos, btn_dict):
 
 # --------- button states function ---------
 
-def btn_selected(x, y, *, btn_dict=None, 
+def btn_selected(x, y, *, btn_list=None, 
                 is_toggle=False, main_btn=None):
 
-    buttons = [key for key in btn_dict.keys()]
+    try:
+        buttons = [key for key in btn_list.keys()]
+    except:
+        buttons = [btn for btn in btn_list]
 
     for btn in buttons:
         if btn.btn_rect.collidepoint((x, y)):
@@ -679,6 +721,9 @@ def select_mode():
     anim_title_up.play()
     text_option = font.render('Modes', True, WHITE)
 
+    for btn in [classic_btn, speed_btn, custom_btn]:
+        btn.toggled = False
+
     while running:
     
         screen.fill(OAR_BLUE)
@@ -708,7 +753,7 @@ def select_mode():
                                 SCREEN_HEIGHT*0.85))
 
             if move_title:
-                title_upper()
+                title_upper(_custom_window)
             else:
                 if anim_title_upper.IsFinished:
                     anim_title_down.play()
@@ -738,7 +783,7 @@ def select_mode():
                         except:
                             continue
                     else:
-                        btn_selected(x, y, btn_dict=toggle_btn, 
+                        btn_selected(x, y, btn_list=toggle_btn, 
                                     is_toggle=True, main_btn=start_select_btn)
                         if custom_btn.toggled:
                             move_title = True
@@ -758,7 +803,12 @@ def online_menu():
 
     fade_screen.reset()
     anim_title_up.play()
+    anim_title_upper.reset()
+
+    anim_title_down.IsFinished = True
     running = True
+    move_title = False
+    multi_local_btn.toggled = False
     
     while running:
 
@@ -768,15 +818,48 @@ def online_menu():
         sidebar_display(online_menu)
 
         if fade_screen.finished:
-            screen.blit(font.render('Online', True, WHITE), 
+            screen.blit(font.render('Multi', True, WHITE), 
                         (sidebar.sidebar_rect.width + 
-                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
-                        SCREEN_HEIGHT/2.5))
+                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)*0.5-
+                        multi_local_btn.btn_rect.w*0.225, 
+                        title.y+TITLE.get_height()*1.15))
+            multi_local_btn.draw(((sidebar.sidebar_rect.w+((SCREEN_WIDTH-sidebar.sidebar_rect.w)*0.5))-
+                        multi_local_btn.btn_rect.w*1.1, title.y+TITLE.get_height()*1.5))
+            multi_online_btn.draw(((sidebar.sidebar_rect.w+((SCREEN_WIDTH-sidebar.sidebar_rect.w)*0.5))+
+                        multi_online_btn.btn_rect.w*0.1, title.y+TITLE.get_height()*1.5))
 
+            btn_hovered(pygame.mouse.get_pos(),[multi_local_btn])
+
+            if move_title:
+                title_upper(_multi_window)
+            else:
+                if anim_title_upper.IsFinished:
+                    anim_title_down.play()
+                    if anim_title_down.IsFinished:
+                        anim_title_upper.reset()
+                mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
+                        (0.05*SCREEN_WIDTH),
+                        y=title.y+TITLE.get_height()*2.2,
+                        width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
+                        (sidebar.sidebar_rect.w+
+                        (0.05*SCREEN_WIDTH)),
+                        height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
+                if anim_title_down.IsPlaying:
+                    mode_window.draw()
+                
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x, y = event.pos
+                    btn_selected(x, y, btn_list=[multi_local_btn], is_toggle=True, main_btn=multi_join_btn)
+                    if multi_local_btn.toggled:
+                        move_title = True
+                    else:
+                        move_title = False
 
         title_up_display()
         screen.blit(CURSOR, pygame.mouse.get_pos())
@@ -1007,7 +1090,7 @@ def pause(mode):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = event.pos
-                    btn_selected(x, y, btn_dict=pause_btns)
+                    btn_selected(x, y, btn_list=pause_btns)
 
         # the attribute pos_reset is checked to see
         # if the NButton object has been previously clicked 

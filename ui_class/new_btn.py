@@ -16,12 +16,12 @@ class NButton(Tooltip):
 
     def __init__(self, surface: pygame.Surface, 
                     pos: tuple, width: int, height: int, 
-                    text: str, *, border_radius: int=12, 
+                    text: str, *, border_radius: int=16, 
                     rect_color=(98, 140, 159), hover_color=(124, 172, 194), 
-                    selected_color=(124, 172, 194), disabled_color=(95, 95, 95), 
+                    selected_color=(124, 172, 194), disabled_color=(120, 120, 120), 
                     toggled_color=(243, 112, 72), text_color=(255, 255, 255), 
                     shadow_rect_color=(38, 73, 89), shadow_hovered_color=(54, 103, 126),
-                    shadow_selected_color=(54, 103, 126), shadow_disabled_color=(10, 10, 10),
+                    shadow_selected_color=(54, 103, 126), shadow_disabled_color=(50, 50, 50),
                     shadow_toggled_color=(149, 49, 30), transition_duration = 20,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
                     shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[]): 
@@ -85,6 +85,7 @@ class NButton(Tooltip):
                     else:
                         self.shadow_offset = shadow_offset
 
+                    self.disabled = False
                     self.toggled = False
                     self.clicked = False
                     self.prev_state = self.Normal
@@ -169,6 +170,9 @@ class NButton(Tooltip):
             if self.states[self.Toggled][1] or self.states[self.Selected][1] or self.states[self.Disabled][1]:
                 return
 
+        if state == self.Disabled:
+            self.disabled = True
+
         if state == self.Selected:
             self.clicked = True
 
@@ -245,7 +249,7 @@ class NButton(Tooltip):
         if self.btn_rect.collidepoint((mx, my)):
             self.set_state(self.Hovered)
         else:
-            if not self.toggled:
+            if not self.toggled and not self.disabled:
                 self.set_state(self.Normal)
 
         # changes position if a new position is passed
