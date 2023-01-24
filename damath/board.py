@@ -378,25 +378,28 @@ class Board:
         """
         Moves a piece/or pieces to the graveyard (capture).
         """
-        for piece in pieces:
-            if piece.color == PLAYER_ONE: # Blue
-                captured_piece = Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)
+        if type(pieces) != list:
+            pieces = [pieces]
+        else:
+            for piece in pieces:
+                if piece.color == PLAYER_ONE: # Blue
+                    captured_piece = Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
-                if piece.IsKing:
-                    captured_piece.IsKing = True
-                captured_piece.IsCaptured = True
-                self.blue_captured.append(captured_piece)
-                self.blue_pieces_count -= 1
-            else:
-                captured_piece = Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)
+                    if piece.IsKing:
+                        captured_piece.IsKing = True
+                    captured_piece.IsCaptured = True
+                    self.blue_captured.append(captured_piece)
+                    self.blue_pieces_count -= 1
+                else:
+                    captured_piece = Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
-                if piece.IsKing:
-                    captured_piece.IsKing = True
-                captured_piece.IsCaptured = True
-                self.orange_captured.append(captured_piece)
-                self.orange_pieces_count -= 1
+                    if piece.IsKing:
+                        captured_piece.IsKing = True
+                    captured_piece.IsCaptured = True
+                    self.orange_captured.append(captured_piece)
+                    self.orange_pieces_count -= 1
 
-            self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
+                self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
 
         self.recalculate_graveyard_positions()
 

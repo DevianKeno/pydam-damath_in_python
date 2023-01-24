@@ -113,12 +113,12 @@ class Cheats:
             else:
                 if not self.selected_piece.IsKing:
                     self.window_type = 2
-                    self.items = [" Remove", " Promote"]
-                    self.icons = [icon_remove, icon_promote]
+                    self.items = [" Remove", " Promote", " Capture"]
+                    self.icons = [icon_remove, icon_promote, icon_demote]
                 else:
                     self.window_type = 3
-                    self.items = [" Remove", " Demote"]
-                    self.icons = [icon_remove, icon_demote]
+                    self.items = [" Remove", " Demote", " Capture"]
+                    self.icons = [icon_remove, icon_demote, icon_demote]
             
                 if self.selected_piece.color == PLAYER_ONE:
                     window_color = DARK_CERULEAN
@@ -128,7 +128,7 @@ class Cheats:
                     pass
         else:
             self.window_type = 0
-            self.items = [" Change Turns", " Remove All", " Promote All", " Demote All", " Pause Timer", " Flip Board"]
+            self.items = [" Change Turns", " Remove All", " Promote All", " Demote All"," Pause Timer", " Flip Board"]
             self.icons = [icon_change_turn, icon_remove_all, icon_promote_all, icon_demote_all, icon_pause_timer, icon_change_turn]
 
             if not turn_timer.is_running:
@@ -246,12 +246,16 @@ class Cheats:
                         self.remove()
                     case 1:
                         self.promote()
+                    case 2:
+                        self.capture()
             case 3:
                 match self.selected:
                     case 0:
                         self.remove()
                     case 1:
                         self.demote()  
+                    case 2:
+                        self.capture()
 
     def add_blue(self):
         self.ev_window.change_color(window_color=DARK_CERULEAN)
@@ -289,6 +293,12 @@ class Cheats:
     def demote(self):
         self.game.board.get_piece(self.selected_cell).demote()
         print(f"[Cheats]: Demoted piece ({self.col}, {self.row})")
+        self.hide_menus()
+
+    def capture(self):
+        piece = self.game.board.get_piece(self.selected_cell)
+        self.game.board.capture(piece)
+        print(f"[Cheats]: Captured piece ({self.col}, {self.row})")
         self.hide_menus()
 
     def change_turn(self):
