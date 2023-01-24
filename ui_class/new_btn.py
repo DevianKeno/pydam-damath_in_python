@@ -174,8 +174,10 @@ class NButton(Tooltip):
             self.disabled = True
 
         if state == self.Selected:
-            self.clicked = True
-
+            if self.get_state() != self.Disabled:
+                self.clicked = True
+            else:
+                return
         # if the current state is different from the next state (the passed arg)
         if self.get_state() != state:
             self.color_idx = 0
@@ -246,10 +248,10 @@ class NButton(Tooltip):
         # checks for collision (hover)
         self.pos_reset = False
         mx, my = pygame.mouse.get_pos()
-        if self.btn_rect.collidepoint((mx, my)):
+        if self.btn_rect.collidepoint((mx, my)) and self.get_state() != self.Disabled:
             self.set_state(self.Hovered)
         else:
-            if not self.toggled and not self.disabled:
+            if not self.toggled and self.get_state() != self.Disabled:
                 self.set_state(self.Normal)
 
         # changes position if a new position is passed

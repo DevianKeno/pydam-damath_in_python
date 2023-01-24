@@ -773,6 +773,11 @@ def select_mode():
                         height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
                 mode_window.draw()
 
+        if start_select_btn.target == None:
+            start_select_btn.set_state(NButton.Disabled)
+        else:
+            start_select_btn.set_state(NButton.Normal)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -790,7 +795,7 @@ def select_mode():
                     else:
                         btn_selected(x, y, btn_list=toggle_btn, 
                                     is_toggle=True, main_btn=start_select_btn)
-                        if custom_btn.toggled:
+                        if custom_btn.get_state() == NButton.Toggled:
                             move_title = True
                         else:
                             move_title = False
@@ -809,9 +814,10 @@ def online_menu():
     fade_screen.reset()
     if anim_title_upper.IsFinished:
         anim_title_down.play()
-    anim_title_up.play()
+    else:
+        anim_title_down.IsFinished = True
+        anim_title_up.play()
 
-    #anim_title_down.IsFinished = True
     running = True
     move_title = False
     multi_local_btn.toggled = False
