@@ -57,7 +57,7 @@ class Game:
                 self.draw_capturing_piece_indicator(self.surface)
             self.draw_valid_moves(self.valid_moves)
 
-        self.board.draw_chips(self.surface)
+        self.board.draw_chips()
 
         self.scoreboard.draw_scores()
         self.scoreboard.draw_turn_indicator(self.turn)
@@ -286,7 +286,8 @@ class Game:
 
     def change_turn(self):
         if self.IsMultiplayer:
-            self.toggle_player_controls()
+            pass
+            # self.toggle_player_controls()
 
         if self.selected_piece:
             self.board.check_for_kings(self.selected_piece)

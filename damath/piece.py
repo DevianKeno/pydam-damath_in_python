@@ -1,6 +1,6 @@
 import pygame
 from .constants import *
-from objects import square_size, p1_captured_pieces_surface, p2_captured_pieces_surface
+from objects import square_size, right_captured_pieces_surface, left_captured_pieces_surface
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
 from ui_class.image import Image
 from options import *
@@ -74,17 +74,17 @@ class Piece(Image):
                 self.text_surface = self.font.render(str(self.number), True, DARK_BLUE)
 
                 if self.IsKing:
-                    p2_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
+                    left_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
                 else:
-                    p2_captured_pieces_surface.blit(self.image, (self.x, self.y))
+                    left_captured_pieces_surface.blit(self.image, (self.x, self.y))
             else:
                 self.text_surface = self.font.render(str(self.number), True, DARK_ORANGE)
                 if self.IsKing:
-                    p1_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
+                    right_captured_pieces_surface.blit(self.image_king, (self.x, self.y))
                     self.text_surface = self.font.render(str(self.number), True, IMAGINARY_WHITE)
                 else:
-                    p1_captured_pieces_surface.blit(self.image, (self.x, self.y))
+                    right_captured_pieces_surface.blit(self.image, (self.x, self.y))
 
             self.text_rect = self.text_surface.get_rect(center=(self.x+self.w*0.5, self.y+self.h*0.42))
             self.surface.blit(self.text_surface, self.text_rect)

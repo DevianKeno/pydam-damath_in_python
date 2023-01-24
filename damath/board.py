@@ -6,10 +6,13 @@ from display_constants import BG_COLOR
 from ui_class.font import *
 from ui_class.textlist import TextList
 from ui_class.tween import *
-from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, chips_surface, p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
+from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, chips_surface, right_captured_pieces_surface, right_captured_pieces_rect, left_captured_pieces_rect, left_captured_pieces_surface, square_size
 from options import *
 
 pygame.mixer.init()
+
+piece_height = square_size
+piece_width = square_size * .874
 
 class Board:
     
@@ -30,6 +33,7 @@ class Board:
         self.orange_kings = 0
         self.blue_captured = []
         self.orange_captured = []
+        self.total_captured = []
         self.moveables = []
 
         self.anim_move_piece = None
@@ -65,8 +69,8 @@ class Board:
         """
         Rotates the board by 180 degrees.
         """
-
         self._rotate_180()
+        self.recalculate_graveyard_positions()
 
     def _rotate_180(self):
         if self.IsFlipped:
@@ -353,7 +357,7 @@ class Board:
     def draw_contents(self, surface):
         self.init_symbols(surface)
 
-    def draw_chips(self, surface):
+    def draw_chips(self):
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
@@ -371,25 +375,25 @@ class Board:
         """
         Moves a piece/or pieces to the graveyard (capture).
         """
-        
         for piece in pieces:
             if piece.color == PLAYER_ONE: # Blue
-                captured_piece = Piece(p2_captured_pieces_surface, (0, 0), piece.color, piece.number)
+                captured_piece = Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
                 if piece.IsKing:
                     captured_piece.IsKing = True
                 captured_piece.IsCaptured = True
                 self.blue_captured.append(captured_piece)
-
+                
                 if len(self.blue_captured) <= 9:
-                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - 2
-                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h)
+                    captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - 2 if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - (piece.w)
+                    captured_piece.y = (left_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h) if not self.IsFlipped else ((right_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.blue_captured) * piece.h)) - 5
                 else:
-                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - piece.w
-                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.blue_captured) - 9) * piece.h)
+                    captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - piece.w if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2)
+                    captured_piece.y = (left_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.blue_captured) - 9) * piece.h) if not self.IsFlipped else ((right_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.blue_captured) - 9) * piece.h)) - 5
+                self.total_captured.append(captured_piece)
                 self.blue_pieces_count -= 1
             else:
-                captured_piece = Piece(p1_captured_pieces_surface, (0, 0), piece.color, piece.number)
+                captured_piece = Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
                 if piece.IsKing:
                     captured_piece.IsKing = True
@@ -397,14 +401,31 @@ class Board:
                 self.orange_captured.append(captured_piece)
 
                 if len(self.orange_captured) <= 9:
-                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2) - (piece.w)
-                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5
+                    captured_piece.x = (right_captured_pieces_surface.get_width() // 2) - (piece.w) if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - 2
+                    captured_piece.y = ((right_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5 if not self.IsFlipped else (left_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.orange_captured) * piece.h)
                 else:
-                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2)
-                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)) - 5
-                
+                    captured_piece.x = (right_captured_pieces_surface.get_width() // 2) if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - piece.w
+                    captured_piece.y = ((right_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)) - 5 if not self.IsFlipped else (left_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.orange_captured) - 9) * piece.h)
+                self.total_captured.append(captured_piece)
                 self.orange_pieces_count -= 1
             self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
+        self.recalculate_graveyard_positions()
+
+    def recalculate_graveyard_positions(self):
+        for captured_piece in self.total_captured:
+            if len(self.blue_captured) <= 9:
+                captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - 2 if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - (piece_width)
+                captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + (len(self.blue_captured) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - (len(self.blue_captured) * piece_height)) - 5
+            else:
+                captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - piece_width if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2)
+                captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((len(self.blue_captured) - 9) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((len(self.blue_captured) - 9) * piece_height)) - 5
+        for captured_piece in self.orange_captured:
+            if len(self.orange_captured) <= 9:
+                captured_piece.x = (right_captured_pieces_surface.get_width() // 2) - (piece_width) if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - 2
+                captured_piece.y = ((right_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - (len(self.orange_captured) * piece_height)) - 5 if not self.IsFlipped else (right_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + (len(self.orange_captured) * piece_height)
+            else:
+                captured_piece.x = (right_captured_pieces_surface.get_width() // 2) if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - piece_width
+                captured_piece.y = ((right_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((len(self.orange_captured) - 9) * piece_height)) - 5 if not self.IsFlipped else (right_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((len(self.orange_captured) - 9) * piece_height)
 
     def add_piece(self, piece):
         """

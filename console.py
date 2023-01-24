@@ -210,7 +210,7 @@ class Console:
         self.command_op()
 
     def _command_init_client(self):
-        self.command_match()
+        #self.command_match()
         
         self._command_flip()
         self._command_lock()

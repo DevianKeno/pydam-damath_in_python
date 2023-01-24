@@ -1182,12 +1182,17 @@ def start_game(mode, IsMultiplayer=False):
         board_area_surface.blit(chips_surface, (tiles_rect))
         
         # Render captured pieces
-        board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
-        board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
-        p1_captured_pieces_surface.fill(OAR_BLUE)
-        p2_captured_pieces_surface.fill(OAR_BLUE)
+        if not game.board.IsFlipped:
+            board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
+            board_area_surface.blit(left_captured_pieces_surface, (left_captured_pieces_rect))
+        else:
+            board_area_surface.blit(right_captured_pieces_surface, (left_captured_pieces_rect))
+            board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
+        right_captured_pieces_surface.fill(OAR_BLUE)
+        left_captured_pieces_surface.fill(OAR_BLUE)
         
         # Display side bar elements
+
         mini_title.display()
 
         screen.blit(text_scores,
