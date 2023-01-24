@@ -45,7 +45,11 @@ class Board:
     def update_theme(self, theme):
         self.theme = theme
 
-    def _init_rotation(self):        
+    def _init_rotation(self):
+        """
+        Initializes the first rotation of the board, as well as the coordinates.
+        """       
+        
         _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
         _y_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
 
@@ -62,9 +66,9 @@ class Board:
         Rotates the board by 180 degrees.
         """
 
-        self.rotate_180()
+        self._rotate_180()
 
-    def rotate_180(self):
+    def _rotate_180(self):
         if self.IsFlipped:
             self.IsFlipped = False        
             _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
@@ -179,7 +183,7 @@ class Board:
 
     def get_abs(self, cell):
         """
-        Returns the absolute value of the given cell.
+        Returns the flipped values of the given cell.
         """
         col = abs(cell[0] - 7)
         row = abs(cell[1] - 7)
@@ -236,9 +240,7 @@ class Board:
 
         self.board = [[0]*COLS for i in range(ROWS)]
 
-        """
-        Generate player one chips
-        """
+        # Generate player one chips
         val_counter = 11
 
         for row in range(2, -1, -1):
@@ -254,9 +256,7 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        """
-        Generate player two chips
-        """
+        # Generate player two chips
         val_counter = 0
 
         for row in range(7, 4, -1):
@@ -272,9 +272,8 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        """
-        Generate imaginary pieces at the middle of the board
-        """
+
+        # Generate imaginary pieces at the middle of the board
         for row in range(3, 5, 1):
             for col in range(COLS):
                 self.board[col][row] = Piece(surface, (col, row), 0, 0)
@@ -282,6 +281,10 @@ class Board:
         # print(f"Buffer") # Debug
 
     def set_mode(self, mode):
+        """
+        Sets the mode of the match.
+        """
+        
         self.mode = mode
         self.board = []
 
@@ -290,8 +293,9 @@ class Board:
 
     def move_piece(self, piece, destination):
         """
-        Moves piece to destination cell.
+        Moves given piece to destination cell.
         """
+
         destination_col = destination[0]
         destination_row = destination[1]
         destination_piece = self.board[destination_col][destination_row]
@@ -338,6 +342,10 @@ class Board:
         return self.symbol_map[(col, row)]
 
     def set_all_moveables(self, IsMovable=True):
+        """
+        Sets all pieces state to be movable or not.
+        """
+        
         for row in range(ROWS):
             for col in range(COLS):
                 self.board[col][row].IsMovable = IsMovable
@@ -360,6 +368,10 @@ class Board:
             piece.display()
 
     def move_to_graveyard(self, pieces):
+        """
+        Moves a piece/or pieces to the graveyard (capture).
+        """
+        
         for piece in pieces:
             if piece.color == PLAYER_ONE: # Blue
                 captured_piece = Piece(p2_captured_pieces_surface, (0, 0), piece.color, piece.number)
@@ -401,19 +413,32 @@ class Board:
         self.board[piece.col][piece.row] = piece
         self.moveables.append((piece.col, piece.row))
 
+        if piece.color == PLAYER_ONE:
+            self.blue_pieces_count += 1
+        else:
+            self.orange_pieces_count += 1
+
     def remove(self, cell):
         """
         Removes a piece from the board, given raw cell arguments.
+        This does not decrement current pieces count.
         """
         col, row = self.get_col_row(cell)
         self.board[col][row] = Piece(self.surface, (col, row), 0, 0)
 
     def capture(self, cell):
         """
-        Captures a piece from the board, given raw cell arguments.
+        Captures a piece from the board moving it to the graveyard.
+        This receives raw cell arguments.
         """
+        piece = self.get_piece(cell)
+        self.move_to_graveyard(piece)
 
     def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
+        """
+        Returns all the possible moves of the given piece.
+        """
+        
         moves = {}
         up = -1
         down = 1
@@ -458,10 +483,6 @@ class Board:
                 break
 
             cell_to_check = self.get_piece((left, row))
-            
-            # if BoardIsFlipped:
-            #     left = abs(left - 7)
-            #     row = abs(row - 7)
 
             # Check if cell is empty
             if cell_to_check.color == 0:

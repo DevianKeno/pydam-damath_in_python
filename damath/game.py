@@ -106,7 +106,7 @@ class Game:
 
         piece_to_select = self.board.get_piece(cell)
 
-        # If a piece had already captured
+        # If a piece had already captured, you can only select that piece
         if self.moved_piece:
             if piece_to_select == self.moved_piece:
                 piece_to_select = self.moved_piece
@@ -132,9 +132,6 @@ class Game:
         """
         Selects a valid move, given a raw cell argument.
         """
-
-        if not self.selected_piece:
-            raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
         
         if (cell) in self.valid_moves:
             # Send to console
@@ -146,6 +143,7 @@ class Game:
                     col, row = self.board.get_col_row(cell)
                     piece_col, piece_row = self.selected_piece.col, self.selected_piece.row
                 self.command = "sm {} {} {} {}".format(piece_col, piece_row, col, row)
+
             self._move_piece(self.selected_piece, cell)
 
             if not self.selected_piece.HasPossibleCapture:
@@ -160,9 +158,7 @@ class Game:
         Selects a piece, given a piece object.
         """
         
-        if IsOperator:
-            pass
-        else:
+        if not IsOperator:
             if piece.color != self.turn:
                 INVALID_SOUND.play()
                 return
@@ -174,6 +170,7 @@ class Game:
 
         # Get moves
         moves_to_get = "all"
+        
         if enableMandatoryCapture:
             if not self.selected_piece.IsMovable:
                 return
@@ -185,7 +182,7 @@ class Game:
 
         if not self.valid_moves:
             if self.selected_piece.HasSkipped:
-                INVALID_SOUND.play()
+                # INVALID_SOUND.play()
                 return
 
             self.selected_piece.HasSkipped = False
