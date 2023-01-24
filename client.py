@@ -14,6 +14,7 @@ class Client:
         self.ip = ''
         self.localhost = '127.0.0.1'
         self.msg = ''
+        self.IsRunning = False
         self.IsConnected = False
         self.IsConnecting = False
         self.IsSender = False
@@ -32,6 +33,10 @@ class Client:
         self.ip = ip
         self.client_thread = threading.Thread(target=self.run_client, args=(ip, self.port))
         self.client_thread.start()
+
+    def stop(self):
+        # Close everything that needs to be closed
+        self.IsRunning = False
 
     def reconnect(self, ip):
         pass
@@ -55,6 +60,7 @@ class Client:
         self.IsConnecting = False
         self.IsConnected = True
         self.console.IsClient = True
+        self.console._command_init_client()
         
         if not self.ChatIsRunning:
             self.chat_thread.start()

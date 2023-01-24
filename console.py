@@ -16,20 +16,17 @@ class Console:
     def __init__(self) -> None:
         self.game = None
         self.server = None
-        self.client = client
-        self.client.console = self
+        self.client = None
         self.IsServer = False
         self.IsClient = False
+        self.IsRunning = False
 
         self.ip_address = ''
         self.command = ''
         self.message = ''
 
-        self.IsRunning = False
-        self.ServerIsRunning = False
         self.IsOperator = False
         self.ShowFeedback = True
-
 
     def start(self):
         """
@@ -209,11 +206,18 @@ class Console:
 
     # Commands list
 
-    def _command_init(self):
-        pass
+    def _command_init_server(self):
+        self.command_op()
+
+    def _command_init_client(self):
+        self.command_match()
+        
+        self._command_flip()
+        self._command_lock()
+
 
     def _command_lock(self):
-        self.game.ControlsIsEnabled = not self.game.ControlsIsEnabled
+        self.game.toggle_player_controls()
 
     def _command_flip(self):
         self.game.board.flip()
@@ -231,6 +235,11 @@ class Console:
         self.game.change_turn()
 
     def command_connect(self, address):
+        if self.IsServer:
+            self.server.stop()
+
+        self.client = client
+        self.client.console = self
         self.client.connect(address)
 
     def command_debug(self):
@@ -249,6 +258,9 @@ class Console:
         self.stop()
 
     def command_host(self):
+        if self.IsClient:
+            self.client.stop()
+
         try:
             if self.server.IsRunning:
                 print(f"Local server already hosted on {self.server.get_ip()}")
@@ -257,7 +269,9 @@ class Console:
             self.server = server
             self.server.console = self
             self.server.start()
-            print(f"Hosted local server on {self.server.get_ip()}")
+
+            if self.ShowFeedback:
+                print(f"Hosted local server on {self.server.get_ip()}")
 
     def command_match(self, mode):
         pass
@@ -303,26 +317,34 @@ class Console:
     def command_restart(self):
         pass
 
-    def command_select(self, cell):
+    def command_select(self, cell, Bypass=False):
         if self.game.board.IsFlipped:
             col, row = self.game.board.to_raw(cell)
         else:
             col, row = self.game.board.get_col_row(cell)
 
-        self.game.select((col, row), self.IsOperator)
+        if Bypass:
+            self.game.select((col, row), Bypass)
+        else:
+            self.game.select((col, row), self.IsOperator)
 
     def command_selmove(self, cell, destination):
+        """
+        Selects and immediately moves the piece to destination cell.
+        """
+        
         if self.game == None:
             if self.ShowFeedback:
                 print("No match started yet. Start a match with /match first")
             return
         
+        self.game.toggle_indicators()
         if self.game.selected_piece:
             self.command_move(destination)  
             return
-
-        self.command_select(cell)
+        self.command_select(cell, True)
         self.command_move(destination)
+        self.game.toggle_indicators()
 
     def command_timer(self):
         turn_timer.toggle()

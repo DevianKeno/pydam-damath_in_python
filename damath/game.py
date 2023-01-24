@@ -24,6 +24,7 @@ class Game:
         self.IsMultiplayer = IsMultiplayer
         self.command = ''
         self.ControlsIsEnabled = True
+        self.DrawIndicators = True
 
     def _init(self):
         self.moved_piece = None
@@ -51,9 +52,10 @@ class Game:
         self.board.draw_coordinates()
 
         if self.selected_piece:
-            self.draw_selected_piece_indicator(self.surface)
+            if self.DrawIndicators:
+                self.draw_selected_piece_indicator(self.surface)   
+                self.draw_capturing_piece_indicator(self.surface)
             self.draw_valid_moves(self.valid_moves)
-        self.draw_capturing_piece_indicator(self.surface)
 
         self.board.draw_chips(self.surface)
 
@@ -241,7 +243,6 @@ class Game:
             else:
                 self.moved_piece.HasSkipped = False
                 return
-
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -270,6 +271,12 @@ class Game:
                     capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
+    def toggle_player_controls(self):
+        self.ControlsIsEnabled = not self.ControlsIsEnabled
+
+    def toggle_indicators(self):
+        self.DrawIndicators = not self.DrawIndicators
+
     def refresh(self):
         """
         Refreshes the game, removing all selections.
@@ -281,6 +288,9 @@ class Game:
         self.capturing_pieces.clear()
 
     def change_turn(self):
+        if self.IsMultiplayer:
+            self.toggle_player_controls()
+
         if self.selected_piece:
             self.board.check_for_kings(self.selected_piece)
 
