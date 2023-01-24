@@ -293,7 +293,7 @@ class Board:
         self.board = []
 
         self._init_chips(self.surface)
-        self.draw_chips(self.surface)
+        self.draw_chips()
 
     def move_piece(self, piece, destination):
         """
@@ -397,19 +397,19 @@ class Board:
                 self.orange_pieces_count -= 1
 
             self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
-            
+
         self.recalculate_graveyard_positions()
 
     def recalculate_graveyard_positions(self):
         for i, captured_piece in enumerate(self.blue_captured):
-            if len(self.blue_captured) <= 9:
+            if i < 9:
                 captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - 2 if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - (piece_width)
                 captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((i + 1) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((i + 1) * piece_height)) - 5
             else:
                 captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - piece_width if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2)
                 captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + (((i + 1) - 9) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - (((i + 1) - 9) * piece_height)) - 5
         for i, captured_piece in enumerate(self.orange_captured):
-            if len(self.orange_captured) <= 9:
+            if i < 9:
                 captured_piece.x = (right_captured_pieces_surface.get_width() // 2) - (piece_width) if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - 2
                 captured_piece.y = ((right_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((i + 1) * piece_height)) - 5 if not self.IsFlipped else (right_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((i + 1) * piece_height)
             else:
