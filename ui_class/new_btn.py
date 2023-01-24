@@ -16,7 +16,7 @@ class NButton(Tooltip):
 
     def __init__(self, surface: pygame.Surface, 
                     pos: tuple, width: int, height: int, 
-                    text: str, *, border_radius: int=16, 
+                    *, text: str='', border_radius: int=16, 
                     rect_color=(98, 140, 159), hover_color=(124, 172, 194), 
                     selected_color=(124, 172, 194), disabled_color=(120, 120, 120), 
                     toggled_color=(243, 112, 72), text_color=(255, 255, 255), 

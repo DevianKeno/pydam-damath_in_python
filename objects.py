@@ -108,7 +108,7 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
 btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.075)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
-                        SCREEN_HEIGHT/2), btn_size[0], btn_size[1], 'Classic', args='Classic',
+                        SCREEN_HEIGHT/2), btn_size[0], btn_size[1], text='Classic', args='Classic',
                         tooltip_text="The classic game of Damath.")
 speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
@@ -116,18 +116,18 @@ speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width +
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
-                        btn_size[0], btn_size[1], 'Speed', args='Speed',
+                        btn_size[0], btn_size[1], text='Speed', args='Speed',
                         tooltip_text='Fast-paced game of Damath.')
 custom_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
-                        btn_size[1], 'Custom', args='Custom',
+                        btn_size[1], text='Custom', args='Custom',
                         tooltip_text='Create your own variation!')
 start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                             SCREEN_WIDTH)/2 - btn_size[0]//2,
                             SCREEN_HEIGHT/1.25), btn_size[0],
-                            btn_size[1], 'Start', rect_color=(38, 73, 89), 
+                            btn_size[1], text='Start', rect_color=(38, 73, 89), 
                             hover_color=(30, 58, 71), selected_color=(30, 58, 71),
                             shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
                             shadow_selected_color=(16, 30, 37), border_radius=10)
@@ -181,33 +181,26 @@ pause_window = create_window(screen, (0, 0),
                 DARK_BLUE, border_radius=10,
                 cast_shadow=False)
 
-resume_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
-                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
-                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
-                (pause_window.h*0.25)), pause_window.w*0.45, 
-                btn_size[1], 'Resume', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
-                shadow_offset=(pause_window.w*0.45)*0.05)
+__pause_btn_pos = (((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
+                (pause_window.w*0.5-(pause_window.w*0.45)*0.5)),
+                SCREEN_HEIGHT*0.5-pause_window.h*0.5+
+                pause_window.h*0.25)
+__pause_btn_size = (pause_window.w*0.465, btn_size[1])              
+__pause_btn_kwargs = {
+                "rect_color" : TEAL,
+                "shadow_rect_color" : DARKER_TEAL,
+                "shadow_offset" : (pause_window.w*0.45)*0.05,
+                "fontsize" : int((pause_window.h*0.175) * 0.4)
+                }
 
-options_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
-                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
-                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
-                (pause_window.h*0.25+btn_size[1]*1.75)), pause_window.w*0.45, 
-                btn_size[1], 'Options', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
-                shadow_offset=(pause_window.w*0.45)*0.05)
-
-restart_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
-                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
-                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
-                (pause_window.h*0.25+btn_size[1]*3.5)), pause_window.w*0.45, 
-                btn_size[1], 'Restart', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
-                shadow_offset=(pause_window.w*0.45)*0.05)
-
-main_menu_btn = NButton(screen, ((SCREEN_WIDTH*0.5-pause_window.width*0.5)+
-                (pause_window.w*0.5-(pause_window.w*0.45)*0.5), 
-                (SCREEN_HEIGHT*0.5-pause_window.h*0.5)+
-                (pause_window.h*0.25+btn_size[1]*5.25)), pause_window.w*0.45, 
-                btn_size[1], 'Main Menu', rect_color=TEAL, shadow_rect_color=DARKER_TEAL,
-                shadow_offset=(pause_window.w*0.45)*0.05)
+resume_btn = NButton(screen, __pause_btn_pos, *__pause_btn_size, 
+                text='Resume', **__pause_btn_kwargs)
+options_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1]*1.35), 
+                *__pause_btn_size,  text='Options', **__pause_btn_kwargs)
+restart_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1]*2.7), 
+                *__pause_btn_size, text='Restart', **__pause_btn_kwargs)
+main_menu_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1]*4), 
+                *__pause_btn_size, text='Main Menu', **__pause_btn_kwargs)
 
 pause_btns = {
     resume_btn : False,
@@ -220,23 +213,23 @@ pause_btns = {
 
 # ----- symbols  -----
 add_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '+', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='+', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             fontstyle='font/CookieRun_Bold.ttf')
 sub_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '-', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='-', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             fontstyle='font/CookieRun_Bold.ttf')
 mul_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '×', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='×', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             fontstyle='font/CookieRun_Bold.ttf')
 div_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '÷', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='÷', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             fontstyle='font/CookieRun_Bold.ttf')
 random_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '?', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='?', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             fontstyle='font/CookieRun_Bold.ttf')
 
@@ -254,23 +247,23 @@ for key in [symbol for symbol in symbols_btn.keys()][:4]:
 
 # ----- values  -----
 none_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), 'None', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='None', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.0275),
             fontstyle='font/CookieRun_Bold.ttf')
 naturals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '1', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='1', shadow_offset=8,
             fontstyle='font/CookieRun_Bold.ttf')
 integers_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '-2', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='-2', shadow_offset=8,
             fontstyle='font/CookieRun_Bold.ttf')
 rationals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '⅓', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='⅓', shadow_offset=8,
             fontstyle='font/CookieRun_Bold.ttf')
 radicals_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), '√', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='√', shadow_offset=8,
             fontstyle='font/CookieRun_Bold.ttf')
 polynomial_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            int(SIDE_MENU_RECT_ACTIVE.height*0.08), 'XY', shadow_offset=8,
+            int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='XY', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.04),
             fontstyle='font/CookieRun_Bold.ttf')
 
@@ -281,20 +274,20 @@ multi_local_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width +
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
-                        btn_size[0], btn_size[1], 'Local', args='Local',
+                        btn_size[0], btn_size[1], text='Local', args='Local',
                         tooltip_text='Play with your friends!')
 multi_online_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
-                        btn_size[1], 'Online', args='Online',
+                        btn_size[1], text='Online', args='Online',
                         tooltip_text='Not available yet.')
 multi_online_btn.set_state(NButton.Disabled)
 
 multi_join_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                             SCREEN_WIDTH)/2 - btn_size[0]//2,
                             SCREEN_HEIGHT/1.25), btn_size[0],
-                            btn_size[1], 'Join', rect_color=(38, 73, 89), 
+                            btn_size[1], text='Join', rect_color=(38, 73, 89), 
                             hover_color=(30, 58, 71), selected_color=(30, 58, 71),
                             shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
                             shadow_selected_color=(16, 30, 37), border_radius=10)

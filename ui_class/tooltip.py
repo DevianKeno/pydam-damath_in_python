@@ -27,7 +27,7 @@ class Tooltip:
         self.tltp_rect_shadow = pygame.Rect(self.tltp_x+self.tltp_shadow_offset, self.tltp_y+self.tltp_shadow_offset, self.tltp_w, self.tltp_h)
         self.tltp_rect = pygame.Rect(self.tltp_x, self.tltp_y, self.tltp_w, self.tltp_h)
 
-        self.tltp_font = pygame.font.Font(CookieRun_Regular, int(self.tltp_h*0.4))
+        self.tltp_font = pygame.font.Font(CookieRun_Regular, int(self.tltp_h*0.3))
         self._init()
 
     def _init(self):

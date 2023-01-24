@@ -31,7 +31,7 @@ class ModeWindow:
 
                 self.expand_btn = NButton(self.surface, self.button_pos,
                                     self.button_width, self.button_height,
-                                    self.button_text, shadow_offset=self.button_shadow_offset)
+                                    text=self.button_text, shadow_offset=self.button_shadow_offset)
 
     def draw(self):
 

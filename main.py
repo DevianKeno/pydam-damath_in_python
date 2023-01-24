@@ -879,7 +879,7 @@ def help_menu():
     t3_rectwin = create_window(screen, (1000, 350), 200, 100, DARK_ORANGE, border_thickness=10)
     t4_rectwin = create_window(screen, (750, 475), 475, 175, DARK_BLUE, border_thickness=16) 
 
-    expand_btn = NButton(screen, (0, 0), 125, 50, " ", border_radius=8, shadow_offset=8)
+    expand_btn = NButton(screen, (0, 0), 125, 50, border_radius=8, shadow_offset=8)
 
     while running:
         screen.fill(OAR_BLUE)
