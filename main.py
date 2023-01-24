@@ -395,7 +395,7 @@ def main_menu():
 
     full_trans_reset()
     game.reset()
-    
+    anim_title_up.reset()
     anim_title_breathe.play()
     # anim_title_squeeze.play()
     # anim_title_rotate.play()
@@ -457,7 +457,6 @@ def title_up_display():
 
 def title_upper(func=None):
 
-    anim_title_upper.play()
     if anim_title_down.IsFinished:
         anim_title_upper.play()
         if anim_title_upper.IsFinished:
@@ -718,7 +717,13 @@ def select_mode():
     speed_btn.set_target(start_game)
     move_title = False
     running = True
-    anim_title_up.play()
+
+    if anim_title_upper.IsFinished:
+        anim_title_down.play()
+    else:
+        anim_title_down.IsFinished = True
+        anim_title_up.play()
+    
     text_option = font.render('Modes', True, WHITE)
 
     for btn in [classic_btn, speed_btn, custom_btn]:
@@ -802,10 +807,11 @@ def select_mode():
 def online_menu():
 
     fade_screen.reset()
+    if anim_title_upper.IsFinished:
+        anim_title_down.play()
     anim_title_up.play()
-    anim_title_upper.reset()
 
-    anim_title_down.IsFinished = True
+    #anim_title_down.IsFinished = True
     running = True
     move_title = False
     multi_local_btn.toggled = False
@@ -871,7 +877,11 @@ def online_menu():
 def help_menu():
 
     fade_screen.reset()
-    anim_title_up.play()
+    if anim_title_upper.IsFinished:
+        anim_title_down.play()
+    else:
+        anim_title_down.IsFinished = True
+        anim_title_up.play()
     running = True
 
     t1_rectwin = create_window(screen, (sidebar.sidebar_rect.x+(0.0075*sidebar.sidebar_rect.w), SCREEN_HEIGHT*0.5), 200, 300, '#486582', border_color='#425D78', border_radius=10, border_thickness=8, cast_shadow=False)
@@ -887,27 +897,61 @@ def help_menu():
         mx, my = pygame.mouse.get_pos()
         sidebar_display(help_menu)
 
-        if fade_screen.finished:
+        if fade_screen.finished and anim_title_down.IsFinished:
             screen.blit(font.render('Help', True, WHITE), 
                         (sidebar.sidebar_rect.width + 
                         (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
                         SCREEN_HEIGHT/2.5))
- 
+
+            t1_rectwin.wupdate(x=sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w),
+                                width=SCREEN_WIDTH-(0.25*sidebar.sidebar_rect.w)-
+                                (sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w)),
+                                height=SCREEN_HEIGHT*0.125)
+
+            t1_rectwin.draw()
+
+            expand_btn.draw((t1_rectwin.x+t1_rectwin.w*0.5-expand_btn.get_rect().w*0.5, 
+                            t1_rectwin.y+t1_rectwin.h-
+                            expand_btn.get_rect().h*0.5))
+
+            gfxdraw.filled_polygon(screen, 
+                                [
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.515), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.485), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
+                                ],
+                                pygame.Color('#486582'))
+
+            gfxdraw.aapolygon(screen, 
+                                [
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.525), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.475), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
+                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
+                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
+                                ],
+                                pygame.Color('#425D78'))
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-        t1_rectwin.wupdate(x=sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w),
-                            width=SCREEN_WIDTH-(0.25*sidebar.sidebar_rect.w)-
-                            (sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w)),
-                            height=SCREEN_HEIGHT*0.125)
-
-        t1_rectwin.draw()
-
-        expand_btn.draw((t1_rectwin.x+t1_rectwin.w*0.5-expand_btn.get_rect().w*0.5, 
-                        t1_rectwin.y+t1_rectwin.h-
-                        expand_btn.get_rect().h*0.5))
 
         # gfxdraw.aatrigon(screen, int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
         #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25), 
@@ -917,42 +961,13 @@ def help_menu():
         #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75), 
         #                     pygame.Color('#425D78'))
 
-        gfxdraw.filled_polygon(screen, 
-                            [
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.515), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.485), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
-                            ],
-                            pygame.Color('#486582'))
-
-        gfxdraw.aapolygon(screen, 
-                            [
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.525), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.475), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                            (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
-                            int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
-                            ],
-                            pygame.Color('#425D78'))
         # t2_rectwin.draw()
         # t3_rectwin.draw()
         # t4_rectwin.draw()
+
+        if anim_title_upper.IsFinished:
+            anim_title_down.play()
+
         title_up_display()
         screen.blit(CURSOR, pygame.mouse.get_pos())
         pygame.display.update()
@@ -964,7 +979,11 @@ def options_menu():
     
     options_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
     fade_screen.reset()
-    anim_title_up.play()
+    if anim_title_upper.IsFinished:
+        anim_title_down.play()
+    else:
+        anim_title_down.IsFinished = True
+        anim_title_up.play()
     global MUSIC_VOLUME, SOUND_VOLUME
     running = True
     
@@ -974,7 +993,7 @@ def options_menu():
         mx, my = pygame.mouse.get_pos()
         sidebar_display(options_menu)
 
-        if fade_screen.finished:
+        if fade_screen.finished and anim_title_down.IsFinished:
             screen.blit(font.render('Options', True, WHITE), 
                         (sidebar.sidebar_rect.width + 
                         (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
@@ -1001,7 +1020,10 @@ def options_menu():
                 sound_slider.update(mx)
                 SOUND_VOLUME = sound_slider.get_value()/100
                 change_volume(SOUND_VOLUME)
- 
+
+        if anim_title_upper.IsFinished:
+            anim_title_down.play()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
