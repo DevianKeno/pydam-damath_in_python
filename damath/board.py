@@ -57,6 +57,13 @@ class Board:
                                     spacing = board_y_coords_rect.h * 0.0775,
                                     padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
 
+    def flip(self):
+        """
+        Rotates the board by 180 degrees.
+        """
+
+        self.rotate_180()
+
     def rotate_180(self):
         if self.IsFlipped:
             self.IsFlipped = False        
@@ -170,14 +177,12 @@ class Board:
 
         return col, row
 
-    def move_to_raw(self, move):
+    def get_abs(self, cell):
         """
-        Converts a board-relative move to raw coordinates.
-        This considers the board's orientation. 
+        Returns the absolute value of the given cell.
         """
-
-        col = move[0]
-        row = abs(move[1] - 7)
+        col = abs(cell[0] - 7)
+        row = abs(cell[1] - 7)
 
         return col, row
 

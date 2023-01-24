@@ -30,6 +30,7 @@ class Server:
         if self.IsRunning:
             return
         self.IsRunning = True
+        self.console.IsServer = True
 
         # Create a socket object	
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)	
@@ -97,8 +98,12 @@ class Server:
                 self.connected_clients_count -= 1
                 self.IsConnected = False
 
-    def clear(self):
-        self.msg = ''
+    def receive(self, message):
+        """
+        Receives message.
+        """
+
+        self.msg = message
 
     def start_chat_service(self):
         """

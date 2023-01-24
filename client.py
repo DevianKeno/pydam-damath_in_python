@@ -54,6 +54,7 @@ class Client:
         print(f"Connected to local server {addr}")
         self.IsConnecting = False
         self.IsConnected = True
+        self.console.IsClient = True
         
         if not self.ChatIsRunning:
             self.chat_thread.start()
@@ -82,8 +83,12 @@ class Client:
                 self.IsConnected = False
                 self.connect(self.ip)
 
-    def clear(self, str):
-        str = ''
+    def receive(self, message):
+        """
+        Receives message.
+        """
+
+        self.msg = message
 
     def start_chat_service(self):
         """

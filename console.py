@@ -18,6 +18,8 @@ class Console:
         self.server = None
         self.client = client
         self.client.console = self
+        self.IsServer = False
+        self.IsClient = False
 
         self.ip_address = ''
         self.command = ''
@@ -27,6 +29,7 @@ class Console:
         self.ServerIsRunning = False
         self.IsOperator = False
         self.ShowFeedback = True
+
 
     def start(self):
         """
@@ -60,13 +63,17 @@ class Console:
 
         print(f"[Debug]: Command: {command}")
         self.message = command
-        self.send(self.message)
 
-    def send(self, message):
-        if self.server != None:
-            self.server.msg = message
         if self.client != None:
-            self.client.msg = message
+            if self.IsServer:
+                self.send(self.message, self.server)
+
+        if self.client != None:
+            if self.IsClient:
+                self.send(self.message, self.client)
+
+    def send(self, message, to):
+        to.receive(message)
 
     def read_user_input(self):
         """
@@ -91,6 +98,10 @@ class Console:
 
         try:
             match args[0]:
+                case "_lock":
+                    self._command_lock()
+                case "_flip":
+                    self._command_flip()
                 case "add":
                     try:
                         if args[1]:
@@ -149,8 +160,6 @@ class Console:
                         self.command_help()
                 case "host":
                     self.command_host()
-                case "lock":
-                    self.command_lock()
                 case "match":
                     try:
                         self.command_move((args[1]))
@@ -175,7 +184,7 @@ class Console:
                         self.command_select((int(args[1]), int(args[2])))
                     except:
                         self.invalid_usage(args[0])      
-                case "smove" | "sm":
+                case "selmove" | "smove" | "sm":
                     try:
                         if args[1]:
                             if args[2]:
@@ -199,6 +208,16 @@ class Console:
         print(f"Improper command usage, type /help {command} for usage")
 
     # Commands list
+
+    def _command_init(self):
+        pass
+
+    def _command_lock(self):
+        self.game.ControlsIsEnabled = not self.game.ControlsIsEnabled
+
+    def _command_flip(self):
+        self.game.board.flip()
+
     def command_add(self, cell, player, value):
         if player == 1:
             color = PLAYER_ONE
@@ -239,9 +258,6 @@ class Console:
             self.server.console = self
             self.server.start()
             print(f"Hosted local server on {self.server.get_ip()}")
-
-    def command_lock(self):
-        self.game.ControlsIsEnabled = not self.game.ControlsIsEnabled
 
     def command_match(self, mode):
         pass

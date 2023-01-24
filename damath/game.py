@@ -137,8 +137,13 @@ class Game:
         if (cell) in self.valid_moves:
             # Send to console
             if self.IsMultiplayer:
-                col, row = self.board.get_col_row(cell)
-                self.command = "selmove {} {} {} {}".format(self.selected_piece.col, self.selected_piece.row, col, row)
+                if self.board.IsFlipped:
+                    col, row = self.board.to_raw(cell)
+                    piece_col, piece_row = self.board.get_abs((self.selected_piece.col, self.selected_piece.row))
+                else:
+                    col, row = self.board.get_col_row(cell)
+                    piece_col, piece_row = self.selected_piece.col, self.selected_piece.row
+                self.command = "sm {} {} {} {}".format(piece_col, piece_row, col, row)
             self._move_piece(self.selected_piece, cell)
 
             if not self.selected_piece.HasPossibleCapture:
