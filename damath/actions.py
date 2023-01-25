@@ -30,6 +30,7 @@ class Actions:
     def __init__(self, surface, game) -> None:
         self.surface = surface
         self.game = game
+        self.console = None
 
         self.font = font_cookie_run_reg
         self.items = []
@@ -41,25 +42,34 @@ class Actions:
 
         # "Forfeit?" Window
         self.ShowFFWindow = False
-        self.ff_window = RectWindow(surface,
+        self.confirmation_window = RectWindow(surface,
                                     (ff_window_rect.topleft), 
                                     ff_window_rect.w, ff_window_rect.h, 
                                     DARK_CERULEAN, ff_window_radius, 4, WHITE)
 
         self.prompt = Text(surface, CookieRun_Regular, font_size, WHITE)
-        self.prompt.text = "Forfeit?"
         self.prompt.font_size *= 1.5
         self.prompt.pos = (ff_window_rect.x+ff_window_rect.w//2, ff_window_rect.y+ff_window_rect.h*0.3)
-        self.prompt.update()
 
         self.button_ff_yes = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
                                      width=button_default_w, height=button_default_h,
                                      text="Yes",
                                      rect_color=(200, 56, 67),
-                                     shadow_rect_color=(123, 3, 11))
-        self.button_ff_no = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.7, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+                                     shadow_rect_color=(123, 3, 11),
+                                     target=self._ffyes)
+        self.button_no = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.7, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
                                     width=button_default_w, height=button_default_h,
-                                    text="No")
+                                    text="No",
+                                    target=self._ffno)
+
+        # "Offer Draw?" Window
+        self.ShowODWindow = False
+        self.button_od_yes = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+                                     width=button_default_w, height=button_default_h,
+                                     text="Yes",
+                                     rect_color=(231, 126, 48),
+                                     shadow_rect_color=(148, 58, 12),
+                                     target=self._odyes)
 
     def create_dropdown(self, pos):
         """
@@ -99,6 +109,16 @@ class Actions:
         Creates the "Forfeit?" window.
         """
         self.ShowFFWindow = True
+        self.prompt.text = "Forfeit?"
+        self.prompt.update()
+
+    def create_od_window(self):
+        """
+        Creates the "Offer Draw?" window.
+        """
+        self.ShowODWindow = True
+        self.prompt.text = "Offer Draw?"
+        self.prompt.update()
         
     def invoke(self):
         """
@@ -113,22 +133,31 @@ class Actions:
             case 1:
                 self.offer_draw()
 
-        # self.hide_menus()
-
     def draw_menu(self):
         if not self.ShowMenu:
             return
 
         self.dropdown.draw()
 
-        if not self.ShowFFWindow:
-            return
+        if self.ShowFFWindow:
+            self.draw_ff()
 
+        if self.ShowODWindow:
+            self.draw_od()
+
+    def draw_ff(self):
         self.dropdown.IsHoverable = False
-        self.ff_window.draw()
+        self.confirmation_window.draw()
         self.prompt.draw()
         self.button_ff_yes.draw()
-        self.button_ff_no.draw()
+        self.button_no.draw()
+
+    def draw_od(self):
+        self.dropdown.IsHoverable = False
+        self.confirmation_window.draw()
+        self.prompt.draw()
+        self.button_od_yes.draw()
+        self.button_no.draw()
             
     def hide_menus(self, windows=0):
         """
@@ -138,21 +167,36 @@ class Actions:
         0: Hide all.
         1: Hide dropdown menu.
         2: Hide "Forfeit" window.
+        3: Hide "Offer Draw?" window.
         """
         match windows:
             case 0:
                 self.ShowMenu = False
                 self.ShowFFWindow = False
+                self.ShowODWindow = False
             case 1:
                 self.ShowMenu = False
             case 2:
                 self.ShowFFWindow = False
+            case 3:
+                self.ShowODWindow = False
 
     def forfeit(self):
-        print("forfeit")
         self.create_ff_window()
-        pass
+
+    def _ffyes(self):
+        self.console._command_ffyes()
+        self.hide_menus()
+
+    def _ffno(self):
+        self.hide_menus()
 
     def offer_draw(self):
-        print("draw")
-        pass
+        self.create_od_window()
+
+    def _odyes(self):
+        self.console._command_drawyes()
+        self.hide_menus()
+
+    def _odno(self):
+        self.hide_menus()

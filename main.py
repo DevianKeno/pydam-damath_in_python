@@ -1245,6 +1245,7 @@ def start_game(mode, IsMultiplayer=False):
 
     if enableActions:
         actions = Actions(screen, game)
+        actions.console = console
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -1566,8 +1567,13 @@ def start_game(mode, IsMultiplayer=False):
                         if actions.ShowMenu:
                             if actions.dropdown.window.collidepoint(m_pos):
                                 actions.invoke()
+                            elif actions.ShowFFWindow or actions.ShowODWindow:
+                                if actions.confirmation_window.collidepoint(m_pos):
+                                    pass
+                                else:
+                                    actions.hide_menus()
                             else:
-                                actions.hide_menus(1)
+                                actions.hide_menus()
 
                     if enableCheats:
                         if cheats.ShowMenu:
@@ -1590,9 +1596,9 @@ def start_game(mode, IsMultiplayer=False):
                                 cheats.IsTyping = False
                                 cheats.hide_menus()
                             
-                if enableCheats:
-                    if pygame.mouse.get_pressed()[2]:
-                        # Right click
+                # Right click
+                if pygame.mouse.get_pressed()[2]:
+                    if enableCheats:
                         cell = get_cell_from_mouse_raw(m_pos)
                         col, row = cell
 
