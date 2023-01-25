@@ -1,5 +1,6 @@
 import pygame
 from damath.constants import PLAYER_ONE, PLAYER_TWO
+from damath.game import Match
 from damath.piece import Piece
 from damath.timer import *
 from objects import chips_surface
@@ -14,9 +15,9 @@ server = Server()
 class Console:
 
     def __init__(self) -> None:
-        self.game = None
-        self.server = None
-        self.client = None
+        self._game = None
+        self._server = None
+        self._client = None
         self.IsServer = False
         self.IsClient = False
         self.IsRunning = False
@@ -27,6 +28,31 @@ class Console:
 
         self.IsOperator = False
         self.ShowFeedback = True
+        self.ShowConsoleGUI = False
+
+    @property
+    def game(self):
+        return self._game
+
+    @game.setter
+    def game(self, value: Match):
+        self._game = value
+
+    @property
+    def server(self):
+        return self._server
+
+    @server.setter
+    def server(self, value: Server):
+        self._server = value
+
+    @property
+    def client(self):
+        return self._client
+
+    @client.setter
+    def client(self, value: Client):
+        self._client = value
 
     def start(self):
         """
@@ -61,13 +87,13 @@ class Console:
         print(f"[Debug]: Command: {command}")
         self.message = command
 
-        if self.server != None:
+        if self._server != None:
             if self.IsServer:
-                self.server.send(self.message)
+                self._server.send(self.message)
 
-        if self.client != None:
+        if self._client != None:
             if self.IsClient:
-                self.client.send(self.message)
+                self._client.send(self.message)
 
     def read_user_input(self):
         """
@@ -274,7 +300,7 @@ class Console:
         self.command_op()
 
     def _command_init_client(self):
-        if self.game == None:
+        if self._game == None:
             #self.command_match()
             return
         
@@ -282,7 +308,7 @@ class Console:
         self._command_lock()
 
     def _command_lock(self):
-        self.game.toggle_player_controls()
+        self._game.toggle_player_controls()
 
     def _command_ffyes(self):
         #TODO
@@ -293,7 +319,7 @@ class Console:
         print("player didn't forfeit")
         
     def _command_flip(self):
-        self.game.board.flip()
+        self._game.board.flip()
 
     def _command_chat_in(self, message):
         message = message[8:]
@@ -311,27 +337,27 @@ class Console:
             color = PLAYER_TWO
 
         piece = Piece(chips_surface, (cell[0], cell[1]), color, value)
-        self.game.board.add_piece(piece)
+        self._game.board.add_piece(piece)
 
     def command_chat(self, message):
         message = message[5:]
 
         if self.IsServer:
-            self.server.send("chat in {}".format(message))
+            self._server.send("chat in {}".format(message))
 
         if self.IsClient:
-            self.client.send("chat in {}".format(message))
+            self._client.send("chat in {}".format(message))
 
     def command_change_turn(self):
-        self.game.change_turn()
+        self._game.change_turn()
 
     def command_connect(self, address):
         if self.IsServer:
-            self.server.stop()
+            self._server.stop()
 
-        self.client = client
-        self.client.console = self
-        self.client.connect(address)
+        self._client = client
+        self._client.console = self
+        self._client.connect(address)
 
     def command_debug(self):
         self.ShowFeedback = not self.ShowFeedback
@@ -360,34 +386,34 @@ class Console:
 
     def command_host(self):
         if self.IsClient:
-            self.client.stop()
+            self._client.stop()
 
         try:
-            if self.server.IsRunning:
-                print(f"Local server already hosted on {self.server.get_ip()}")
+            if self._server.IsRunning:
+                print(f"Local server already hosted on {self._server.get_ip()}")
                 return
         except:
-            self.server = server
-            self.server.console = self
-            self.server.start()
+            self._server = server
+            self._server.console = self
+            self._server.start()
 
             if self.ShowFeedback:
-                print(f"Hosted local server on {self.server.get_ip()}")
+                print(f"Hosted local server on {self._server.get_ip()}")
 
     def command_match(self, mode):
         pass
 
     def command_move(self, destination):
-        if not self.game.selected_piece:
+        if not self._game.selected_piece:
             print("No piece selected. Select a piece with /select first")
             return
 
-        if self.game.board.IsFlipped:
-            destination_col, destination_row = self.game.board.to_raw(destination)
+        if self._game.board.IsFlipped:
+            destination_col, destination_row = self._game.board.to_raw(destination)
         else:
-            destination_col, destination_row = self.game.board.get_col_row(destination)
+            destination_col, destination_row = self._game.board.get_col_row(destination)
 
-        self.game.select_move((destination_col, destination_row))
+        self._game.select_move((destination_col, destination_row))
 
     def command_op(self):
         self.IsOperator = True
@@ -408,39 +434,39 @@ class Console:
         print("/help        : displays this")
 
     def command_remove(self, cell):
-        self.game.board.remove(cell)
+        self._game.board.remove(cell)
 
     def command_restart(self):
         pass
 
     def command_select(self, cell, Bypass=False):
-        if self.game.board.IsFlipped:
-            col, row = self.game.board.to_raw(cell)
+        if self._game.board.IsFlipped:
+            col, row = self._game.board.to_raw(cell)
         else:
-            col, row = self.game.board.get_col_row(cell)
+            col, row = self._game.board.get_col_row(cell)
 
         if Bypass:
-            self.game.select((col, row), Bypass)
+            self._game.select((col, row), Bypass)
         else:
-            self.game.select((col, row), self.IsOperator)
+            self._game.select((col, row), self.IsOperator)
 
     def command_selmove(self, cell, destination):
         """
         Selects and immediately moves the piece to destination cell.
         """
         
-        if self.game == None:
+        if self._game == None:
             if self.ShowFeedback:
                 print("No match started yet. Start a match with /match first")
             return
         
-        self.game.toggle_indicators()
-        if self.game.selected_piece:
+        self._game.toggle_indicators()
+        if self._game.selected_piece:
             self.command_move(destination)  
             return
         self.command_select(cell, True)
         self.command_move(destination)
-        self.game.toggle_indicators()
+        self._game.toggle_indicators()
 
     def command_timer(self):
         turn_timer.toggle()

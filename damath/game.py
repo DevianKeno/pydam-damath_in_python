@@ -15,7 +15,10 @@ from .minimax import minimax
 
 pygame.mixer.init()
 
-class Game:
+class Match:
+    """
+    An instance of a game match.
+    """
 
     def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=False):
         self.surface = surface
@@ -28,6 +31,7 @@ class Game:
         self.command = ''
         self.ControlsIsEnabled = True
         self.DrawIndicators = True
+        self.Rules = Rules()
 
     def _init(self):
         self.game_evaluation = 0
@@ -250,7 +254,7 @@ class Game:
         # Get moves
         moves_to_get = "all"
         
-        if enableMandatoryCapture:
+        if allowMandatoryCapture:
             if not self.selected_piece.IsMovable:
                 return
 
@@ -323,7 +327,7 @@ class Game:
     def draw_valid_moves(self, moves):
         color = YELLOW
 
-        if enableMandatoryCapture:
+        if allowMandatoryCapture:
             if self.TurnRequiresCapture:
                 color = LIME
 
@@ -341,7 +345,7 @@ class Game:
         pygame.draw.rect(surface, YELLOW, selected_piece_rect)
     
     def draw_capturing_piece_indicator(self, surface):
-        if enableMandatoryCapture:
+        if allowMandatoryCapture:
             if self.TurnRequiresCapture:
                 for i in range(len(self.capturing_pieces)):
                     col, row = (self.capturing_pieces[i][0], self.capturing_pieces[i][1])
@@ -383,7 +387,7 @@ class Game:
         if enableDebugMode:
             print(f"[Debug]: Turns changed, now {self.turn}")
 
-        if enableMandatoryCapture:
+        if allowMandatoryCapture:
             self.check_for_captures()
 
         self.evaluate()

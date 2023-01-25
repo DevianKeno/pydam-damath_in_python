@@ -2,10 +2,10 @@
 Server.
 """
 
-import socket
 from _thread import *
-import threading
 from options import maxBufferSize
+import socket
+import threading
 
 
 class Server:
@@ -13,7 +13,7 @@ class Server:
     def __init__(self):
         # reserve a port on your computer in our
         # case it is 12345 but it can be anything
-        self.console = None
+        self._console = None
         self.port = 12345
         self.msg = ''
         self.reply = ''
@@ -28,6 +28,14 @@ class Server:
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)
 
+    @property
+    def console(self):
+        return self._console
+        
+    @console.setter
+    def console(self, value):
+        self._console = value
+
     def start(self):
         """
         Start the server.
@@ -36,7 +44,7 @@ class Server:
         if self.IsRunning:
             return
         self.IsRunning = True
-        self.console.IsServer = True
+        self._console.IsServer = True
 
         # Create a socket object	
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)	
@@ -56,6 +64,7 @@ class Server:
 
     def stop(self):
         # Close everything that needs to be closed
+        self._console.IsServer = False
         self.IsRunning = False
 
     def listen_for_connections(self, count):
@@ -89,7 +98,7 @@ class Server:
                 if reply == 'pong':
                     self.c.send('ping'.encode())
                 else:
-                    self.console.run_command(reply.strip('pong'))
+                    self._console.run_command(reply.strip('pong'))
             except:
                 print(f"{addr} has disconnected.")
                 self.connected_clients_count -= 1

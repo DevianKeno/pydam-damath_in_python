@@ -12,7 +12,7 @@ from math import ceil
 from damath.actions import Actions
 from damath.board import Board
 from damath.cheats import Cheats
-from damath.game import Game
+from damath.game import Match
 from damath.piece import Piece
 from damath.scoreboard import Scoreboard
 from damath.constants import *
@@ -32,8 +32,6 @@ from ui_class.slider import Slider
 from ui_class.rect_window import *
 from ui_class.mode_window import *
 # Multiplayer
-from client import Client
-from server import Server
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -286,19 +284,11 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
-game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
-
-client = Client()
-server = Server()
+game = Match(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
 
 console = Console()
+console.game = game
 console.start()
-
-if enableCheats:
-    cheats = Cheats(screen, game)
-
-if enableActions:
-    actions = Actions(screen, game)
 
 if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -1247,12 +1237,19 @@ def start_game(mode, IsMultiplayer=False):
     game.IsMultiplayer = IsMultiplayer
     console.game = game
 
-    if enableCheats:
-        cheats = Cheats(screen, game)
+    if allowCheats:
+        cheats = Cheats()
+        cheats.surface = screen
+        cheats.game = game
+        cheats.console = console
+        cheats.init()
 
     if enableActions:
-        actions = Actions(screen, game)
+        actions = Actions()
+        actions.surface = screen
+        actions.game = game
         actions.console = console
+        actions.init()
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -1353,7 +1350,7 @@ def start_game(mode, IsMultiplayer=False):
         if enableActions:
             actions.draw_menu()
 
-        if enableCheats:
+        if allowCheats:
             cheats.draw_menu()
 
             if cheats.ShowEVWindow:
@@ -1369,8 +1366,8 @@ def start_game(mode, IsMultiplayer=False):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                    if enableCheats:
-                        if cheats.ShowMenu:
+                    if allowCheats:
+                        if cheats.ShowDropdown:
                             cheats.hide_menus()
                         else:
                             pause(mode)
@@ -1378,7 +1375,7 @@ def start_game(mode, IsMultiplayer=False):
                         pause(mode)
                     break
             # Legacy cheat codes
-                if enableCheats:
+                if allowCheats:
                     _keys = pygame.key.get_pressed()
                     
                     if _keys[pygame.K_LCTRL]:
@@ -1552,8 +1549,8 @@ def start_game(mode, IsMultiplayer=False):
                             if row != game.moved_piece.row or row != game.moved_piece.col:
                                 INVALID_SOUND.play()
                             
-                        if enableCheats:
-                            if not cheats.ShowMenu:
+                        if allowCheats:
+                            if not cheats.ShowDropdown:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
                                     if IsMultiplayer:
                                         console.listen(game.select(cell))
@@ -1571,21 +1568,20 @@ def start_game(mode, IsMultiplayer=False):
                                     game.select(cell)
                                 
                     if enableActions:
-                        if actions.ShowMenu:
+                        if actions.ShowDropdown:
                             if actions.dropdown.window.collidepoint(m_pos):
                                 actions.invoke()
                             elif actions.ShowFFWindow or actions.ShowODWindow:
                                 if actions.confirmation_window.collidepoint(m_pos):
                                     x, y = event.pos
                                     btn_selected(x, y, btn_list=[actions.button_ff_yes, actions.button_no, actions.button_od_yes])
-                                    pass
                                 else:
                                     actions.hide_menus()
                             else:
                                 actions.hide_menus()
 
-                    if enableCheats:
-                        if cheats.ShowMenu:
+                    if allowCheats:
+                        if cheats.ShowDropdown:
                             if cheats.dropdown.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
                                 cheats.invoke()
                             elif cheats.ShowEVWindow:
@@ -1607,7 +1603,7 @@ def start_game(mode, IsMultiplayer=False):
                             
                 # Right click
                 if pygame.mouse.get_pressed()[2]:
-                    if enableCheats:
+                    if allowCheats:
                         cell = get_cell_from_mouse_raw(m_pos)
                         col, row = cell
 

@@ -2,10 +2,10 @@
 Server.
 """
 
-import socket
 from _thread import *
-import threading  
 from options import maxBufferSize
+import socket
+import threading  
 
 class Client:
 
@@ -21,12 +21,20 @@ class Client:
         self.IsSender = False
         self.max_connection_retries = 5
         self.command = None
-        self.console = None
+        self._console = None
 
         self.c = None
         
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)
+
+    @property
+    def console(self):
+        return self._console
+        
+    @console.setter
+    def console(self, value):
+        self._console = value
 
     def connect(self, ip):
         """
@@ -39,6 +47,7 @@ class Client:
 
     def stop(self):
         # Close everything that needs to be closed
+        self._console.IsClient = False
         self.IsRunning = False
 
     def reconnect(self, ip):
@@ -64,8 +73,8 @@ class Client:
         print(f"Connected to local server {addr}")
         self.IsConnecting = False
         self.IsConnected = True
-        self.console.IsClient = True
-        self.console._command_init_client()
+        self._console.IsClient = True
+        self._console._command_init_client()
         
         while self.IsConnected:
             try:
@@ -74,7 +83,7 @@ class Client:
                 if reply == 'ping':
                     self.c.send('pong'.encode())
                 else:
-                    self.console.run_command(reply.strip('ping'))
+                    self._console.run_command(reply.strip('ping'))
             except:
                 print(f"Disconnected from the host.")
                 self.c.close()
