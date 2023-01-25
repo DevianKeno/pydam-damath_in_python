@@ -639,6 +639,11 @@ def sidebar_display(func_called):
         else:
             sidebar.get_option(id).target = target_functions[id]
 
+    if func_called == main_menu:
+        for opt in sidebar.options.keys():
+            if sidebar.get_option(opt).state == SELECTED:
+                sidebar.update_options_state(opt, NORMAL)
+
     mx, my = pygame.mouse.get_pos() # gets the curent mouse position
     if sidebar.sidebar_rect.collidepoint((mx, my)):
         sidebar.set(state=HOVERED)
@@ -693,8 +698,8 @@ def btn_selected(x, y, *, btn_list=None,
         if is_toggle:
             if btn.toggled:
                 btn.set_state(btn.Toggled)
-                start_select_btn.set_target(btn.get_target())
-                start_select_btn.set_args(btn.get_args())
+                main_btn.set_target(btn.get_target())
+                main_btn.set_args(btn.get_args())
                 for rembtn in buttons:
                     if rembtn != btn and rembtn.toggled:
                         rembtn.toggled = not rembtn.toggled
@@ -704,9 +709,13 @@ def btn_selected(x, y, *, btn_list=None,
     
     # check if there aren't any toggled buttons
     if is_toggle:
-        if not any(btn.toggled for btn in buttons):
+        if not any(btn.get_state() == NButton.Toggled for btn in buttons):
             main_btn.set_target(None)
             main_btn.set_args(None)
+            main_btn.set_state(NButton.Disabled)
+        else:
+            if main_btn.get_target() != None:
+                main_btn.set_state(NButton.Normal)
 
 # --------- select mode function ---------
 
@@ -715,6 +724,8 @@ def select_mode():
 
     classic_btn.set_target(start_game)
     speed_btn.set_target(start_game)
+    custom_btn.set_target(None)
+    start_select_btn.set_state(NButton.Disabled)
     move_title = False
     running = True
 
@@ -773,10 +784,10 @@ def select_mode():
                         height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
                 mode_window.draw()
 
-        if start_select_btn.target == None:
-            start_select_btn.set_state(NButton.Disabled)
-        else:
-            start_select_btn.set_state(NButton.Normal)
+        # if start_select_btn.target == None:
+        #     start_select_btn.set_state(NButton.Disabled)
+        # else:
+        #     start_select_btn.set_state(NButton.Normal)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
