@@ -280,7 +280,8 @@ class NButton(Tooltip):
             if self.moved:
                 self.moved = False
                 self.pos_reset = True
-            self._call_target()
+            if self.btn_rect.collidepoint(pygame.mouse.get_pos()):
+                self._call_target()
 
         # gets the current and previous shadow and button colors
         current_color = pygame.color.Color(self.states[self.get_state()][0])
