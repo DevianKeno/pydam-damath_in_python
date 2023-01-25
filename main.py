@@ -716,13 +716,15 @@ def btn_selected(x, y, *, btn_list=None,
         else:
             if main_btn.get_target() != None:
                 main_btn.set_state(NButton.Normal)
+            else:
+                main_btn.set_state(NButton.Disabled)
 
 # --------- select mode function ---------
 
 def select_mode():
     fade_screen.reset()
 
-    classic_btn.set_target(start_game)
+    classic_btn.set_target(start_game)        
     speed_btn.set_target(start_game)
     custom_btn.set_target(None)
     start_select_btn.set_state(NButton.Disabled)
