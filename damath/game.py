@@ -286,8 +286,7 @@ class Game:
 
     def change_turn(self):
         if self.IsMultiplayer:
-            pass
-            # self.toggle_player_controls()
+            self.toggle_player_controls()
 
         if self.selected_piece:
             self.board.check_for_kings(self.selected_piece)

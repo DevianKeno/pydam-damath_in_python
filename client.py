@@ -5,6 +5,7 @@ Server.
 import socket
 from _thread import *
 import threading  
+from options import maxBufferSize
 
 class Client:
 
@@ -21,6 +22,8 @@ class Client:
         self.max_connection_retries = 5
         self.command = None
         self.console = None
+
+        self.c = None
         
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)
@@ -39,10 +42,12 @@ class Client:
         self.IsRunning = False
 
     def reconnect(self, ip):
-        pass
+        while not self.IsConnected:
+            if not self.IsConnecting:
+                self.connect(ip)
 
     def run_client(self, addr, port):
-        c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         if self.IsConnecting:
             return
@@ -50,7 +55,7 @@ class Client:
 
         print(f"Connecting to server...")
         try:
-            c.connect((addr, port))
+            self.c.connect((addr, port))
         except:
             print(f"Failed to connect to local server")
             self.IsConnecting = False
@@ -60,34 +65,35 @@ class Client:
         self.IsConnecting = False
         self.IsConnected = True
         self.console.IsClient = True
-        self.console._command_init_client()
+        # self.console._command_init_client()
         
-        if not self.ChatIsRunning:
-            self.chat_thread.start()
+        # if not self.ChatIsRunning:
+        #     self.chat_thread.start()
 
         while self.IsConnected:
             try:
-                if self.msg == '':
-                    self.reply = c.recv(1024).decode('UTF-8').strip()
+                reply = self.c.recv(maxBufferSize).decode('UTF-8').strip()
 
-                    if self.reply == 'ping':
-                        # print("[Client]: Received ping from server.")
-                        # print(f"[Client]: Sending pong to server...")
-                        c.send('pong'.encode())
-                    else:
-                        print(f"\n<Server> ", self.reply)
-                        self.console.run_command(self.reply)
-                        self.reply = ''
-                        # c.send('pong'.encode())
-                    # else:
+                if reply == 'ping':
+                    self.c.send('pong'.encode())
                 else:
-                    c.send(self.msg.encode())
-                    self.msg = ''
+                    self.console.run_command(reply.strip('ping'))
             except:
                 print(f"Disconnected from the host.")
-                c.close()
+                self.c.close()
                 self.IsConnected = False
-                self.connect(self.ip)
+                # self.reconnect(self.ip)
+
+    def send(self, message):
+        """
+        Sends message to server.
+        """
+
+        if self.c == None:
+            return
+        
+        msg = str(message)
+        self.c.send(msg.encode())
 
     def receive(self, message):
         """

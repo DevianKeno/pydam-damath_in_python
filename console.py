@@ -55,22 +55,19 @@ class Console:
         Listen for commands.
         """
 
-        if command == None:
+        if command == None or command == '':
             return
 
         print(f"[Debug]: Command: {command}")
         self.message = command
 
-        if self.client != None:
+        if self.server != None:
             if self.IsServer:
-                self.send(self.message, self.server)
+                self.server.msg = self.message
 
         if self.client != None:
             if self.IsClient:
-                self.send(self.message, self.client)
-
-    def send(self, message, to):
-        to.receive(message)
+                self.client.msg = self.message
 
     def read_user_input(self):
         """
@@ -90,6 +87,7 @@ class Console:
         pass
 
     def run_command(self, command):
+        command_raw = command
         command = command.strip("/")
         args = command.split()
 
@@ -106,6 +104,17 @@ class Console:
                                 if args[3]:
                                     if args[4]:
                                         self.command_add((int(args[1]), int(args[2])), int(args[3]), int(args[4]))
+                    except:
+                        self.invalid_usage(args[0])
+                case "chat":
+                    try:
+                        if args[1]:
+                            if args[1] == "in":
+                                self._command_chat_in(command_raw)
+                                return
+                            match args[0]:
+                                case "chat":
+                                    self.command_chat(command_raw)
                     except:
                         self.invalid_usage(args[0])
                 case "connect" | "join":
@@ -129,6 +138,9 @@ class Console:
                             case "connect":
                                 print("Usage: /connect <ip>")
                                 print("Connect to a local game.")
+                            case "chat":
+                                print("Usage: /chat <message>")
+                                print("Sends a message to the other player.")
                             case "help":
                                 self.command_help()
                             case "host":
@@ -210,7 +222,9 @@ class Console:
         self.command_op()
 
     def _command_init_client(self):
-        #self.command_match()
+        if self.game == None:
+            #self.command_match()
+            return
         
         self._command_flip()
         self._command_lock()
@@ -222,6 +236,15 @@ class Console:
     def _command_flip(self):
         self.game.board.flip()
 
+    def _command_chat_in(self, message):
+        message = message[8:]
+
+        if self.IsServer:
+            print("<Client> {}".format(message))
+
+        if self.IsClient:
+            print("<Server> {}".format(message))
+
     def command_add(self, cell, player, value):
         if player == 1:
             color = PLAYER_ONE
@@ -230,6 +253,15 @@ class Console:
 
         piece = Piece(chips_surface, (cell[0], cell[1]), color, value)
         self.game.board.add_piece(piece)
+
+    def command_chat(self, message):
+        message = message[5:]
+
+        if self.IsServer:
+            self.server.send("chat in {}".format(message))
+
+        if self.IsClient:
+            self.client.send("chat in {}".format(message))
 
     def command_change_turn(self):
         self.game.change_turn()
@@ -297,6 +329,7 @@ class Console:
     def command_help(self):
         print("List of available commands:")
         print("/connect     : connect to match")
+        print("/chat        : send message to player")
         print("/ct          : changes turns")
         print("/deop        : remove operator privileges")
         print("/debug       : toggle debug messages")

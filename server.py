@@ -5,6 +5,8 @@ Server.
 import socket
 from _thread import *
 import threading
+from options import maxBufferSize
+
 
 class Server:
 
@@ -18,6 +20,10 @@ class Server:
         self.IsRunning = False
         self.IsConnected = False
         self.connected_clients_count = 0
+
+        # Server and Client sockets
+        self.s = None
+        self.c = None
 
         self.ChatIsRunning = False
         self.chat_thread = threading.Thread(target=self.start_chat_service)
@@ -56,11 +62,13 @@ class Server:
         """
         Wait for connections
         """
+
         self.s.listen(count)
         print (f"Waiting for players... ({self.connected_clients_count + 1}/2)")
 
         c, addr = self.s.accept()
         self.connected_clients_count += 1
+        print (f"Waiting for players... ({self.connected_clients_count + 1}/2)")
         self.IsConnected = True
         self.IsSender = True
         print(f"Got connection from {addr}")
@@ -68,42 +76,46 @@ class Server:
 
     def run_server(self):
         # Listen for outside connections
-        c, addr = self.listen_for_connections(1)
+        self.c, addr = self.listen_for_connections(1)
         self.ip = addr
         
-        if not self.ChatIsRunning:
-            self.chat_thread.start()
+        # if not self.ChatIsRunning:
+        #     self.chat_thread.start()
 
-        c.send('ping'.encode())
+        # Send first ping
+        self.c.send('ping'.encode())
 
         while self.IsConnected:
             try:
-                if self.msg == '':
-                    self.reply = c.recv(1024).decode('UTF-8').strip()
+                reply = self.c.recv(maxBufferSize).decode('UTF-8').strip()
 
-                    if self.reply == 'pong':
-                        # print(f"[Server]: Received pong from client {addr}...")
-                        # print(f"[Server]: Sending ping to client {addr}...")
-                        c.send('ping'.encode())
-                    else:
-                        print(f"\n<Client> ", self.reply)
-                        self.console.run_command(self.reply)
-                        self.reply = ''
-                        # c.send('ping'.encode())
+                if reply == 'pong':
+                    self.c.send('ping'.encode())
                 else:
-                    c.send(self.msg.encode())
-                    self.msg = ''
+                    self.console.run_command(reply.strip('pong'))
             except:
                 print(f"{addr} has disconnected.")
                 self.connected_clients_count -= 1
                 self.IsConnected = False
+                self.c, addr = self.listen_for_connections(1)
 
-    def receive(self, message):
+    def send(self, message):
+        """
+        Sends message to connected clients.
+        """
+
+        if self.c == None:
+            return
+
+        msg = str(message)
+        self.c.send(msg.encode())
+
+    def receive(self):
         """
         Receives message.
         """
-
-        self.msg = message
+        
+        return self.c.recv(maxBufferSize).decode('UTF-8').strip()
 
     def start_chat_service(self):
         """
