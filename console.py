@@ -23,7 +23,7 @@ class Console:
             return
 
         self.IsRunning = True
-        self.console_thread = threading.Thread(target=self.read_user_input)  
+        self.console_thread = threading.Thread(target=self.read_user_input, daemon=True)  
         self.console_thread.start()
 
     def stop(self):

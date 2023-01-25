@@ -1219,7 +1219,7 @@ def start_game(mode):
         text_mode = font_cookie_run_reg.render(str(mode)+" (vs Xena)", True, OAR_BLUE)
     else:
         text_mode = font_cookie_run_reg.render(str(mode), True, OAR_BLUE)
-    TIMERTHREAD = threading.Thread(target=timer_thread)
+    TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
 
     if enableDebugMode:
         print(f'[Debug]: Playing on {mode} mode')
