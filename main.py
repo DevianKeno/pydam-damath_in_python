@@ -1576,6 +1576,8 @@ def start_game(mode, IsMultiplayer=False):
                                 actions.invoke()
                             elif actions.ShowFFWindow or actions.ShowODWindow:
                                 if actions.confirmation_window.collidepoint(m_pos):
+                                    x, y = event.pos
+                                    btn_selected(x, y, btn_list=[actions.button_ff_yes, actions.button_no, actions.button_od_yes])
                                     pass
                                 else:
                                     actions.hide_menus()
