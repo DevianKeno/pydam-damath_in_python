@@ -22,7 +22,7 @@ class NButton(Tooltip):
                     toggled_color=(243, 112, 72), text_color=(255, 255, 255), 
                     shadow_rect_color=(38, 73, 89), shadow_hovered_color=(54, 103, 126),
                     shadow_selected_color=(54, 103, 126), shadow_disabled_color=(50, 50, 50),
-                    shadow_toggled_color=(149, 49, 30), transition_duration = 20,
+                    shadow_toggled_color=(149, 49, 30), transition_duration = 10,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
                     shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[]): 
                     """

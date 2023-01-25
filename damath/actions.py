@@ -8,9 +8,22 @@ from ui_class.font import *
 from ui_class.text import Text
 from ui_class.textlist import TextList
 from ui_class.rect_window import RectWindow
+from ui_class.new_btn import NButton
 
 font_size = cheats_window_blue.h * 0.2
 font_cookie_run_reg = pygame.font.Font('font\CookieRun_Regular.ttf', int(font_size))
+
+screen_w = screen.get_width()
+screen_h = screen.get_height()
+screen_centerx = screen.get_width() // 2
+screen_centery = screen.get_height() // 2
+
+ff_window_dims = screen_w * 0.25, screen_h * 0.175
+ff_window_radius = 9
+ff_window_rect = pygame.Rect((screen_centerx-ff_window_dims[0]//2, screen_centery-ff_window_dims[1]//2), (ff_window_dims[0], ff_window_dims[1]))
+
+button_default_w = 150
+button_default_h = 50
 
 class Actions:
 
@@ -25,6 +38,28 @@ class Actions:
         self.dropdown = Dropdown(self.surface, self.text_list)
         
         self.ShowMenu = False
+
+        # "Forfeit?" Window
+        self.ShowFFWindow = False
+        self.ff_window = RectWindow(surface,
+                                    (ff_window_rect.topleft), 
+                                    ff_window_rect.w, ff_window_rect.h, 
+                                    DARK_CERULEAN, ff_window_radius, 4, WHITE)
+
+        self.prompt = Text(surface, CookieRun_Regular, font_size, WHITE)
+        self.prompt.text = "Forfeit?"
+        self.prompt.font_size *= 1.5
+        self.prompt.pos = (ff_window_rect.x+ff_window_rect.w//2, ff_window_rect.y+ff_window_rect.h*0.3)
+        self.prompt.update()
+
+        self.button_ff_yes = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+                                     width=button_default_w, height=button_default_h,
+                                     text="Yes",
+                                     rect_color=(200, 56, 67),
+                                     shadow_rect_color=(123, 3, 11))
+        self.button_ff_no = NButton(surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.7, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+                                    width=button_default_w, height=button_default_h,
+                                    text="No")
 
     def create_dropdown(self, pos):
         """
@@ -59,6 +94,12 @@ class Actions:
         self.dropdown.move_to(pos)
         self.dropdown.IsHoverable = True
 
+    def create_ff_window(self):
+        """
+        Creates the "Forfeit?" window.
+        """
+        self.ShowFFWindow = True
+        
     def invoke(self):
         """
         Executes the selected option.
@@ -72,23 +113,44 @@ class Actions:
             case 1:
                 self.offer_draw()
 
-        self.hide_menus()
+        # self.hide_menus()
 
     def draw_menu(self):
         if not self.ShowMenu:
             return
-            
+
         self.dropdown.draw()
 
-    def hide_menus(self):
-        """
-        Hides the dropdown menu.
-        """
+        if not self.ShowFFWindow:
+            return
 
-        self.ShowMenu = False
+        self.dropdown.IsHoverable = False
+        self.ff_window.draw()
+        self.prompt.draw()
+        self.button_ff_yes.draw()
+        self.button_ff_no.draw()
+            
+    def hide_menus(self, windows=0):
+        """
+        Hides the menus.
+
+        Args
+        0: Hide all.
+        1: Hide dropdown menu.
+        2: Hide "Forfeit" window.
+        """
+        match windows:
+            case 0:
+                self.ShowMenu = False
+                self.ShowFFWindow = False
+            case 1:
+                self.ShowMenu = False
+            case 2:
+                self.ShowFFWindow = False
 
     def forfeit(self):
         print("forfeit")
+        self.create_ff_window()
         pass
 
     def offer_draw(self):

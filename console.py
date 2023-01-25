@@ -127,11 +127,55 @@ class Console:
                     self.command_change_turn()
                 case "deop":
                     self.command_deop()
+                case "draw":
+                    try:
+                        if args[1]:
+                            match args[1]:
+                                case "yes":
+                                    self._command_drawyes()
+                                case "no":
+                                    self._command_drawno()
+                    except:
+                        self.command_draw()
                 case "exit":
                     self.command_exit()
+                case "forfeit" | "ff":
+                    try:
+                        if args[1]:
+                            match args[1]:
+                                case "yes":
+                                    self._command_ffyes()
+                                case "no":
+                                    self._command_ffno()
+                    except:
+                        self.command_forfeit()
                 case "help":
                     try:
                         match args[1]:
+                            case "1":
+                                print("List of available commands:")
+                                print("Page 1/2 | /help <page>")
+                                print("/connect     : connect to match")
+                                print("/chat        : send message to player")
+                                print("/ct          : changes turns")
+                                print("/deop        : remove operator privileges")
+                                print("/debug       : toggle debug messages")
+                                print("/draw        : offer draw")
+                                print("/forfeit     : resign from match")
+                                print("/help        : displays this")
+                                pass
+                            case "2":
+                                print("List of available commands:")
+                                print("Page 2/2 | /help <page>")
+                                print("/host        : host local match")
+                                print("/match       : create a match")
+                                print("/move        : moves selected piece")
+                                print("/op          : make this console operator")
+                                print("/remove      : removes a piece")
+                                print("/restart     : restarts the match")
+                                print("/select      : selects a piece")
+                                print("/smove       : selects and moves a piece")
+                                print("/timer       : toggle timer")
                             case "add":
                                 print("Usage: /add <col> <row> <player> <value>")
                                 print("Adds a piece to the given board column and row arguments.")
@@ -218,6 +262,14 @@ class Console:
 
     # Commands list
 
+    def _command_drawyes(self):
+        #TODO
+        pass
+
+    def _command_drawno(self):
+        #TODO:
+        pass
+
     def _command_init_server(self):
         self.command_op()
 
@@ -229,10 +281,17 @@ class Console:
         self._command_flip()
         self._command_lock()
 
-
     def _command_lock(self):
         self.game.toggle_player_controls()
 
+    def _command_ffyes(self):
+        #TODO
+        print("player forfeited")
+
+    def _command_ffno(self):
+        #TODO
+        print("player didn't forfeit")
+        
     def _command_flip(self):
         self.game.board.flip()
 
@@ -286,8 +345,18 @@ class Console:
         if self.ShowFeedback:
             print("Removed console operator privileges.")
 
+    def command_draw(self):
+        #TODO: Check for match first
+        print("Are you sure you want to offer a draw?")
+        print("Type /draw <yes|no>")
+
     def command_exit(self):
         self.stop()
+
+    def command_forfeit(self):
+        #TODO: Check for match first
+        print("Are you sure you want to forfeit?")
+        print("Type /forfeit <yes|no>")
 
     def command_host(self):
         if self.IsClient:
@@ -328,21 +397,15 @@ class Console:
 
     def command_help(self):
         print("List of available commands:")
+        print("Page 1/2 | /help <page>")
         print("/connect     : connect to match")
         print("/chat        : send message to player")
         print("/ct          : changes turns")
         print("/deop        : remove operator privileges")
         print("/debug       : toggle debug messages")
+        print("/draw        : offer draw")
+        print("/forfeit     : resign from match")
         print("/help        : displays this")
-        print("/host        : host local match")
-        print("/match       : create a match")
-        print("/move        : moves selected piece")
-        print("/op          : make this console operator")
-        print("/remove      : removes a piece")
-        print("/restart     : restarts the match")
-        print("/select      : selects a piece")
-        print("/smove       : selects and moves a piece")
-        print("/timer       : toggle timer")
 
     def command_remove(self, cell):
         self.game.board.remove(cell)

@@ -1567,7 +1567,7 @@ def start_game(mode, IsMultiplayer=False):
                             if actions.dropdown.window.collidepoint(m_pos):
                                 actions.invoke()
                             else:
-                                actions.hide_menus()
+                                actions.hide_menus(1)
 
                     if enableCheats:
                         if cheats.ShowMenu:
