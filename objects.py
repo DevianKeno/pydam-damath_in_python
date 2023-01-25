@@ -50,13 +50,13 @@ tiles_rect.center = (board_area_surface.get_width()//2, board_area_surface.get_h
 
 chips_surface = pygame.Surface((tiles_rect.w, tiles_rect.h))
 
-p1_captured_pieces_rect = pygame.Rect((board_area_surface.get_width() * 0.843, board_area_surface.get_height() * 0.075),
+right_captured_pieces_rect = pygame.Rect((board_area_surface.get_width() * 0.843, board_area_surface.get_height() * 0.075),
                                       (board_area_surface.get_width() * 0.148, board_area_surface.get_height() * 0.876))
-p1_captured_pieces_surface = pygame.Surface((p1_captured_pieces_rect.w, p1_captured_pieces_rect.h))
+right_captured_pieces_surface = pygame.Surface((right_captured_pieces_rect.w, right_captured_pieces_rect.h))
 
-p2_captured_pieces_rect = pygame.Rect((board_area_surface.get_width() * 0.0117, board_area_surface.get_height() * 0.075),
+left_captured_pieces_rect = pygame.Rect((board_area_surface.get_width() * 0.0117, board_area_surface.get_height() * 0.075),
                                       (board_area_surface.get_width() * 0.148, board_area_surface.get_height() * 0.876))
-p2_captured_pieces_surface = pygame.Surface((p2_captured_pieces_rect.w, p2_captured_pieces_rect.h))
+left_captured_pieces_surface = pygame.Surface((left_captured_pieces_rect.w, left_captured_pieces_rect.h))
 
 selection_guide_rect = pygame.Rect((0, 0), (SCREEN_WIDTH*0.433, SCREEN_HEIGHT*0.111))
 

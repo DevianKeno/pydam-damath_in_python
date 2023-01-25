@@ -6,10 +6,13 @@ from display_constants import BG_COLOR
 from ui_class.font import *
 from ui_class.textlist import TextList
 from ui_class.tween import *
-from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, chips_surface, p1_captured_pieces_surface, p1_captured_pieces_rect, p2_captured_pieces_rect, p2_captured_pieces_surface
+from objects import board_x_coords_surface, board_y_coords_surface, board_x_coords_rect, board_y_coords_rect, chips_surface, right_captured_pieces_surface, right_captured_pieces_rect, left_captured_pieces_rect, left_captured_pieces_surface, square_size
 from options import *
 
 pygame.mixer.init()
+
+piece_height = square_size
+piece_width = square_size * .874
 
 class Board:
     
@@ -46,6 +49,10 @@ class Board:
         self.theme = theme
 
     def _init_rotation(self):        
+        """
+        Initializes the first rotation of the board, as well as the coordinates.
+        """       
+        
         _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
         _y_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
 
@@ -57,7 +64,14 @@ class Board:
                                     spacing = board_y_coords_rect.h * 0.0775,
                                     padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
 
-    def rotate_180(self):
+    def flip(self):
+        """
+        Rotates the board by 180 degrees.
+        """
+        self._rotate_180()
+        self.recalculate_graveyard_positions()
+
+    def _rotate_180(self):
         if self.IsFlipped:
             self.IsFlipped = False        
             _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
@@ -159,6 +173,26 @@ class Board:
 
         return col, row
 
+    def to_raw(self, cell):
+        """
+        Converts a board-relative coordinate to raw coordinates.
+        This considers the board's orientation. 
+        """
+
+        col = abs(cell[0] - 7)
+        row = cell[1]
+
+        return col, row
+
+    def get_abs(self, cell):
+        """
+        Returns the flipped values of the given cell.
+        """
+        col = abs(cell[0] - 7)
+        row = abs(cell[1] - 7)
+
+        return col, row
+
     def get_piece(self, cell):
         """
         Returns the piece in the specified cell.
@@ -209,9 +243,7 @@ class Board:
 
         self.board = [[0]*COLS for i in range(ROWS)]
 
-        """
-        Generate player one chips
-        """
+        # Generate player one chips
         val_counter = 11
 
         for row in range(2, -1, -1):
@@ -227,9 +259,7 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        """
-        Generate player two chips
-        """
+        # Generate player two chips
         val_counter = 0
 
         for row in range(7, 4, -1):
@@ -245,9 +275,8 @@ class Board:
                 else:
                     self.board[col][row] = Piece(surface, (col, row), 0, 0)
 
-        """
-        Generate imaginary pieces at the middle of the board
-        """
+
+        # Generate imaginary pieces at the middle of the board
         for row in range(3, 5, 1):
             for col in range(COLS):
                 self.board[col][row] = Piece(surface, (col, row), 0, 0)
@@ -255,16 +284,21 @@ class Board:
         # print(f"Buffer") # Debug
 
     def set_mode(self, mode):
+        """
+        Sets the mode of the match.
+        """
+        
         self.mode = mode
         self.board = []
 
         self._init_chips(self.surface)
-        self.draw_chips(self.surface)
+        self.draw_chips()
 
     def move_piece(self, piece, destination):
         """
-        Moves piece to destination cell.
+        Moves given piece to destination cell.
         """
+
         destination_col = destination[0]
         destination_row = destination[1]
         destination_piece = self.board[destination_col][destination_row]
@@ -307,16 +341,14 @@ class Board:
                 self.orange_kings += 1
                 CAPTURE_SOUND.play()
     
-    def piece_skipped(self, piece, col, row, bool):
-        piece.HasSkipped = bool
-
-    def piece_had_skipped(self, piece, col, row):
-        return piece.HasSkipped
-    
     def piece_landed(self, col, row):
         return self.symbol_map[(col, row)]
 
     def set_all_moveables(self, IsMovable=True):
+        """
+        Sets all pieces state to be movable or not.
+        """
+        
         for row in range(ROWS):
             for col in range(COLS):
                 self.board[col][row].IsMovable = IsMovable
@@ -324,7 +356,7 @@ class Board:
     def draw_contents(self, surface):
         self.init_symbols(surface)
 
-    def draw_chips(self, surface):
+    def draw_chips(self):
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
@@ -339,39 +371,46 @@ class Board:
             piece.display()
 
     def move_to_graveyard(self, pieces):
+        """
+        Moves a piece/or pieces to the graveyard (capture).
+        """
         for piece in pieces:
             if piece.color == PLAYER_ONE: # Blue
-                captured_piece = Piece(p2_captured_pieces_surface, (0, 0), piece.color, piece.number)
+                captured_piece = Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
                 if piece.IsKing:
                     captured_piece.IsKing = True
                 captured_piece.IsCaptured = True
                 self.blue_captured.append(captured_piece)
-
-                if len(self.blue_captured) <= 9:
-                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - 2
-                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + (len(self.blue_captured) * piece.h)
-                else:
-                    captured_piece.x = (p2_captured_pieces_surface.get_width() // 2) - piece.w
-                    captured_piece.y = (p2_captured_pieces_rect.top - (piece.h + piece.h*0.75)) + ((len(self.blue_captured) - 9) * piece.h)
                 self.blue_pieces_count -= 1
             else:
-                captured_piece = Piece(p1_captured_pieces_surface, (0, 0), piece.color, piece.number)
+                captured_piece = Piece(right_captured_pieces_surface, (0, 0), piece.color, piece.number)# if not self.IsFlipped else Piece(left_captured_pieces_surface, (0, 0), piece.color, piece.number)
 
                 if piece.IsKing:
                     captured_piece.IsKing = True
                 captured_piece.IsCaptured = True
                 self.orange_captured.append(captured_piece)
-
-                if len(self.orange_captured) <= 9:
-                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2) - (piece.w)
-                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - (len(self.orange_captured) * piece.h)) - 5
-                else:
-                    captured_piece.x = (p1_captured_pieces_surface.get_width() // 2)
-                    captured_piece.y = ((p1_captured_pieces_rect.bottom - (piece.h - piece.h*0.25)) - ((len(self.orange_captured) - 9) * piece.h)) - 5
-                
                 self.orange_pieces_count -= 1
+
             self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
+
+        self.recalculate_graveyard_positions()
+
+    def recalculate_graveyard_positions(self):
+        for i, captured_piece in enumerate(self.blue_captured):
+            if i < 9:
+                captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - 2 if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - (piece_width)
+                captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((i + 1) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((i + 1) * piece_height)) - 5
+            else:
+                captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - piece_width if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2)
+                captured_piece.y = (left_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + (((i + 1) - 9) * piece_height) if not self.IsFlipped else ((left_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - (((i + 1) - 9) * piece_height)) - 5
+        for i, captured_piece in enumerate(self.orange_captured):
+            if i < 9:
+                captured_piece.x = (right_captured_pieces_surface.get_width() // 2) - (piece_width) if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - 2
+                captured_piece.y = ((right_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - ((i + 1) * piece_height)) - 5 if not self.IsFlipped else (right_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + ((i + 1) * piece_height)
+            else:
+                captured_piece.x = (right_captured_pieces_surface.get_width() // 2) if not self.IsFlipped else (right_captured_pieces_surface.get_width() // 2) - piece_width
+                captured_piece.y = ((right_captured_pieces_rect.bottom - (piece_height - piece_height*0.25)) - (((i + 1) - 9) * piece_height)) - 5 if not self.IsFlipped else (right_captured_pieces_rect.top - (piece_height + piece_height*0.75)) + (((i + 1) - 9) * piece_height)
 
     def add_piece(self, piece):
         """
@@ -380,19 +419,32 @@ class Board:
         self.board[piece.col][piece.row] = piece
         self.moveables.append((piece.col, piece.row))
 
+        if piece.color == PLAYER_ONE:
+            self.blue_pieces_count += 1
+        else:
+            self.orange_pieces_count += 1
+
     def remove(self, cell):
         """
         Removes a piece from the board, given raw cell arguments.
+        This does not decrement current pieces count.
         """
         col, row = self.get_col_row(cell)
         self.board[col][row] = Piece(self.surface, (col, row), 0, 0)
 
     def capture(self, cell):
         """
-        Captures a piece from the board, given raw cell arguments.
+        Captures a piece from the board moving it to the graveyard.
+        This receives raw cell arguments.
         """
+        piece = self.get_piece(cell)
+        self.move_to_graveyard(piece)
 
     def get_valid_moves(self, piece, type="all", BoardIsFlipped=False):
+        """
+        Returns all the possible moves of the given piece.
+        """
+        
         moves = {}
         up = -1
         down = 1
@@ -437,10 +489,6 @@ class Board:
                 break
 
             cell_to_check = self.get_piece((left, row))
-            
-            # if BoardIsFlipped:
-            #     left = abs(left - 7)
-            #     row = abs(row - 7)
 
             # Check if cell is empty
             if cell_to_check.color == 0:

@@ -329,7 +329,7 @@ class Cheats:
         self.hide_menus()
 
     def flip_board(self):
-        self.game.board.rotate_180()
+        self.game.board.flip()
         self.game.refresh()
         self.game.check_for_captures()
         self.hide_menus()

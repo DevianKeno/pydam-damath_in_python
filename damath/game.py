@@ -16,13 +16,17 @@ pygame.mixer.init()
 
 class Game:
 
-    def __init__(self, surface, board, scoreboard, theme):
+    def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=False):
         self.surface = surface
         self.board = board
         self.scoreboard = scoreboard
         self.theme = theme
         self.selected_cell = None   # Cell | Raw cell
         self.selected_tile = None   # Tile | Cell relative to board's coordinates
+        self.IsMultiplayer = IsMultiplayer
+        self.command = ''
+        self.ControlsIsEnabled = True
+        self.DrawIndicators = True
 
     def _init(self):
         self.game_evaluation = 0
@@ -53,11 +57,12 @@ class Game:
         self.board.draw_coordinates()
 
         if self.selected_piece:
-            self.draw_selected_piece_indicator(self.surface)
+            if self.DrawIndicators:
+                self.draw_selected_piece_indicator(self.surface)   
+                self.draw_capturing_piece_indicator(self.surface)
             self.draw_valid_moves(self.valid_moves)
-        self.draw_capturing_piece_indicator(self.surface)
 
-        self.board.draw_chips(self.surface)
+        self.board.draw_chips()
 
         self.scoreboard.draw_scores()
         self.scoreboard.draw_turn_indicator(self.turn)
@@ -140,10 +145,23 @@ class Game:
             print(f"[Evaluation] Number of valid moves: {len(valid_moves)}")
             print(f"[Evaluation] Number of movables pieces: {len(piece_movables)}")
 
-    def select(self, cell):
+    def select(self, cell, IsOperator=False):
         """
         Selects a cell or move given raw cell arguments.
         """
+
+        if IsOperator:
+            if self.selected_piece:
+                self.select_move(cell)
+                return
+            else:
+                self.select_piece(self.board.get_piece(cell), IsOperator)
+                return
+
+        if self.IsMultiplayer:
+            if not self.ControlsIsEnabled:
+                return
+        
         # Cell = raw coordinates
         self.selected_cell = cell
         # Tile = cell relative to the board's coordinates, regardless of orientation
@@ -151,14 +169,21 @@ class Game:
 
         piece_to_select = self.board.get_piece(cell)
 
-        # If a piece had already captured
+        # If a piece had already captured, you can only select that piece
         if self.moved_piece:
             if piece_to_select == self.moved_piece:
                 piece_to_select = self.moved_piece
 
         # If a piece is selected
         if self.selected_piece:
-            self.select_move(cell)
+            if piece_to_select.color == self.turn:
+                if self.TurnRequiresCapture:
+                    if piece_to_select.HasPossibleCapture:
+                        self.select_piece(piece_to_select)
+                else:
+                    self.select_piece(piece_to_select)
+            else:
+                return self.select_move(cell)
         else:
             if self.TurnRequiresCapture:
                 if piece_to_select.HasPossibleCapture:
@@ -170,23 +195,36 @@ class Game:
         """
         Selects a valid move, given a raw cell argument.
         """
-
-        if not self.selected_piece:
-            raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
         
         if (cell) in self.valid_moves:
+            # Send to console
+            if self.IsMultiplayer:
+                if self.board.IsFlipped:
+                    col, row = self.board.to_raw(cell)
+                    piece_col, piece_row = self.board.get_abs((self.selected_piece.col, self.selected_piece.row))
+                else:
+                    col, row = self.board.get_col_row(cell)
+                    piece_col, piece_row = self.selected_piece.col, self.selected_piece.row
+                self.command = "sm {} {} {} {}".format(piece_col, piece_row, col, row)
+
             self._move_piece(self.selected_piece, cell)
+
+            if not self.selected_piece.HasPossibleCapture:
+                self.change_turn()
+
+            return self.command
         else:
             self.selected_piece = None
 
-    def select_piece(self, piece):
+    def select_piece(self, piece, IsOperator=False):
         """
         Selects a piece, given a piece object.
         """
         
-        if piece.color != self.turn:
-            INVALID_SOUND.play()
-            return
+        if not IsOperator:
+            if piece.color != self.turn:
+                INVALID_SOUND.play()
+                return
 
         self.selected_piece = piece
 
@@ -195,23 +233,22 @@ class Game:
 
         # Get moves
         moves_to_get = "all"
+        
         if enableMandatoryCapture:
             if not self.selected_piece.IsMovable:
                 return
 
             if self.TurnRequiresCapture:
                 moves_to_get = "capture"
-        
-        col, row  = piece.col, piece.row
 
         self.valid_moves = self._get_moves_of(self.selected_piece, moves_to_get)
 
         if not self.valid_moves:
-            if not self.board.piece_had_skipped(self.selected_piece, col, row):
-                INVALID_SOUND.play()
+            if self.selected_piece.HasSkipped:
+                # INVALID_SOUND.play()
                 return
 
-            self.board.piece_skipped(self.selected_piece, col, row, bool=False)
+            self.selected_piece.HasSkipped = False
         else:
             SELECT_SOUND.play()
 
@@ -242,7 +279,7 @@ class Game:
 
             if skipped_piece:
                 CAPTURE_SOUND.play()
-                self.board.piece_skipped(self.selected_piece, col, row, bool=True)
+                self.moved_piece.HasSkipped = True
                 operations = []
 
                 if len(skipped_piece) > 1:
@@ -260,13 +297,12 @@ class Game:
             if self.selected_piece.HasSkipped:
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
-                    if versusAI:
-                        self.versus_ai()
                 else:
-                    self.change_turn()
+                    self.moved_piece.HasSkipped = False
+                    return
             else:
-                self.board.piece_skipped(self.selected_piece, col, row, bool=False)
-                self.change_turn()
+                self.moved_piece.HasSkipped = False
+                return
         
     def draw_valid_moves(self, moves):
         color = YELLOW
@@ -296,6 +332,12 @@ class Game:
                     capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
                     pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
+    def toggle_player_controls(self):
+        self.ControlsIsEnabled = not self.ControlsIsEnabled
+
+    def toggle_indicators(self):
+        self.DrawIndicators = not self.DrawIndicators
+
     def refresh(self):
         """
         Refreshes the game, removing all selections.
@@ -307,7 +349,9 @@ class Game:
         self.capturing_pieces.clear()
 
     def change_turn(self):
-
+        if self.IsMultiplayer:
+            self.toggle_player_controls()
+        
         if self.selected_piece:
             self.board.check_for_kings(self.selected_piece)
 

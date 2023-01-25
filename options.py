@@ -20,7 +20,8 @@ _MODES = [
 
 MODE = _MODES[1]
 
-versusAI = True
+versusAI = False
 
 enableAnimations = True
 chipMoveAnimationSpeed = 0.5
+maxBufferSize = 1024

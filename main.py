@@ -30,6 +30,9 @@ from ui_class.tween import *
 from ui_class.slider import Slider
 from ui_class.rect_window import *
 from ui_class.mode_window import *
+# Multiplayer
+from client import Client
+from server import Server
 from audio_constants import * 
 from objects import *
 from assets import *
@@ -273,13 +276,12 @@ board_rect    = pygame.Rect(SCREEN_WIDTH*0.7//2+(SCREEN_WIDTH*0.3)-board_surface
 board = Board(chips_surface, BOARD_DEFAULT_THEME)
 scoreboard = Scoreboard(game_side_surface)
 game = Game(chips_surface, board, scoreboard, BOARD_DEFAULT_THEME)
-console = Console(game)
 
-if enableCheats:
-    cheats = Cheats(screen, game)
+client = Client()
+server = Server()
 
-if enableActions:
-    actions = Actions(screen, game)
+console = Console()
+console.start()
 
 if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -367,6 +369,7 @@ anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSi
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
 
+
 # --------- Side menu rect tweenable --------- 
 
 TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
@@ -430,6 +433,9 @@ def main_menu():
                 if event.key == pygame.K_SPACE:
                     start_game('Classic')
                     break
+
+                if event.key == pygame.K_EQUALS:
+                    start_game('Classic', True)
 
         anim_title_breathe.update()
         anim_title_squeeze.update()
@@ -1217,9 +1223,19 @@ thread_running = True
 # --------- start game function ---------
 # (when Start button is pressed)
 
-def start_game(mode):
+def start_game(mode, IsMultiplayer=False):
 
     global thread_running, text_mode, global_timer_text
+
+    game.IsMultiplayer = True
+    console.game = game
+
+
+    if enableCheats:
+        cheats = Cheats(screen, game)
+
+    if enableActions:
+        actions = Actions(screen, game)
 
     if mode == 'Classic':
         turn_timer.set_duration(60)
@@ -1296,10 +1312,14 @@ def start_game(mode):
         board_area_surface.blit(chips_surface, (tiles_rect))
         
         # Render captured pieces
-        board_area_surface.blit(p1_captured_pieces_surface, (p1_captured_pieces_rect))
-        board_area_surface.blit(p2_captured_pieces_surface, (p2_captured_pieces_rect))
-        p1_captured_pieces_surface.fill(OAR_BLUE)
-        p2_captured_pieces_surface.fill(OAR_BLUE)
+        if not game.board.IsFlipped:
+            board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
+            board_area_surface.blit(left_captured_pieces_surface, (left_captured_pieces_rect))
+        else:
+            board_area_surface.blit(right_captured_pieces_surface, (left_captured_pieces_rect))
+            board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
+        right_captured_pieces_surface.fill(OAR_BLUE)
+        left_captured_pieces_surface.fill(OAR_BLUE)
         
         # Display side bar elements
         mini_title.display()
@@ -1518,6 +1538,8 @@ def start_game(mode):
                         if enableCheats:
                             if not cheats.ShowMenu:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
+                                    if IsMultiplayer:
+                                        console.listen(game.select(cell))
                                     if versusAI:
                                         if game.turn == PLAYER_ONE:
                                             game.select(cell)
