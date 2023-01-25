@@ -11,6 +11,7 @@ from audio_constants import *
 from ui_class.tween import *
 from objects import square_size
 from options import *
+from .minimax import minimax
 
 pygame.mixer.init()
 
@@ -71,11 +72,11 @@ class Game:
 
     def winner(self):   
         if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
-            red_score, blue_score = self.scoreboard.score()
+            p1, p2 = self.scoreboard.score()
 
-            if red_score > blue_score:
-                return PLAYER_ONE 
-            elif blue_score > red_score:
+            if p2 > p1:
+                return PLAYER_TWO 
+            elif p1 > p2:
                 return PLAYER_ONE
             else:
                 return "TIE"
@@ -113,22 +114,26 @@ class Game:
         
         if enableDebugMode:
             print(f"[Evaluation] Game Value: {self.game_evaluation}")
-        self.get_all_possible_moves()
+        self.get_all_possible_moves(self.board.board, self.turn)
 
-    def get_all_possible_moves(self):
-
+    def get_all_possible_moves(self, board: list, turn):
+        """
+        board argument needs the 2D array representation of the board and not the object 
+        """
         self.movables = {}
 
         for r in range(ROWS):
             for c in range(COLS):
-                piece = self.board.get_piece((c, r))
-                if piece.color == self.turn:
+                piece = board[c][r]
+                if piece.color == turn:
                     _move = self._get_moves_of(piece, "all")
                     #print(_move)
                     if self.TurnRequiresCapture:
-                        moves = list(self._get_moves_of(piece, "capture").keys())
+                        moves = self._get_moves_of(piece, "capture")
                     else:
-                        moves = list(self._get_moves_of(piece, "all").keys())
+                        moves = self._get_moves_of(piece, "all")
+
+                    # print(self._get_moves_of(piece, "all"))
                     
                     if moves:
                         self.movables[piece] = moves
@@ -144,6 +149,8 @@ class Game:
         if enableDebugMode:
             print(f"[Evaluation] Number of valid moves: {len(valid_moves)}")
             print(f"[Evaluation] Number of movables pieces: {len(piece_movables)}")
+
+        return self.movables
 
     def select(self, cell, IsOperator=False):
         """
@@ -195,6 +202,12 @@ class Game:
         """
         Selects a valid move, given a raw cell argument.
         """
+
+        if not self.selected_piece:
+            raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
+        
+        # print(cell, self.valid_moves)
+
         
         if (cell) in self.valid_moves:
             # Send to console
@@ -211,6 +224,9 @@ class Game:
 
             if not self.selected_piece.HasPossibleCapture:
                 self.change_turn()
+            else:
+                if versusAI:
+                    self.versus_ai()
 
             return self.command
         else:
@@ -464,33 +480,37 @@ class Game:
             self.TurnRequiresCapture = True
             return self.TurnRequiresCapture
 
-    def versus_ai(self):
+    def ai_move(self, piece, move):
         
+        self.get_all_possible_moves(self.board.board, self.turn)
+        
+        if not self.moved_piece:
+            self.select(self.board.get_col_row(piece.cell))
+
+            if self.selected_piece:
+                self.select_move(move)
+        else:
+            self.selected_piece = self.board.get_piece(self.board.get_col_row((piece.cell)))
+            self.select_move(move)
+
+        mcol, mrow = self.board.get_col_row(move)
+        print(f"[AI Xena] Xena moved {piece} ({piece.number}) to {(mcol, mrow)}") 
+        
+    def versus_ai(self):
+
         # her name is Xena
         
         #TODO: create a more complex algorithm to choose the best possible move for the player
-        #           - making a move that will result to a positive score for the AI
-        #           - making a move that will result to a negative score for the opponent
-        #           - making a move that will lead the chips to promotion
+        #           - ✓ making a move that will result to a positive score for the AI
+        #           - ✓ making a move that will result to a negative score for the opponent
+        #           - ✓ making a move that will lead the chips to promotion 
         #           - making a move that will quickly end the game if the AI's score is significantly
         #               bigger than the opponent's
 
-        if self.turn == PLAYER_TWO:
-            
-            self.get_all_possible_moves()
-
-            random_piece_num = random.randint(0, len(list(self.movables.keys()))-1)
-            chosen_piece = list(self.movables.keys())[random_piece_num]
-
-            random_move_num = random.randint(0, len(list(self.movables.get(chosen_piece)))-1)
-            chosen_move = list(self.movables.get(chosen_piece))[random_move_num]
-
-            if not self.moved_piece:
-                self.selected_piece = chosen_piece
-                self.select_piece(self.selected_piece)
-                if self.selected_piece:
-                    self.select_move(chosen_move)
-            else:
-                self.select_move(chosen_move)
-            mcol, mrow = self.board.get_col_row(chosen_move)
-            print(f"[AI Xena] Xena moved {chosen_piece} ({chosen_piece.number}) to {(mcol, mrow)}")
+        if self.turn == PLAYER_TWO and self.winner() == None:
+            # this will occassionally throw an error if the bug persists 
+            # (no valid moves are returned on first click)
+            res = minimax(self, self.board.board, 1, self.scoreboard.p1_score, self.scoreboard.p2_score, False, None)
+            chosen_piece = res[1][0]
+            chosen_move = self.board.get_col_row(res[1][1])
+            self.ai_move(chosen_piece, chosen_move)

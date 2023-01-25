@@ -119,7 +119,8 @@ class RectWindow(pygame.Rect):
                     _new_width-self.border_thickness, 
                     _new_height-self.border_thickness)
         self.inner_rect.center = self.center
-        if self.shadow_surf_rect:
+        
+        if self.cast_shadow:
             self.shadow_surf_rect.update(_new_x+8, _new_y+8, _new_width, _new_height)
 
     def change_color(self, *, window_color=None, border_color=None):

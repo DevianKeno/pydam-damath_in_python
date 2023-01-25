@@ -2,7 +2,7 @@
 Game options.
 """
 
-enableDebugMode = True
+enableDebugMode = False
 
 enableMandatoryCapture = True
 enableCheats = True
@@ -20,7 +20,7 @@ _MODES = [
 
 MODE = _MODES[1]
 
-versusAI = False
+versusAI = True
 
 enableAnimations = True
 chipMoveAnimationSpeed = 0.5

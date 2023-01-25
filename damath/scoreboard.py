@@ -167,8 +167,11 @@ class Scoreboard:
             self.p2_score += result
             round(self.p2_score, 1)
 
-        print(f'[Score]: {PLAYER_ONE}: {self.p1_score}\n' \
-              f'[Score]: {PLAYER_TWO}: {self.p2_score}')       
+        if enableDebugMode:  
+            print(f'[Score]: {PLAYER_ONE}: {self.p1_score}\n' \
+                f'[Score]: {PLAYER_TWO}: {self.p2_score}')       
+
+        return result
 
     def score(self):
         return self.p1_score, self.p2_score

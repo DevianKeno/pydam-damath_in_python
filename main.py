@@ -6,6 +6,7 @@ import pygame
 import sys
 import random 
 import threading
+from copy import copy
 from console import Console
 from math import ceil
 from damath.actions import Actions
@@ -19,7 +20,7 @@ from damath.timer import *
 from display_constants import *
 from ui_class.button import Button, ButtonList
 from ui_class.new_btn import NButton
-from ui_class.colors import *
+from ui_class.colors import * 
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from ui_class.fade import *
 from ui_class.fade_anim import Fade
@@ -292,6 +293,12 @@ server = Server()
 
 console = Console()
 console.start()
+
+if enableCheats:
+    cheats = Cheats(screen, game)
+
+if enableActions:
+    actions = Actions(screen, game)
 
 if chip_animation:  
     big_blue_chip = SpinningChip(screen, 'blue')
@@ -1716,7 +1723,7 @@ def game_ends():
     # only load the frames of the winning color
     print(game.winner() == RED)
 
-    if game.winner() == RED:
+    if game.winner() == PLAYER_TWO:
         for i in range(21):
             frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+18}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
             winner_anim_frames.append(frame)
@@ -1727,7 +1734,7 @@ def game_ends():
 
     WINNER = WinnerWindow(screen, winner_anim_frames)
     WINNER.set_delay(60) # winner window will appear after 60 / fps (1 sec)
-
+    
     play_again_transition_in = False
     back_to_menu_transition_in = False
     running = True
