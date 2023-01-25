@@ -78,9 +78,6 @@ class Server:
         # Listen for outside connections
         self.c, addr = self.listen_for_connections(1)
         self.ip = addr
-        
-        # if not self.ChatIsRunning:
-        #     self.chat_thread.start()
 
         # Send first ping
         self.c.send('ping'.encode())

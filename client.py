@@ -65,11 +65,8 @@ class Client:
         self.IsConnecting = False
         self.IsConnected = True
         self.console.IsClient = True
-        # self.console._command_init_client()
+        self.console._command_init_client()
         
-        # if not self.ChatIsRunning:
-        #     self.chat_thread.start()
-
         while self.IsConnected:
             try:
                 reply = self.c.recv(maxBufferSize).decode('UTF-8').strip()

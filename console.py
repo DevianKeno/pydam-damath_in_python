@@ -63,11 +63,11 @@ class Console:
 
         if self.server != None:
             if self.IsServer:
-                self.server.msg = self.message
+                self.server.send(self.message)
 
         if self.client != None:
             if self.IsClient:
-                self.client.msg = self.message
+                self.client.send(self.message)
 
     def read_user_input(self):
         """
