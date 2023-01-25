@@ -100,10 +100,12 @@ class Cheats:
         """
         Creates the main dropdown menu.
         """
-        
+
+        window_color = DARK_CERULEAN
         self.ShowMenu = True
         self.pos = pos
-        window_color = DARK_CERULEAN
+        x = pos[0]
+        y = pos[1]
 
         if OnBoard:
             if self.selected_piece.color == 0:
@@ -138,6 +140,15 @@ class Cheats:
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
         self.dropdown = Dropdown(self.surface, self.text_list)
         self.dropdown.create(pos, color=window_color)
+
+        # Screen cropping
+        if x > (screen.get_width() - self.dropdown.window.w):
+            x = x - self.dropdown.window.w
+        if y > (screen.get_height() - self.dropdown.window.h):
+            y = y - self.dropdown.window.h
+        pos = x, y
+        
+        self.dropdown.move_to(pos)
         self.dropdown.IsHoverable = True
 
     def create_ev_window(self):
@@ -148,7 +159,7 @@ class Cheats:
         self.ShowEVWindow = True
         self.ev_window.wupdate(x=board_centerx, y=board_centery, width=0, height=0)
         self.input.text = '0'
-        
+
         self.anim_ev_window = Scale_Rect(self.ev_window, (ev_window_dimensions[0], ev_window_dimensions[1]), 0.2, True, easeOutBack, none, False)
         self.anim_ev_window_inner = Scale_Rect(self.ev_window.inner_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)
         self.anim_ev_window_shadow = Scale_Rect(self.ev_window.shadow_surf_rect, (ev_window_dimensions[0]-ev_window_radius//2, ev_window_dimensions[1]-ev_window_radius//2), 0.2, True, easeOutBack, none, False)

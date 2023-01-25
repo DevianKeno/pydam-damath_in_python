@@ -179,6 +179,9 @@ class Board:
         This considers the board's orientation. 
         """
 
+        if not (-1 < cell[0] < COLS) and not (-1 < cell[1] < ROWS):
+            return
+
         col = abs(cell[0] - 7)
         row = cell[1]
 
@@ -188,6 +191,10 @@ class Board:
         """
         Returns the flipped values of the given cell.
         """
+
+        if not (-1 < cell[0] < COLS) and not (-1 < cell[1] < ROWS):
+            return
+
         col = abs(cell[0] - 7)
         row = abs(cell[1] - 7)
 
@@ -198,6 +205,9 @@ class Board:
         Returns the piece in the specified cell.
         This considers the board's orientation. 
         """
+
+        if cell[0] == -1 and cell[1] == -1:
+            return
 
         col = cell[0]
         row = abs(cell[1] - 7)

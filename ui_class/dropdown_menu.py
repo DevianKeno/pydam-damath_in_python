@@ -43,14 +43,19 @@ class Dropdown:
         window_new_width = (self.text_rect.w + 
                             (self.text_list.padding[1] + self.text_list.padding[2]))
 
-        # if self.text_list.HasIcons:
-        #     window_new_width += (self.text_list.icon_spacing + self.text_list.icon_list[0].w)
-
         window_new_height = ((self.text_list.items_count * self.text_rect.h) +
                             (self.text_list.items_count * self.text_list.spacing) +
                             (self.text_list.padding[0] + self.text_list.padding[1]))
 
         self.window = RectWindow(self.surface, self.pos, window_new_width, window_new_height, window_color, 9, 4, WHITE)
+
+    def move_to(self, pos):
+        self.text_list.text_rects = []
+        self.text_list.generate_rects(pos)
+        self.pos = pos
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        self.window.wupdate(x=self.x, y=self.y)
 
     def draw(self):
         if not self.IsActive:

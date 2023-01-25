@@ -67,12 +67,22 @@ def get_cell_from_mouse(pos):
     return col, row
 
 def get_cell_from_mouse_raw(pos):
+    """
+    Returns a cell (column and row) from the board based from mouse position.
+    Returns a negative value if out of bounds of the board.
+    """
+    
     x, y = pos
     col = (x - selection_guide_rect.w) // square_size
     row = (y - selection_guide_rect.h) // square_size
 
     if enableDebugMode:
         print(f"[Debug/Action]: Clicked on cell ({col}, {row}), raw")
+
+    if col < 0 or col > 7:
+        return -1, -1
+    if row < 0 or row > 7:
+        return -1, -1
 
     return col, row
 
@@ -1227,9 +1237,8 @@ def start_game(mode, IsMultiplayer=False):
 
     global thread_running, text_mode, global_timer_text
 
-    game.IsMultiplayer = True
+    game.IsMultiplayer = IsMultiplayer
     console.game = game
-
 
     if enableCheats:
         cheats = Cheats(screen, game)

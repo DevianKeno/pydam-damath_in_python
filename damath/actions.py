@@ -31,9 +31,11 @@ class Actions:
         Creates the main dropdown menu.
         """
         
+        window_color = DARK_CERULEAN
         self.ShowMenu = True
         self.pos = pos
-        window_color = DARK_CERULEAN
+        x = pos[0]
+        y = pos[1]
 
         if self.game.turn == PLAYER_ONE:
             window_color = DARK_CERULEAN
@@ -46,6 +48,15 @@ class Actions:
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
         self.dropdown = Dropdown(self.surface, self.text_list)
         self.dropdown.create(pos, color=window_color)
+
+        # Screen cropping
+        if x > (screen.get_width() - self.dropdown.window.w):
+            x = x - self.dropdown.window.w
+        if y > (screen.get_height() - self.dropdown.window.h):
+            y = y - self.dropdown.window.h
+        pos = x, y
+        
+        self.dropdown.move_to(pos)
         self.dropdown.IsHoverable = True
 
     def invoke(self):
