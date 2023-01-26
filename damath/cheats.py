@@ -119,7 +119,7 @@ class Cheats:
         """
         
         self.selected_cell = cell
-        self.col, self.row = self._game.Board.get_col_row(self.selected_cell)
+        self.selected_tile = self._game.Board.get_col_row(self.selected_cell)
         self.selected_piece = self._game.Board.get_piece(self.selected_cell)
 
     def create_dropdown(self, pos, OnBoard=True):
@@ -309,7 +309,7 @@ class Cheats:
         if self.add_value == '':
             self.add_value = '0'
 
-        piece = Piece(chips_surface, (self.col, self.row), self.add_color, self.add_value)
+        piece = Piece(chips_surface, (self.selected_tile), self.add_color, self.add_value)
         self._game.Board.add_piece(piece)
         self.hide_menus()
 

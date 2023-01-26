@@ -426,7 +426,7 @@ class DeveloperConsole:
             self._server.console = self
             self._server.start()
 
-            self._main.create_match(mode)
+            # self._main.create_match(mode)
 
             if self.ShowFeedback:
                 print(f"Hosted local match on {self._server.get_ip()}")

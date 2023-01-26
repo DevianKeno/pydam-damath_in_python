@@ -24,7 +24,6 @@ class Match:
         self._surface = surface
         self.Board = board
         self.Scores = scoreboard
-        self.IsMultiplayer = IsMultiplayer
         self.Rules = None
         self.ControlsIsEnabled = True
         self.IsRunning = False
@@ -43,13 +42,13 @@ class Match:
 
         self.movables = {}
         self.valid_moves = {}
-        self.capturing_pieces = []
         self.game_evaluation = 0
 
         self.turn = PLAYER_ONE
         self.ControlsIsEnabled = True
         self.DrawIndicators = True
         self.TurnRequiresCapture = False
+        self.IsMultiplayer = self.Rules.IsMultiplayer
 
     @property
     def Surface(self):
@@ -66,30 +65,8 @@ class Match:
         self.Board.set_mode(mode)
 
     def update(self):
-        if enableAnimations:
-            #TODO: Needs optimization
-            if self.Board.anim_move_piece:
-                self.Board.anim_move_piece.update()
-            if self.Board.anim_capture:
-                self.Board.anim_capture.update()
-
-        # self.Board.draw_symbols(self._surface)
-        # self.Board.draw_coordinates()
-
-        # if self.selected_piece:
-        #     if self.DrawIndicators:
-        #         self.draw_selected_piece_indicator(self._surface) 
-                
-        #         if self.TurnRequiresCapture: 
-        #             self.draw_capturing_piece_indicator(self._surface)
-        #     self.draw_valid_moves(self.valid_moves)
-
-        # self.Board.draw_chips()
-
         self.Scores.draw_scores()
         self.Scores.draw_turn_indicator(self.turn)
-
-        pygame.display.update() 
 
     def winner(self):   
         if (self.Board.blue_pieces_count <=0 or self.Board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
@@ -223,12 +200,6 @@ class Match:
         """
         Selects a valid move, given a raw cell argument.
         """
-
-        if not self.selected_piece:
-            raise RuntimeError("No piece selected, select a piece using select_piece(piece_to_select) first.")
-        
-        # print(cell, self.valid_moves)
-
         
         if (cell) in self.valid_moves:
             # Send to console
@@ -251,7 +222,8 @@ class Match:
 
             return self.command
         else:
-            self.selected_piece = None
+            self.refresh()
+            self.Board.refresh()
 
     def select_piece(self, piece, IsOperator=False):
         """
@@ -260,6 +232,8 @@ class Match:
         
         if not IsOperator:
             if piece.color != self.turn:
+                self.refresh()
+                self.Board.refresh()
                 INVALID_SOUND.play()
                 return
 
@@ -287,6 +261,8 @@ class Match:
 
             self.selected_piece.HasSkipped = False
         else:
+            self.Board.selected_piece = self.selected_piece
+            self.Board.valid_moves = self.valid_moves
             SELECT_SOUND.play()
 
     def _get_moves_of(self, piece, moves_to_get):
@@ -340,34 +316,6 @@ class Match:
             else:
                 self.moved_piece.HasSkipped = False
                 return
-        
-    def draw_valid_moves(self, moves):
-        color = YELLOW
-
-        if allowMandatoryCapture:
-            if self.TurnRequiresCapture:
-                color = LIME
-
-        if moves:
-            for move in moves:
-                col, row = move
-
-                pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
-    
-    def draw_selected_piece_indicator(self, surface):
-        col, row = self.Board.get_col_row((self.selected_piece.col, self.selected_piece.row))
-
-        selected_piece_rect = pygame.Rect((col * square_size, row * square_size),
-                                            (square_size, square_size))
-        pygame.draw.rect(surface, YELLOW, selected_piece_rect)
-    
-    def draw_capturing_piece_indicator(self, surface):
-        if allowMandatoryCapture:
-            if self.TurnRequiresCapture:
-                for i in range(len(self.capturing_pieces)):
-                    col, row = (self.capturing_pieces[i][0], self.capturing_pieces[i][1])
-                    capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
-                    pygame.draw.rect(surface, LIME, capturing_piece_rect)
 
     def toggle_player_controls(self):
         self.ControlsIsEnabled = not self.ControlsIsEnabled
@@ -383,16 +331,17 @@ class Match:
         self.selected_piece = None
         self.moved_piece = None
         self.valid_moves = {}
-        self.capturing_pieces.clear()
 
     def change_turn(self):
         if self.IsMultiplayer:
-            self.toggle_player_controls()
+            # self.toggle_player_controls()
+            pass
         
         if self.selected_piece:
             self.Board.check_for_kings(self.selected_piece)
 
         self.refresh()
+        self.Board.refresh()
 
         if self.turn == PLAYER_ONE:
             self.turn = PLAYER_TWO
@@ -422,7 +371,7 @@ class Match:
         if enableDebugMode:
             print(f"[Debug]: Checking for possible captures for piece ({col}, {row})...")
                  
-        self.capturing_pieces.clear()
+        self.Board.capturing_pieces.clear()
         self.Board.set_all_moveables(False)
 
         capturing_pieces = 0
@@ -433,14 +382,14 @@ class Match:
                     print(f"[Debug]: Possible capture by ({piece.col}, {piece.row})")
                 
                 piece.IsMovable = True
-                self.capturing_pieces.append((col, row))
+                self.Board.capturing_pieces.append((col, row))
                 capturing_pieces += 1
 
         if capturing_pieces == 0:
             if enableDebugMode:
                 print(f"[Debug]: No possible captures for piece ({col}, {row})")
 
-            self.capturing_pieces.clear()
+            self.Board.capturing_pieces.clear()
             self.Board.set_all_moveables(True)
             self.TurnRequiresCapture = False
             return self.TurnRequiresCapture
@@ -457,7 +406,7 @@ class Match:
         if enableDebugMode:
             print(f"[Debug]: Checking for possible captures for {self.turn}...")
             
-        self.capturing_pieces.clear()
+        self.Board.capturing_pieces.clear()
         self.Board.set_all_moveables(False)
 
         blue_count = self.Board.blue_pieces_count + self.Board.blue_kings
@@ -481,7 +430,7 @@ class Match:
                                 print(f"[Debug]: Possible capture by ({col}, {row})")
                             
                             piece.IsMovable = True
-                            self.capturing_pieces.append((col, row))
+                            self.Board.capturing_pieces.append((col, row))
                             capturing_pieces += 1
 
                     if self.turn == PLAYER_ONE:
@@ -493,7 +442,7 @@ class Match:
             if enableDebugMode:
                 print(f"[Debug]: No possible captures for {self.turn}")
 
-            self.capturing_pieces.clear()
+            self.Board.capturing_pieces.clear()
             self.Board.set_all_moveables(True)
             self.TurnRequiresCapture = False
             return self.TurnRequiresCapture

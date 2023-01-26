@@ -1449,7 +1449,7 @@ class Damath:
     def create_match(self, mode: str) -> Match:
         """
         Creates a new match with specified mode.
-        The created match is stored as an attribute "Damath.Match" and is overridden by succeeding created matches.
+        The created match is stored as the attribute "Damath.Match" and is overridden by succeeding created matches.
         A different instance of a match can also be created as the function returns a Match class.
         """
 
@@ -1467,8 +1467,9 @@ class Damath:
         Rules.set(mode)
 
         # MANUAL RULE SET FOR DEBUGGING
-        Rules.allowActions = False
-        Rules.allowCheats = False
+        Rules.allowActions = True
+        Rules.allowCheats = True
+        Rules.IsMultiplayer = True
 
         # Once Start is pressed, instantiate other major classes
         # This can be put inside a separate function, taking Rules as param
@@ -1938,7 +1939,7 @@ class Damath:
 
             screen.blit(CURSOR, pygame.mouse.get_pos())
             match.update()
-            # pygame.display.update()
+            pygame.display.update()
             clock.tick(FPS)
 
 # Start console

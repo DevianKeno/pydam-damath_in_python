@@ -35,6 +35,11 @@ class Board:
         self.orange_captured = []
         self.moveables = []
 
+        self.selected_piece = None
+        self.moved_piece = None
+        self.valid_moves = None
+        self.capturing_pieces = []
+
         self.ShowIndicators = True
 
         self.anim_move_piece = None
@@ -127,6 +132,13 @@ class Board:
                 self.pieces[col][row].col = col
                 self.pieces[col][row].row = row
                 self.pieces[col][row].calc_pos()
+
+    def refresh(self):
+        """
+        Sets some variables to None.
+        """
+        self.selected_piece = None
+        self.valid_moves = None
 
     def init_symbols(self, surface):
         surface.fill('#B9BABB')
@@ -262,6 +274,7 @@ class Board:
                     '10y', '6x', '-xy²', '-3x²y' 
                 ]
 
+        # Generate 8 empty lists of 8 size
         self.pieces = [[0]*COLS for i in range(ROWS)]
 
         # Generate player one chips
@@ -320,10 +333,18 @@ class Board:
         Draws the board and its elements.
         """
 
+        if enableAnimations:
+            #TODO: Needs optimization
+            if self.anim_move_piece:
+                self.anim_move_piece.update()
+            if self.anim_capture:
+                self.anim_capture.update()
+
         self.draw_symbols(self._surface)
         self.draw_coordinates()
-        # self.draw_selected_piece_indicator(self._surface)
-        # self.draw_valid_moves()
+        self.draw_selected_piece_indicator()
+        self.draw_capturing_piece_indicator()
+        self.draw_valid_moves(self.valid_moves)
         self.draw_chips()
         
     def draw_symbols(self, surface):
@@ -342,18 +363,6 @@ class Board:
         for piece in self.orange_captured:
             piece.display()
 
-    def draw_valid_moves(self, moves):
-        color = YELLOW
-
-        if allowMandatoryCapture:
-            if self.TurnRequiresCapture:
-                color = LIME
-
-        if moves:
-            for move in moves:
-                col, row = move
-                pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)    
-    
     def draw_coordinates(self):
         """
         Draws the coordinates on the side of the board.
@@ -362,20 +371,50 @@ class Board:
         self.x_coordinates.draw(board_x_coords_surface, (0, 0))
         self.y_coordinates.draw(board_y_coords_surface, (0, 0))
 
-    def draw_selected_piece_indicator(self, piece):
-        col, row = self.get_col_row((piece.col, piece.row))
+    def draw_selected_piece_indicator(self):
+        """
+        Draws indicator for the selected piece.
+        """
+        
+        if self.selected_piece == None:
+            return
+
+        col, row = self.get_col_row((self.selected_piece.col, self.selected_piece.row))
 
         selected_piece_rect = pygame.Rect((col * square_size, row * square_size),
                                             (square_size, square_size))
         pygame.draw.rect(self._surface, YELLOW, selected_piece_rect)
     
-    def draw_capturing_piece_indicator(self, pieces):
+    def draw_capturing_piece_indicator(self):
+        """
+        Draws indicator for pieces that has captures.
+        """
+        
+        if not self.capturing_pieces:
+            return
+
         if allowMandatoryCapture:
-            for i in range(len(pieces)):
-                col, row = (pieces[i][0], pieces[i][1])
+            for i, piece in enumerate(self.capturing_pieces):
+                col, row = (piece[0], piece[1])
                 capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
                 pygame.draw.rect(self._surface, LIME, capturing_piece_rect)
 
+    def draw_valid_moves(self, moves):
+        """
+        Draw indicator for valid moves.
+        """
+
+        if not moves:
+            return
+        else:
+            color = YELLOW
+            if self.capturing_pieces:
+                color = LIME
+                
+            for move in moves:
+                col, row = move
+                pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)    
+    
     def move_piece(self, piece, destination):
         """
         Moves given piece to destination cell.
