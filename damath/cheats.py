@@ -1,6 +1,6 @@
 import pygame
 from audio_constants import MOVE_SOUND
-from console import Console
+from console import DeveloperConsole
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.game import Match
 from damath.piece import Piece
@@ -90,27 +90,27 @@ class Cheats:
         self.done.text = "Done"
 
     @property
-    def surface(self):
+    def Surface(self):
         return self._surface
 
-    @surface.setter
-    def surface(self, surface: pygame.Surface):
+    @Surface.setter
+    def Surface(self, surface: pygame.Surface):
         self._surface = surface
 
     @property
-    def console(self):
+    def Console(self):
         return self._console
 
-    @console.setter
-    def console(self, console: Console):
+    @Console.setter
+    def Console(self, console: DeveloperConsole):
         self._console = console
 
     @property
-    def game(self):
+    def Game(self):
         return self._game
 
-    @game.setter
-    def game(self, value: Match):
+    @Game.setter
+    def Game(self, value: Match):
         self._game = value
     
     def select(self, cell):
@@ -119,8 +119,8 @@ class Cheats:
         """
         
         self.selected_cell = cell
-        self.col, self.row = self.game.board.get_col_row(self.selected_cell)
-        self.selected_piece = self.game.board.get_piece(self.selected_cell)
+        self.col, self.row = self._game.Board.get_col_row(self.selected_cell)
+        self.selected_piece = self._game.Board.get_piece(self.selected_cell)
 
     def create_dropdown(self, pos, OnBoard=True):
         """
@@ -310,47 +310,47 @@ class Cheats:
             self.add_value = '0'
 
         piece = Piece(chips_surface, (self.col, self.row), self.add_color, self.add_value)
-        self.game.board.add_piece(piece)
+        self._game.Board.add_piece(piece)
         self.hide_menus()
 
     def remove(self):
-        self.game.board.remove(self.selected_cell)
+        self._game.Board.remove(self.selected_cell)
         print(f"[Cheats]: Removed piece ({self.col}, {self.row})")
         self.hide_menus()
 
     def promote(self):
-        self.game.board.get_piece(self.selected_cell).promote()
+        self._game.Board.get_piece(self.selected_cell).promote()
         print(f"[Cheats]: Promoted piece ({self.col}, {self.row})")
         self.hide_menus()
 
     def demote(self):
-        self.game.board.get_piece(self.selected_cell).demote()
+        self._game.Board.get_piece(self.selected_cell).demote()
         print(f"[Cheats]: Demoted piece ({self.col}, {self.row})")
         self.hide_menus()
 
     def change_turn(self):
-        self.game.change_turn()
-        print(f"[Cheats]: Changed turns, now {self.game.turn}")
+        self._game.change_turn()
+        print(f"[Cheats]: Changed turns, now {self._game.turn}")
         self.hide_menus()
         
     def remove_all(self):
         for row in range(8):
             for col in range(8):
-                self.game.board.remove((col, row))
+                self._game.Board.remove((col, row))
         print(f"[Cheats]: Removed all pieces")
         self.hide_menus()
 
     def promote_all(self):
         for row in range(8):
             for col in range(8):
-                self.game.board.get_piece((col, row)).promote()
+                self._game.Board.get_piece((col, row)).promote()
         print(f"[Cheats]: Promoted all pieces")
         self.hide_menus()
         
     def demote_all(self):
         for row in range(8):
             for col in range(8):
-                self.game.board.get_piece((col, row)).demote()
+                self._game.Board.get_piece((col, row)).demote()
         print(f"[Cheats]: Demoted all pieces")
         self.hide_menus()
 
@@ -366,7 +366,7 @@ class Cheats:
         self.hide_menus()
 
     def flip_board(self):
-        self.game.board.flip()
-        self.game.refresh()
-        self.game.check_for_captures()
+        self._game.Board.flip()
+        self._game.refresh()
+        self._game.check_for_captures()
         self.hide_menus()

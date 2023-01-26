@@ -12,12 +12,14 @@ import threading
 client = Client()
 server = Server()
 
-class Console:
+class DeveloperConsole:
 
     def __init__(self) -> None:
+        self._main = None
         self._game = None
         self._server = None
         self._client = None
+
         self.IsServer = False
         self.IsClient = False
         self.IsRunning = False
@@ -31,11 +33,19 @@ class Console:
         self.ShowConsoleGUI = False
 
     @property
-    def game(self):
+    def Main(self):
+        return self._main
+
+    @Main.setter
+    def Main(self, value):
+        self._main = value
+
+    @property
+    def Game(self):
         return self._game
 
-    @game.setter
-    def game(self, value: Match):
+    @Game.setter
+    def Game(self, value: Match):
         self._game = value
 
     @property
@@ -61,12 +71,12 @@ class Console:
 
         if self.IsRunning:
             return
+        self.IsRunning = True
 
         if enableDebugMode:
             print("[Debug]: Console started.")
         
-        self.IsRunning = True
-        self.console_thread = threading.Thread(target=self.read_user_input)  
+        self.console_thread = threading.Thread(target=self.read)  
         self.console_thread.start()
 
     def stop(self):
@@ -90,12 +100,11 @@ class Console:
         if self._server != None:
             if self.IsServer:
                 self._server.send(self.message)
-
         if self._client != None:
             if self.IsClient:
                 self._client.send(self.message)
 
-    def read_user_input(self):
+    def read(self):
         """
         Reads for user commands.
         """
@@ -214,8 +223,8 @@ class Console:
                             case "help":
                                 self.command_help()
                             case "host":
-                                print("Usage: /host")
-                                print("Host a local game.")
+                                print("Usage: /host <classic|speed|checkers>")
+                                print("Host a local match with specified mode.")
                             case "match":
                                 print("Usage: /match <classic|speed|checkers>")
                                 print("Creates a match with mode.")
@@ -238,10 +247,19 @@ class Console:
                     except:
                         self.command_help()
                 case "host":
-                    self.command_host()
+                    try:
+                        if args[1]:
+                            self.command_host(args[1])
+                    except:
+                        self.invalid_usage(args[0])
                 case "match":
                     try:
-                        self.command_move((args[1]))
+                        if args[1]:
+                            match args[1]:
+                                case "start":
+                                    self._command_match_start()
+                                case _:
+                                    self.command_match(args[1])
                     except:
                         self.invalid_usage(args[0])
                 case "move" | "mov":
@@ -310,6 +328,17 @@ class Console:
     def _command_lock(self):
         self._game.toggle_player_controls()
 
+    def _command_match_start(self):
+        if self._main.Match.IsRunning:
+            print("A match is already running.")
+            return
+        if self._main.Match == None:
+            print("No match created yet. Create one with /match <mode>")
+            return
+
+        self._main.Queue.put(self._main.start_match())
+        
+
     def _command_ffyes(self):
         #TODO
         print("player forfeited")
@@ -319,7 +348,7 @@ class Console:
         print("player didn't forfeit")
         
     def _command_flip(self):
-        self._game.board.flip()
+        self._game.Board.flip()
 
     def _command_chat_in(self, message):
         message = message[8:]
@@ -337,7 +366,7 @@ class Console:
             color = PLAYER_TWO
 
         piece = Piece(chips_surface, (cell[0], cell[1]), color, value)
-        self._game.board.add_piece(piece)
+        self._game.Board.add_piece(piece)
 
     def command_chat(self, message):
         message = message[5:]
@@ -384,34 +413,41 @@ class Console:
         print("Are you sure you want to forfeit?")
         print("Type /forfeit <yes|no>")
 
-    def command_host(self):
+    def command_host(self, mode):
         if self.IsClient:
             self._client.stop()
 
         try:
             if self._server.IsRunning:
-                print(f"Local server already hosted on {self._server.get_ip()}")
+                print(f"Local match already hosted on {self._server.get_ip()}")
                 return
         except:
             self._server = server
             self._server.console = self
             self._server.start()
 
+            self._main.create_match(mode)
+
             if self.ShowFeedback:
-                print(f"Hosted local server on {self._server.get_ip()}")
+                print(f"Hosted local match on {self._server.get_ip()}")
+                print(f"Join with /connect {self._server.get_ip()}")
 
     def command_match(self, mode):
-        pass
-
+        try:
+            self._main.create_match(mode)
+            print(f"Match created. Start with /match start")
+        except:
+            print(f"Failed to created match.")
+            
     def command_move(self, destination):
         if not self._game.selected_piece:
             print("No piece selected. Select a piece with /select first")
             return
 
-        if self._game.board.IsFlipped:
-            destination_col, destination_row = self._game.board.to_raw(destination)
+        if self._game.Board.IsFlipped:
+            destination_col, destination_row = self._game.Board.to_raw(destination)
         else:
-            destination_col, destination_row = self._game.board.get_col_row(destination)
+            destination_col, destination_row = self._game.Board.get_col_row(destination)
 
         self._game.select_move((destination_col, destination_row))
 
@@ -434,16 +470,16 @@ class Console:
         print("/help        : displays this")
 
     def command_remove(self, cell):
-        self._game.board.remove(cell)
+        self._game.Board.remove(cell)
 
     def command_restart(self):
         pass
 
     def command_select(self, cell, Bypass=False):
-        if self._game.board.IsFlipped:
-            col, row = self._game.board.to_raw(cell)
+        if self._game.Board.IsFlipped:
+            col, row = self._game.Board.to_raw(cell)
         else:
-            col, row = self._game.board.get_col_row(cell)
+            col, row = self._game.Board.get_col_row(cell)
 
         if Bypass:
             self._game.select((col, row), Bypass)
@@ -455,9 +491,8 @@ class Console:
         Selects and immediately moves the piece to destination cell.
         """
         
-        if self._game == None:
-            if self.ShowFeedback:
-                print("No match started yet. Start a match with /match first")
+        if self._main.Match == None:
+            print("No match started yet. Start a match with /match first")
             return
         
         self._game.toggle_indicators()

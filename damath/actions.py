@@ -1,5 +1,5 @@
 import pygame
-from console import Console
+from console import DeveloperConsole
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.game import Match
 from display_constants import screen
@@ -30,68 +30,68 @@ button_default_h = 50
 class Actions:
 
     def __init__(self) -> None:
-        self.surface = None
-        self.console = None
-        self.game = None
+        self._surface = None
+        self._console = None
+        self._game = None
 
         self.font = font_cookie_run_reg
         self.items = []
         self.icons = []
         self.text_list = None
-        self.dropdown = Dropdown(self.surface, self.text_list)
+        self.dropdown = Dropdown(self._surface, self.text_list)
         self.ShowDropdown = False
 
     @property
-    def surface(self):
+    def Surface(self):
         return self._surface
 
-    @surface.setter
-    def surface(self, surface: pygame.Surface):
+    @Surface.setter
+    def Surface(self, surface: pygame.Surface):
         self._surface = surface
 
     @property
-    def console(self):
+    def Console(self):
         return self._console
 
-    @console.setter
-    def console(self, console: Console):
+    @Console.setter
+    def Console(self, console: DeveloperConsole):
         self._console = console
 
     @property
-    def game(self):
+    def Game(self):
         return self._game
 
-    @game.setter
-    def game(self, value: Match):
+    @Game.setter
+    def Game(self, value: Match):
         self._game = value
 
     def init(self):
 
         # "Forfeit?" Window
         self.ShowFFWindow = False
-        self.confirmation_window = RectWindow(self.surface,
+        self.confirmation_window = RectWindow(self._surface,
                                     (ff_window_rect.topleft), 
                                     ff_window_rect.w, ff_window_rect.h, 
                                     DARK_CERULEAN, ff_window_radius, 4, WHITE)
 
-        self.prompt = Text(self.surface, CookieRun_Regular, font_size, WHITE)
+        self.prompt = Text(self._surface, CookieRun_Regular, font_size, WHITE)
         self.prompt.font_size *= 1.5
         self.prompt.pos = (ff_window_rect.x+ff_window_rect.w//2, ff_window_rect.y+ff_window_rect.h*0.3)
 
-        self.button_ff_yes = NButton(self.surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+        self.button_ff_yes = NButton(self._surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
                                      width=button_default_w, height=button_default_h,
                                      text="Yes",
                                      rect_color=(200, 56, 67),
                                      shadow_rect_color=(123, 3, 11),
                                      target=self._ffyes)
-        self.button_no = NButton(self.surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.7, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+        self.button_no = NButton(self._surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.7, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
                                     width=button_default_w, height=button_default_h,
                                     text="No",
                                     target=self._ffno)
 
         # "Offer Draw?" Window
         self.ShowODWindow = False
-        self.button_od_yes = NButton(self.surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
+        self.button_od_yes = NButton(self._surface, pos=((ff_window_rect.x - button_default_w//2) + ff_window_rect.w*0.3, (ff_window_rect.y + ff_window_rect.h*0.66) - button_default_h//2),
                                      width=button_default_w, height=button_default_h,
                                      text="Yes",
                                      rect_color=(231, 126, 48),
@@ -99,7 +99,7 @@ class Actions:
                                      target=self._odyes)
     
     def set_surface(self, surface: pygame.Surface):
-        self.surface = surface
+        self._surface = surface
 
     def create_dropdown(self, pos):
         """
@@ -112,7 +112,7 @@ class Actions:
         x = pos[0]
         y = pos[1]
 
-        if self.game.turn == PLAYER_ONE:
+        if self._game.turn == PLAYER_ONE:
             window_color = DARK_CERULEAN
         else:
             window_color = PERSIMMON_ORANGE
@@ -121,7 +121,7 @@ class Actions:
         self.icons = [icon_forfeit, icon_offer_draw]
 
         self.text_list = TextList(self.font, WHITE, self.items, self.icons, spacing=5, icon_spacing=10, padding=[20, 20, 20, 20])
-        self.dropdown = Dropdown(self.surface, self.text_list)
+        self.dropdown = Dropdown(self._surface, self.text_list)
         self.dropdown.create(pos, color=window_color)
 
         # Screen cropping
@@ -215,7 +215,7 @@ class Actions:
         self.create_ff_window()
 
     def _ffyes(self):
-        self.console._command_ffyes()
+        self._console._command_ffyes()
         self.hide_menus()
 
     def _ffno(self):
@@ -225,7 +225,7 @@ class Actions:
         self.create_od_window()
 
     def _odyes(self):
-        self.console._command_drawyes()
+        self._console._command_drawyes()
         self.hide_menus()
 
     def _odno(self):

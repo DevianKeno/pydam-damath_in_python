@@ -76,11 +76,11 @@ class Server:
         print (f"Waiting for players... ({self.connected_clients_count + 1}/2)")
 
         c, addr = self.s.accept()
+        print(f"Got connection from {addr}")
         self.connected_clients_count += 1
         print (f"Waiting for players... ({self.connected_clients_count + 1}/2)")
         self.IsConnected = True
         self.IsSender = True
-        print(f"Got connection from {addr}")
         return c, addr
 
     def run_server(self):

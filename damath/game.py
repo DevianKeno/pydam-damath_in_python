@@ -20,63 +20,80 @@ class Match:
     An instance of a game match.
     """
 
-    def __init__(self, surface, board, scoreboard, theme, IsMultiplayer=False):
-        self.surface = surface
-        self.board = board
-        self.scoreboard = scoreboard
-        self.theme = theme
-        self.selected_cell = None   # Cell | Raw cell
-        self.selected_tile = None   # Tile | Cell relative to board's coordinates
+    def __init__(self, surface=None, board=None, scoreboard=None, IsMultiplayer=False):
+        self._surface = surface
+        self.Board = board
+        self.Scores = scoreboard
         self.IsMultiplayer = IsMultiplayer
-        self.command = ''
+        self.Rules = None
+        self.ControlsIsEnabled = True
+        self.IsRunning = False
+
+    def init(self):
+        """
+        Initialize match.
+        """
+        
+        self.command = None
+
+        self.selected_cell = None   # Cell | Raw cell
+        self.selected_tile = None   # Tile | Relative to board's coordinates
+        self.selected_piece = None
+        self.moved_piece = None
+
+        self.movables = {}
+        self.valid_moves = {}
+        self.capturing_pieces = []
+        self.game_evaluation = 0
+
+        self.turn = PLAYER_ONE
         self.ControlsIsEnabled = True
         self.DrawIndicators = True
-        self.Rules = Rules()
-
-    def _init(self):
-        self.game_evaluation = 0
-        self.moved_piece = None
-        self.selected_piece = None
-        self.board = Board(self.surface, self.theme) # for game reset
-        self.capturing_pieces = []
-        self.valid_moves = {}
         self.TurnRequiresCapture = False
-        self.turn = PLAYER_ONE
-        self.movables = {}
-        self.evaluate()
+
+    @property
+    def Surface(self):
+        return self._surface
+
+    @Surface.setter
+    def Surface(self, value: pygame.Surface):
+        self._surface = value
 
     def set_mode(self, mode):
+        self.Rules.set("Classic")
         Piece.mode = mode
         Scoreboard.mode = mode
-        self.board.set_mode(mode)
+        self.Board.set_mode(mode)
 
     def update(self):
         if enableAnimations:
             #TODO: Needs optimization
-            if self.board.anim_move_piece:
-                self.board.anim_move_piece.update()
-            if self.board.anim_capture:
-                self.board.anim_capture.update()
+            if self.Board.anim_move_piece:
+                self.Board.anim_move_piece.update()
+            if self.Board.anim_capture:
+                self.Board.anim_capture.update()
 
-        self.board.draw_contents(self.surface)
-        self.board.draw_coordinates()
+        # self.Board.draw_symbols(self._surface)
+        # self.Board.draw_coordinates()
 
-        if self.selected_piece:
-            if self.DrawIndicators:
-                self.draw_selected_piece_indicator(self.surface)   
-                self.draw_capturing_piece_indicator(self.surface)
-            self.draw_valid_moves(self.valid_moves)
+        # if self.selected_piece:
+        #     if self.DrawIndicators:
+        #         self.draw_selected_piece_indicator(self._surface) 
+                
+        #         if self.TurnRequiresCapture: 
+        #             self.draw_capturing_piece_indicator(self._surface)
+        #     self.draw_valid_moves(self.valid_moves)
 
-        self.board.draw_chips()
+        # self.Board.draw_chips()
 
-        self.scoreboard.draw_scores()
-        self.scoreboard.draw_turn_indicator(self.turn)
+        self.Scores.draw_scores()
+        self.Scores.draw_turn_indicator(self.turn)
 
         pygame.display.update() 
 
     def winner(self):   
-        if (self.board.blue_pieces_count <=0 or self.board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
-            p1, p2 = self.scoreboard.score()
+        if (self.Board.blue_pieces_count <=0 or self.Board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
+            p1, p2 = self.Scores.score()
 
             if p2 > p1:
                 return PLAYER_TWO 
@@ -87,8 +104,8 @@ class Match:
         return None
 
     def reset(self):
-        self.scoreboard.reset()
-        self._init()
+        self.Scores.reset()
+        self.init()
         turn_timer.stop()
         global_timer.stop()
 
@@ -96,13 +113,13 @@ class Match:
         
         # this function only works in Naturals and Integers for now
         
-        p1_eval = self.scoreboard.p1_score
-        p2_eval = self.scoreboard.p2_score
+        p1_eval = self.Scores.p1_score
+        p2_eval = self.Scores.p2_score
 
         # get the values of all the remaining pieces on the board
         for r in range(ROWS):
             for c in range(COLS):
-                piece = self.board.get_piece((self.board.get_col_row((r, c))))
+                piece = self.Board.get_piece((self.Board.get_col_row((r, c))))
                 if piece.color != 0:
                     if piece.color == PLAYER_ONE:
                         if piece.IsKing:
@@ -118,7 +135,7 @@ class Match:
         
         if enableDebugMode:
             print(f"[Evaluation] Game Value: {self.game_evaluation}")
-        self.get_all_possible_moves(self.board.board, self.turn)
+        self.get_all_possible_moves(self.Board.pieces, self.turn)
 
     def get_all_possible_moves(self, board: list, turn):
         """
@@ -166,7 +183,7 @@ class Match:
                 self.select_move(cell)
                 return
             else:
-                self.select_piece(self.board.get_piece(cell), IsOperator)
+                self.select_piece(self.Board.get_piece(cell), IsOperator)
                 return
 
         if self.IsMultiplayer:
@@ -176,9 +193,9 @@ class Match:
         # Cell = raw coordinates
         self.selected_cell = cell
         # Tile = cell relative to the board's coordinates, regardless of orientation
-        self.selected_tile = self.board.get_col_row(cell)
+        self.selected_tile = self.Board.get_col_row(cell)
 
-        piece_to_select = self.board.get_piece(cell)
+        piece_to_select = self.Board.get_piece(cell)
 
         # If a piece had already captured, you can only select that piece
         if self.moved_piece:
@@ -216,11 +233,11 @@ class Match:
         if (cell) in self.valid_moves:
             # Send to console
             if self.IsMultiplayer:
-                if self.board.IsFlipped:
-                    col, row = self.board.to_raw(cell)
-                    piece_col, piece_row = self.board.get_abs((self.selected_piece.col, self.selected_piece.row))
+                if self.Board.IsFlipped:
+                    col, row = self.Board.to_raw(cell)
+                    piece_col, piece_row = self.Board.get_abs((self.selected_piece.col, self.selected_piece.row))
                 else:
-                    col, row = self.board.get_col_row(cell)
+                    col, row = self.Board.get_col_row(cell)
                     piece_col, piece_row = self.selected_piece.col, self.selected_piece.row
                 self.command = "sm {} {} {} {}".format(piece_col, piece_row, col, row)
 
@@ -277,19 +294,19 @@ class Match:
         Gets the valid moves of the piece.
         """
 
-        return self.board.get_valid_moves(piece, moves_to_get, self.board.IsFlipped)
+        return self.Board.get_valid_moves(piece, moves_to_get, self.Board.IsFlipped)
 
     def _move_piece(self, piece, destination):
         """
         Moves a piece to the specified cell.
         """
 
-        piece_on_destination = self.board.get_piece(destination)
+        piece_on_destination = self.Board.get_piece(destination)
         destination_cell = piece_on_destination.col, piece_on_destination.row
         col, row = destination_cell
 
         if piece_on_destination.color == 0 and (destination) in self.valid_moves:
-            self.board.move_piece(piece, destination_cell)
+            self.Board.move_piece(piece, destination_cell)
             
             self.moved_piece = self.selected_piece
             skipped_list = list(self.valid_moves)
@@ -304,12 +321,12 @@ class Match:
 
                 if len(skipped_piece) > 1:
                     for i in range(len(skipped_list)-1, (len(skipped_list)-1)-len(skipped_piece), -1):
-                        operations.append(self.board.piece_landed(skipped_list[i][0], skipped_list[i][1]))
+                        operations.append(self.Board.piece_landed(skipped_list[i][0], skipped_list[i][1]))
                 else:
-                    operations.append(self.board.piece_landed(col, row))
-                self.scoreboard.score_update(self.selected_piece, skipped_piece, operations)
+                    operations.append(self.Board.piece_landed(col, row))
+                self.Scores.score_update(self.selected_piece, skipped_piece, operations)
                 
-                self.board.move_to_graveyard(skipped_piece)
+                self.Board.move_to_graveyard(skipped_piece)
             else:
                 MOVE_SOUND.play()
 
@@ -335,10 +352,10 @@ class Match:
             for move in moves:
                 col, row = move
 
-                pygame.draw.circle(self.surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
+                pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)
     
     def draw_selected_piece_indicator(self, surface):
-        col, row = self.board.get_col_row((self.selected_piece.col, self.selected_piece.row))
+        col, row = self.Board.get_col_row((self.selected_piece.col, self.selected_piece.row))
 
         selected_piece_rect = pygame.Rect((col * square_size, row * square_size),
                                             (square_size, square_size))
@@ -373,7 +390,7 @@ class Match:
             self.toggle_player_controls()
         
         if self.selected_piece:
-            self.board.check_for_kings(self.selected_piece)
+            self.Board.check_for_kings(self.selected_piece)
 
         self.refresh()
 
@@ -400,17 +417,17 @@ class Match:
         Checks a piece for possible captures.
         """
         
-        col, row = self.board.get_col_row((piece.col, piece.row))
+        col, row = self.Board.get_col_row((piece.col, piece.row))
 
         if enableDebugMode:
             print(f"[Debug]: Checking for possible captures for piece ({col}, {row})...")
                  
         self.capturing_pieces.clear()
-        self.board.set_all_moveables(False)
+        self.Board.set_all_moveables(False)
 
         capturing_pieces = 0
         
-        if self.board.get_valid_moves(piece, "capture", self.board.IsFlipped):
+        if self.Board.get_valid_moves(piece, "capture", self.Board.IsFlipped):
             if piece.HasPossibleCapture:
                 if enableDebugMode:
                     print(f"[Debug]: Possible capture by ({piece.col}, {piece.row})")
@@ -424,7 +441,7 @@ class Match:
                 print(f"[Debug]: No possible captures for piece ({col}, {row})")
 
             self.capturing_pieces.clear()
-            self.board.set_all_moveables(True)
+            self.Board.set_all_moveables(True)
             self.TurnRequiresCapture = False
             return self.TurnRequiresCapture
         else:
@@ -441,10 +458,10 @@ class Match:
             print(f"[Debug]: Checking for possible captures for {self.turn}...")
             
         self.capturing_pieces.clear()
-        self.board.set_all_moveables(False)
+        self.Board.set_all_moveables(False)
 
-        blue_count = self.board.blue_pieces_count + self.board.blue_kings
-        orange_count = self.board.orange_pieces_count + self.board.orange_kings
+        blue_count = self.Board.blue_pieces_count + self.Board.blue_kings
+        orange_count = self.Board.orange_pieces_count + self.Board.orange_kings
         capturing_pieces = 0
         
         for row in range(ROWS):
@@ -455,10 +472,10 @@ class Match:
                 if blue_count == 0 or orange_count == 0:
                     break
                 
-                piece = self.board.get_piece((col, row))
+                piece = self.Board.get_piece((col, row))
                 
                 if piece.color == self.turn:
-                    if self.board.get_valid_moves(piece, "capture", self.board.IsFlipped):
+                    if self.Board.get_valid_moves(piece, "capture", self.Board.IsFlipped):
                         if piece.HasPossibleCapture:
                             if enableDebugMode:
                                 print(f"[Debug]: Possible capture by ({col}, {row})")
@@ -477,7 +494,7 @@ class Match:
                 print(f"[Debug]: No possible captures for {self.turn}")
 
             self.capturing_pieces.clear()
-            self.board.set_all_moveables(True)
+            self.Board.set_all_moveables(True)
             self.TurnRequiresCapture = False
             return self.TurnRequiresCapture
         else:
@@ -486,18 +503,18 @@ class Match:
 
     def ai_move(self, piece, move):
         
-        self.get_all_possible_moves(self.board.board, self.turn)
+        self.get_all_possible_moves(self.Board.pieces, self.turn)
         
         if not self.moved_piece:
-            self.select(self.board.get_col_row(piece.cell))
+            self.select(self.Board.get_col_row(piece.cell))
 
             if self.selected_piece:
                 self.select_move(move)
         else:
-            self.selected_piece = self.board.get_piece(self.board.get_col_row((piece.cell)))
+            self.selected_piece = self.Board.get_piece(self.Board.get_col_row((piece.cell)))
             self.select_move(move)
 
-        mcol, mrow = self.board.get_col_row(move)
+        mcol, mrow = self.Board.get_col_row(move)
         print(f"[AI Xena] Xena moved {piece} ({piece.number}) to {(mcol, mrow)}") 
         
     def versus_ai(self):
@@ -514,7 +531,7 @@ class Match:
         if self.turn == PLAYER_TWO and self.winner() == None:
             # this will occassionally throw an error if the bug persists 
             # (no valid moves are returned on first click)
-            res = minimax(self, self.board.board, 1, self.scoreboard.p1_score, self.scoreboard.p2_score, False, None)
+            res = minimax(self, self.Board.pieces, 1, self.Scores.p1_score, self.Scores.p2_score, False, None)
             chosen_piece = res[1][0]
-            chosen_move = self.board.get_col_row(res[1][1])
+            chosen_move = self.Board.get_col_row(res[1][1])
             self.ai_move(chosen_piece, chosen_move)

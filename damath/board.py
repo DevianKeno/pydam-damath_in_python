@@ -18,10 +18,10 @@ class Board:
     
     mode = MODE
 
-    def __init__(self, surface, theme=None):
-        self.surface = surface
+    def __init__(self, surface=None, theme=None):
+        self._surface = surface
 
-        self.board = []
+        self.pieces = []
         self.theme = theme    
         self.symbol_map = {}
         self.x_coordinates = None
@@ -35,6 +35,8 @@ class Board:
         self.orange_captured = []
         self.moveables = []
 
+        self.ShowIndicators = True
+
         self.anim_move_piece = None
         self.anim_capture = None
         
@@ -42,8 +44,18 @@ class Board:
         self.font = pygame.font.Font(CookieRun_Regular, self.font_size)
 
         self.IsFlipped = False
+
+    @property
+    def surface(self):
+        return self._surface
+
+    @surface.setter
+    def surface(self, value: pygame.Surface):
+        self._surface = value
+
+    def init(self):
         self._init_rotation()
-        self._init_chips(self.surface)
+        self._init_chips(self._surface)
 
     def update_theme(self, theme):
         self.theme = theme
@@ -100,9 +112,9 @@ class Board:
                                       padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
         
         # Reverse all board elements
-        for i, row in enumerate(self.board):
-            self.board[i].reverse()           
-        self.board.reverse()
+        for i, row in enumerate(self.pieces):
+            self.pieces[i].reverse()           
+        self.pieces.reverse()
         self.reset_pieces()
 
     def reset_pieces(self):
@@ -112,13 +124,9 @@ class Board:
         
         for col in range(COLS):
             for row in range(ROWS):
-                self.board[col][row].col = col
-                self.board[col][row].row = row
-                self.board[col][row].calc_pos()
-
-    def draw_coordinates(self):
-        self.x_coordinates.draw(board_x_coords_surface, (0, 0))
-        self.y_coordinates.draw(board_y_coords_surface, (0, 0))
+                self.pieces[col][row].col = col
+                self.pieces[col][row].row = row
+                self.pieces[col][row].calc_pos()
 
     def init_symbols(self, surface):
         surface.fill('#B9BABB')
@@ -168,6 +176,9 @@ class Board:
         This considers the board's orientation. 
         """
 
+        if cell[0] == -1 or cell[1] == -1:
+            return
+
         col = cell[0]
         row = abs(cell[1] - 7)
 
@@ -179,7 +190,7 @@ class Board:
         This considers the board's orientation. 
         """
 
-        if not (-1 < cell[0] < COLS) and not (-1 < cell[1] < ROWS):
+        if cell[0] == -1 or cell[1] == -1:
             return
 
         col = abs(cell[0] - 7)
@@ -192,7 +203,7 @@ class Board:
         Returns the flipped values of the given cell.
         """
 
-        if not (-1 < cell[0] < COLS) and not (-1 < cell[1] < ROWS):
+        if cell[0] == -1 or cell[1] == -1:
             return
 
         col = abs(cell[0] - 7)
@@ -206,13 +217,13 @@ class Board:
         This considers the board's orientation. 
         """
 
-        if cell[0] == -1 and cell[1] == -1:
+        if cell[0] == -1 or cell[1] == -1:
             return
 
         col = cell[0]
         row = abs(cell[1] - 7)
 
-        return self.board[col][row]
+        return self.pieces[col][row]
 
     def _init_chips(self, surface):
         val_counter = 0
@@ -251,7 +262,7 @@ class Board:
                     '10y', '6x', '-xy²', '-3x²y' 
                 ]
 
-        self.board = [[0]*COLS for i in range(ROWS)]
+        self.pieces = [[0]*COLS for i in range(ROWS)]
 
         # Generate player one chips
         val_counter = 11
@@ -259,7 +270,7 @@ class Board:
         for row in range(2, -1, -1):
             for col in range(COLS):
                 if col % 2 != ((row) % 2):
-                    self.board[col][row] = Piece(surface, (col, row), PLAYER_ONE, num[val_counter])
+                    self.pieces[col][row] = Piece(surface, (col, row), PLAYER_ONE, num[val_counter])
                     self.moveables.append((col, row))
 
                     if enableDebugMode:
@@ -267,7 +278,7 @@ class Board:
 
                     val_counter-=1
                 else:
-                    self.board[col][row] = Piece(surface, (col, row), 0, 0)
+                    self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
 
         # Generate player two chips
         val_counter = 0
@@ -275,7 +286,7 @@ class Board:
         for row in range(7, 4, -1):
             for col in range(COLS):
                 if col % 2 != ((row) % 2):
-                    self.board[col][row] = Piece(surface, (col, row), PLAYER_TWO, num[val_counter])
+                    self.pieces[col][row] = Piece(surface, (col, row), PLAYER_TWO, num[val_counter])
                     self.moveables.append((col, row))
 
                     if enableDebugMode:
@@ -283,13 +294,13 @@ class Board:
 
                     val_counter+=1
                 else:
-                    self.board[col][row] = Piece(surface, (col, row), 0, 0)
+                    self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
 
 
         # Generate imaginary pieces at the middle of the board
         for row in range(3, 5, 1):
             for col in range(COLS):
-                self.board[col][row] = Piece(surface, (col, row), 0, 0)
+                self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
         
         # print(f"Buffer") # Debug
 
@@ -299,10 +310,71 @@ class Board:
         """
         
         self.mode = mode
-        self.board = []
+        self.pieces = []
 
-        self._init_chips(self.surface)
+        self._init_chips(self._surface)
         self.draw_chips()
+
+    def draw(self):
+        """
+        Draws the board and its elements.
+        """
+
+        self.draw_symbols(self._surface)
+        self.draw_coordinates()
+        # self.draw_selected_piece_indicator(self._surface)
+        # self.draw_valid_moves()
+        self.draw_chips()
+        
+    def draw_symbols(self, surface):
+        self.init_symbols(surface)
+
+    def draw_chips(self):
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.pieces[row][col]
+
+                if piece.color != 0:
+                    piece.display()
+        
+        for piece in self.blue_captured:
+            piece.display()
+        for piece in self.orange_captured:
+            piece.display()
+
+    def draw_valid_moves(self, moves):
+        color = YELLOW
+
+        if allowMandatoryCapture:
+            if self.TurnRequiresCapture:
+                color = LIME
+
+        if moves:
+            for move in moves:
+                col, row = move
+                pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)    
+    
+    def draw_coordinates(self):
+        """
+        Draws the coordinates on the side of the board.
+        """
+        
+        self.x_coordinates.draw(board_x_coords_surface, (0, 0))
+        self.y_coordinates.draw(board_y_coords_surface, (0, 0))
+
+    def draw_selected_piece_indicator(self, piece):
+        col, row = self.get_col_row((piece.col, piece.row))
+
+        selected_piece_rect = pygame.Rect((col * square_size, row * square_size),
+                                            (square_size, square_size))
+        pygame.draw.rect(self._surface, YELLOW, selected_piece_rect)
+    
+    def draw_capturing_piece_indicator(self, pieces):
+        if allowMandatoryCapture:
+            for i in range(len(pieces)):
+                col, row = (pieces[i][0], pieces[i][1])
+                capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
+                pygame.draw.rect(self._surface, LIME, capturing_piece_rect)
 
     def move_piece(self, piece, destination):
         """
@@ -311,7 +383,7 @@ class Board:
 
         destination_col = destination[0]
         destination_row = destination[1]
-        destination_piece = self.board[destination_col][destination_row]
+        destination_piece = self.pieces[destination_col][destination_row]
 
         if enableDebugMode:
             print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_col}, {destination_row})")
@@ -321,8 +393,8 @@ class Board:
             self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), chipMoveAnimationSpeed, ease_type=easeOutQuint)
             self.anim_move_piece.play()
 
-        self.board[destination_col][destination_row] = piece
-        self.board[piece.col][piece.row] = Piece(chips_surface, (piece.col, piece.row), 0, 0)
+        self.pieces[destination_col][destination_row] = piece
+        self.pieces[piece.col][piece.row] = Piece(chips_surface, (piece.col, piece.row), 0, 0)
 
         piece.move(destination_col, destination_row)        
 
@@ -361,24 +433,7 @@ class Board:
         
         for row in range(ROWS):
             for col in range(COLS):
-                self.board[col][row].IsMovable = IsMovable
-
-    def draw_contents(self, surface):
-        self.init_symbols(surface)
-
-    def draw_chips(self):
-        for row in range(ROWS):
-            for col in range(COLS):
-                piece = self.board[row][col]
-
-                if piece.color != 0:
-                    piece.display()
-        
-        for piece in self.blue_captured:
-            piece.display()
-
-        for piece in self.orange_captured:
-            piece.display()
+                self.pieces[col][row].IsMovable = IsMovable
 
     def move_to_graveyard(self, pieces):
         """
@@ -402,7 +457,7 @@ class Board:
                 self.orange_captured.append(captured_piece)
                 self.orange_pieces_count -= 1
 
-            self.board[piece.col][piece.row] = Piece(self.surface, (piece.col, piece.row), 0, 0)
+            self.pieces[piece.col][piece.row] = Piece(self._surface, (piece.col, piece.row), 0, 0)
 
         self.recalculate_graveyard_positions()
 
@@ -426,7 +481,7 @@ class Board:
         """
         Adds a piece to the board, given a piece object.
         """
-        self.board[piece.col][piece.row] = piece
+        self.pieces[piece.col][piece.row] = piece
         self.moveables.append((piece.col, piece.row))
 
         if piece.color == PLAYER_ONE:
@@ -440,7 +495,7 @@ class Board:
         This does not decrement current pieces count.
         """
         col, row = self.get_col_row(cell)
-        self.board[col][row] = Piece(self.surface, (col, row), 0, 0)
+        self.pieces[col][row] = Piece(self._surface, (col, row), 0, 0)
 
     def capture(self, cell):
         """

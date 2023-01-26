@@ -61,7 +61,7 @@ def add_score(game, piece: Piece, skip: list, move: tuple):
     # print(f"PIECE TO MOVE: {piece.color} {piece.number} to {move}")    
 
     for skipped_piece in skip:
-        op = game.board.piece_landed(*move)
+        op = game.Board.piece_landed(*move)
         operations.append(op)
         # print(f"{piece.color} {piece.number} {op} {skipped_piece.color} {skipped_piece.number}")
 
@@ -120,7 +120,7 @@ def minimax(game, board: list, depth, p1_score, p2_score, is_max: bool, best_mov
          for raw_possible_moves in all_valid_moves.get(piece_to_move):
 
             # since the moves are raw cells, get its actual board cell first
-            cell_possible_moves = game.board.get_col_row(raw_possible_moves)
+            cell_possible_moves = game.Board.get_col_row(raw_possible_moves)
 
             # copy the piece and board first
             new_board = copy_board(temp_board)

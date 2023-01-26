@@ -18,13 +18,24 @@ class Scoreboard:
 
     mode = MODE
 
-    def __init__(self, surface):
-        self.surface = surface
+    def __init__(self, surface=None):
+        self._surface = surface
         self.p1_score = 0 # Blue
         self.p2_score = 0 # Orange
 
         self.font = pygame.font.Font(CookieRun_Bold, int(scoreboard_p1_score_area.w*0.24))
         self.font_mini = pygame.font.Font(CookieRun_Bold, int(scoreboard_p1_score_area.w*0.17))
+
+    @property
+    def surface(self):
+        return self._surface
+
+    @surface.setter
+    def surface(self, value: pygame.Surface):
+        self._surface = value
+
+    def init(self):
+        pass
 
     def draw_scores(self):
         """
@@ -42,7 +53,7 @@ class Scoreboard:
         self.p1_score_pos = (scoreboard_p1_score_area.x + scoreboard_p1_score_area.w//2,
                              scoreboard_p1_score_area.y + scoreboard_p1_score_area.h//2)
         self.p1_score_rect = self.text_p1_score.get_rect(center=self.p1_score_pos)
-        self.surface.blit(self.text_p1_score, self.p1_score_rect)
+        self._surface.blit(self.text_p1_score, self.p1_score_rect)
 
         scoreboard_p2_score_area.display()
 
@@ -54,7 +65,7 @@ class Scoreboard:
         self.p2_score_pos = (scoreboard_p2_score_area.x + scoreboard_p2_score_area.w//2,
                              scoreboard_p2_score_area.y + scoreboard_p2_score_area.h//2)
         self.p2_score_rect = self.text_p2_score.get_rect(center=self.p2_score_pos)
-        self.surface.blit(self.text_p2_score, self.p2_score_rect)
+        self._surface.blit(self.text_p2_score, self.p2_score_rect)
 
     def draw_turn_indicator(self, turn):
         """
@@ -76,7 +87,7 @@ class Scoreboard:
                 else:
                     timer_color = RED
                 timer_text = timerfont.render(str(remaining_time), True, timer_color)
-                self.surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
+                self._surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
             scoreboard_p2_chip.display()
             scoreboard_p1_chip.display(100)
@@ -89,7 +100,7 @@ class Scoreboard:
                 else:
                     timer_color = RED
                 timer_text = timerfont.render(str(remaining_time), True, timer_color)
-                self.surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
+                self._surface.blit(timer_text,(scoreboard_p2_chip.x+(scoreboard_p2_chip.w//2-timer_text.get_width()//2), scoreboard_p2_chip.y+(scoreboard_p2_chip.h//2.35-timer_text.get_height()//2)))
 
     def score_update(self, piece, numbers, operations):
         result = 0
