@@ -1,5 +1,6 @@
 import pygame
 from assets import *
+from audio_constants import SOUND_VOLUME, MUSIC_VOLUME
 from display_constants import *
 from ui_class.colors import *
 from ui_class.dropdown_menu import Dropdown
@@ -12,6 +13,8 @@ from ui_class.main_menu import Sidebar
 from ui_class.window import Window
 from ui_class.mode_window import ModeWindow
 from ui_class.rect_window import create_window
+from ui_class.fade_anim import Fade
+from ui_class.slider import Slider
 
 # --------- Fonts --------- 
 
@@ -23,6 +26,34 @@ font_cookie_run_blk = pygame.font.Font('font\CookieRun_Black.ttf', int(SIDE_MENU
 
 game_side_surface = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 board_area_surface = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+
+# --------- MAIN MENU'S SIDE MENU OBJECTS ---------
+menu_fontsize         = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
+mainmenu_opt_gap      = menu_fontsize * 2.1
+side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
+title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
+
+# --------- Main Menu --------- 
+
+title = Image(TITLE, title_surface,
+              (title_surface.get_width()//2, title_surface.get_height()//2),
+              (TITLE.get_width(), TITLE.get_height()))
+
+anim_title_up = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine)
+anim_title_upper = Move(title, (title.x, 0-TITLE.get_height()), 1, ease_type=easeInOutSine, init_pos=(title.x, SCREEN_HEIGHT*0.1))
+anim_title_down = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine, init_pos=(title.x, 0-TITLE.get_height()))
+anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
+anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
+
+# --------- fade screen object ---------
+screen_copy = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25)
+
+# --------- Sliders --------- 
+slider_color = (65, 87, 110)
+music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
+sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
 
 
 # --------- Damath Board --------- 
@@ -283,5 +314,4 @@ multi_join_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width +
                             shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
                             shadow_selected_color=(16, 30, 37), border_radius=10)
 
-multi_button_group = ButtonGroup([multi_local_btn, multi_online_btn], 1, True, 
-                    caller_btn=multi_join_btn)
+multi_button_group = ButtonGroup([multi_local_btn, multi_online_btn], 1, True)

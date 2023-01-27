@@ -59,6 +59,14 @@ class Sidebar:
 
     def _init(self):
 
+        self.target_functions = {
+            "sb_play": None,
+            "sb_online": None,
+            "sb_help": None,
+            "sb_options": None,
+            "sb_exit": None
+        }
+
         self._STATUS = {
             DEFAULT: True,
             ANIMATING: False,
@@ -76,6 +84,11 @@ class Sidebar:
                                 self.w, self.h)
         
         self.anim_move = (self.diff/self.anim_duration)
+    
+    def set_target(self, targets):
+
+        for key, target in zip(self.target_functions.keys(), targets):
+            self.target_functions[key] = target
 
     def _draw(self, nwidth=None, nheight=None):
         """
@@ -214,6 +227,36 @@ class Sidebar:
                         self.get_option(option).set_state(NORMAL)                   
             if option == id:
                 self.get_option(option).set_state(state)
+
+    def display(self, caller):
+
+        for id in self.target_functions.keys():
+            if self.target_functions[id] == caller:
+                self.target_functions[id] = None
+                self.get_option(id).target = None
+            else:
+                self.get_option(id).target = self.target_functions[id]
+
+        # if caller == title:
+        #     for opt in self.options.keys():
+        #         if self.get_option(opt).state == SELECTED:
+        #             self.update_options_state(opt, NORMAL)
+
+        mx, my = pygame.mouse.get_pos() # gets the curent mouse position
+        if self.sidebar_rect.collidepoint((mx, my)):
+            self.set(state=HOVERED)
+            for opt in self.options.keys():
+                if self.get_option(opt).get_rect().collidepoint((mx, my)):
+                    if pygame.mouse.get_pressed()[0]:
+                        self.update_options_state(opt, SELECTED)
+                        self.get_option(opt).call_target()
+                    else:
+                        self.update_options_state(opt, HOVERED)
+                else:
+                    if self.get_option(opt).state != SELECTED:
+                        self.update_options_state(opt, NORMAL)
+        else:
+            self.set(state=NORMAL)       
 
 class SidebarOptions:
     def __init__(self, surface, id, pos, width, 

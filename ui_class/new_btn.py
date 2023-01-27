@@ -1,5 +1,6 @@
 import pygame
 from typing import Callable, Iterable
+from event_loop import event_loop
 from .tooltip import Tooltip
 from .colors import *
 
@@ -33,10 +34,10 @@ class NButton(Tooltip):
                     pos: tuple, width: int, height: int, 
                     *, text: str='', border_radius: int=16, 
                     rect_color=(98, 140, 159), hover_color=(124, 172, 194), 
-                    selected_color=(124, 172, 194), disabled_color=(120, 120, 120), 
+                    selected_color=(124, 172, 194), disabled_color=(130, 130, 130), 
                     toggled_color=(243, 112, 72), text_color=(255, 255, 255), 
                     shadow_rect_color=(38, 73, 89), shadow_hovered_color=(54, 103, 126),
-                    shadow_selected_color=(54, 103, 126), shadow_disabled_color=(50, 50, 50),
+                    shadow_selected_color=(54, 103, 126), shadow_disabled_color=(80, 80, 80),
                     shadow_toggled_color=(149, 49, 30), transition_duration = 10,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
                     shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[],
@@ -424,10 +425,8 @@ class ButtonGroup:
             else:
                 self.caller_btn.draw()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
+        for event in event_loop.event_list:
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     x, y = event.pos

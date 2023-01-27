@@ -19,6 +19,12 @@ from damath.scoreboard import Scoreboard
 from damath.constants import *
 from damath.timer import *
 from display_constants import *
+from event_loop import event_loop
+import screens.sidebar_display
+from screens.select_mode import SelectModeScreen
+from screens.multi_menu import MultiMenuScreen
+from screens.help_menu import HelpMenuScreen
+from screens.options_menu import OptionsMenuScreen
 from ui_class.button import Button, ButtonList
 from ui_class.new_btn import NButton
 from ui_class.colors import * 
@@ -95,18 +101,6 @@ def show_score():
     font = pygame.font.Font('font\CookieRun_Bold.ttf', 100).render(str(score), True, WHITE)
     #score_rect = pygame.Rect(255, 165, 535, 235)
     screen.blit(font, (SCREEN_WIDTH//2 - font.get_width()//2 - 12, SCREEN_HEIGHT//(2.8)))
-
-SOUNDS = [POP_SOUND, MOVE_SOUND, 
-          SWEEP_SOUND, SELECT_SOUND, 
-          CAPTURE_SOUND, INVALID_SOUND,
-          TRANSITION_IN_SOUND, 
-          TRANSITION_OUT_SOUND]
-
-def change_volume(vol):
-    for sound in SOUNDS:
-        sound.set_volume(vol)
-
-change_volume(SOUND_VOLUME)
 
 # --------- Falling Spinning Chip Animation assets ---------
 chip_animation = False
@@ -237,12 +231,6 @@ if chip_animation:
 
         frames_red_big.append(frame)   
 
-# --------- MAIN MENU'S SIDE MENU OBJECTS ---------
-menu_fontsize         = int(SIDE_MENU_RECT_ACTIVE.height*0.045)
-mainmenu_opt_gap      = menu_fontsize * 2.1
-side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
-title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
-
 # --------- instantiating Start button ---------
 start_btn = Button(screen, START_BTN_DIMENSION[0], START_BTN_DIMENSION[1], START_BTN_POSITION, 4, None, text='Start', fontsize=36) # w, h, (x, y), radius, image=None, text
 
@@ -363,19 +351,6 @@ def full_trans_reset():
     transition_in.reset()
     transition_out.reset()
 
-# --------- Main Menu --------- 
-
-title = Image(TITLE, title_surface,
-              (title_surface.get_width()//2, title_surface.get_height()//2),
-              (TITLE.get_width(), TITLE.get_height()))
-
-anim_title_up = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine)
-anim_title_upper = Move(title, (title.x, 0-TITLE.get_height()), 1, ease_type=easeInOutSine, init_pos=(title.x, SCREEN_HEIGHT*0.1))
-anim_title_down = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine, init_pos=(title.x, 0-TITLE.get_height()))
-anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
-anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
-
 
 # --------- Side menu rect tweenable --------- 
 
@@ -388,543 +363,56 @@ anim_TEST_side_menu_scale   = Scale_Rect(TEST_side_menu, (0.5, 0.5), 1, along_ce
 play_again_btn   = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
 back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=18)
 
-# --------- fade screen object ---------
-screen_copy = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-fade_screen = Fade(screen, screen_copy, pygame.Color(OAR_BLUE), (SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/11, 0), speed=25)
-
-# --------- Sliders --------- 
-slider_color = (65, 87, 110)
-music_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.75)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=MUSIC_VOLUME)
-sound_slider = Slider(screen, slider_color, (int(SIDE_MENU_RECT_CURRENT.width + (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/2.5), int(SCREEN_HEIGHT/1.50)), int(SCREEN_WIDTH*0.3), 5, border_radius=8, circle_x=SOUND_VOLUME)
-
-
-def title_up_display():
-    """
-    For moving the title img up + fade animation 
-    """
-
-    title_surface.fill(OAR_BLUE)
-    title_surface.set_colorkey(OAR_BLUE)
-    anim_title_up.update()
-    if anim_title_up.IsFinished:
-        fade_screen.full_fade()  
-    title.display()
-    screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w)//2)+
-            sidebar.sidebar_rect.w-title_surface.get_width()//2, 0))
-
-def title_upper(func=None):
-
-    if anim_title_down.IsFinished:
-        anim_title_upper.play()
-        if anim_title_upper.IsFinished:
-            anim_title_down.reset()
-
-    mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
-                (0.05*SCREEN_WIDTH),y=title.y+TITLE.get_height()*2,
-                width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
-                (sidebar.sidebar_rect.w+(0.05*SCREEN_WIDTH)),
-                height=SCREEN_HEIGHT*0.8-(title.y+TITLE.get_height()*2))
-    mode_window.rect_window.draw()
-
-    if anim_title_upper.IsFinished:
-        if func is not None:
-            func()
-
-def _custom_window():
-
-        heading = pygame.font.Font('font\CookieRun_Bold.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
-        subheading = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.035))
-
-        board_text = heading.render('Board', True, WHITE)
-        pieces_text = heading.render('Pieces', True, WHITE)
-        symbols_text = subheading.render('Symbols', True, WHITE)
-        values_text = subheading.render('Values', True, WHITE)
-        promotion_text = subheading.render('Promotion', True, WHITE)
-
-        screen.blit(board_text, (mode_window.rect_window.x+
-                    mode_window.rect_window.w*0.025,
-                    mode_window.rect_window.y+
-                    mode_window.rect_window.h*0.05))
-        screen.blit(symbols_text, (mode_window.rect_window.x+
-                    mode_window.rect_window.w*0.025,
-                    mode_window.rect_window.y+
-                    mode_window.rect_window.h*0.05 + 
-                    board_text.get_height()*1.5))
-        screen.blit(pieces_text, (mode_window.rect_window.x+
-                    mode_window.rect_window.w*0.025,
-                    mode_window.rect_window.y+
-                    mode_window.rect_window.h*0.05 + 
-                    board_text.get_height()*2.5))
-        screen.blit(values_text, (mode_window.rect_window.x+
-                    mode_window.rect_window.w*0.025,
-                    mode_window.rect_window.y+
-                    mode_window.rect_window.h*0.05 + 
-                    board_text.get_height()*3.75))
-        screen.blit(promotion_text, (mode_window.rect_window.x+
-                    mode_window.rect_window.w*0.025,
-                    mode_window.rect_window.y+
-                    mode_window.rect_window.h*0.05 + 
-                    board_text.get_height()*5))
-
-        add_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.6,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*1.25))
-        sub_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.675,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*1.25))
-        mul_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.75,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*1.25))
-        div_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.825,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*1.25))
-        random_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.9,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*1.25))
-        
-        none_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.525,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-        naturals_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.6,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-        integers_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.675,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-        rationals_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.75,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-        radicals_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.825,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-        polynomial_btn.draw((mode_window.rect_window.x+
-                        mode_window.rect_window.w*0.9,
-                        mode_window.rect_window.y+
-                        mode_window.rect_window.h*0.05 + 
-                        board_text.get_height()*3.5))
-
-buffering_icon = pygame.transform.smoothscale(ICON_BUFFERING, (int(multi_join_btn.height*2), int(multi_join_btn.height*2)))   
-rot_idx = 360
-
-def _multi_window():
-    global rot_idx
-    multi_join_btn.draw(((sidebar.sidebar_rect.width + 
-            (SCREEN_WIDTH-sidebar.sidebar_rect.width) - 
-            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/10 - 
-            btn_size[0]), 
-            SCREEN_HEIGHT*0.85))
-    
-    window_text = pygame.font.Font('font/CookieRun_Regular.ttf', int(multi_join_btn.height*0.6))
-    window_text_surface = window_text.render("Searching for available matches...", True, OAR_BLUE)
-    screen.blit(window_text_surface, (mode_window.rect_window.x + mode_window.rect_window.w*0.5 - window_text_surface.get_width()*0.5,
-                mode_window.rect_window.y+(mode_window.rect_window.h*0.55)))
-
-    #NOTE: a make-do rotate function for now as I can't seem to move the previously instantiated tween object and it only stays in the middle of the screen
-    rotated_image = pygame.transform.rotate(buffering_icon, rot_idx)
-    centered = rotated_image.get_rect(center=(mode_window.rect_window.x + mode_window.rect_window.w*0.5, mode_window.rect_window.y+(mode_window.rect_window.h*0.45)))
-    screen.blit(rotated_image, centered)
-    
-    if rot_idx < 0:
-        rot_idx = 360
-    else:
-        rot_idx-=4
-
-added = False
-def sidebar_display(func_called):
-    global added
-    if not added:
-        
-        play_icon = 'new_assets\icons\icon_play.png'
-        online_icon = 'new_assets\icons\icon_online.png'
-        help_icon = 'new_assets\icons\icon_help.png'
-        option_icon = 'new_assets\icons\icon_options.png'
-        exit_icon = 'new_assets\icons\icon_exit.png'
-
-        sidebar.add_option(3, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                        side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
-                        icon=play_icon, target=select_mode)
-        sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                        side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Multi', description='Play with friends!', 
-                        icon=online_icon, target=online_menu)
-        sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                        side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Help', description='Learn Damath!', 
-                        icon=help_icon, icon_offset=55, target=help_menu)
-        sidebar.add_option(3, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                        side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                        text='Options', description='Adjust to your preferences!', 
-                        icon=option_icon, target=options_menu)
-        sidebar.add_option(3, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                        side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                            text='Exit', description='Quit the game... :<', 
-                            icon=exit_icon, target=sys.exit)
-        added = True
-
-    target_functions = {
-        "sb_play": select_mode,
-        "sb_online": online_menu,
-        "sb_help": help_menu,
-        "sb_options": options_menu,
-        "sb_exit": sys.exit
-    }
-
-    for id in target_functions.keys():
-        if target_functions[id] == func_called:
-            target_functions[id] = None
-            sidebar.get_option(id).target = None
-        else:
-            sidebar.get_option(id).target = target_functions[id]
-
-    if func_called == title:
-        for opt in sidebar.options.keys():
-            if sidebar.get_option(opt).state == SELECTED:
-                sidebar.update_options_state(opt, NORMAL)
-
-    mx, my = pygame.mouse.get_pos() # gets the curent mouse position
-    if sidebar.sidebar_rect.collidepoint((mx, my)):
-        sidebar.set(state=HOVERED)
-        for opt in sidebar.options.keys():
-            if sidebar.get_option(opt).get_rect().collidepoint((mx, my)):
-                if pygame.mouse.get_pressed()[0]:
-                    sidebar.update_options_state(opt, SELECTED)
-                    sidebar.get_option(opt).call_target()
-                else:
-                    sidebar.update_options_state(opt, HOVERED)
-            else:
-                if sidebar.get_option(opt).state != SELECTED:
-                    sidebar.update_options_state(opt, NORMAL)
-    else:
-        sidebar.set(state=NORMAL)
-    screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
-    fade_screen.change_pos((sidebar.sidebar_rect.width, 0))
-
-# --------- select mode function ---------
-
-def select_mode():
-    fade_screen.reset()
-    classic_btn.set_args('Classic')
-    speed_btn.set_args('Speed')
-    custom_btn.set_args(None)
+# Decluttered menu functions, but Sidebar needs to be fixed to 
+# avoid unnecessary function declarations just to maintain sidebar option's stored functions
+# since it gets removed everytime a function calls it to avoid recursion error
+def _select_mode():
+    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
     start_select_btn.set_target(Main.create_and_start_match)
-    start_select_btn.set_state(NButton.Disabled)
-    move_title = False
-    running = True
+    select_mode_screen.start()
 
-    if anim_title_upper.IsFinished:
-        anim_title_down.play()
-    else:
-        anim_title_down.IsFinished = True
-        anim_title_up.play()
-    
-    text_option = font.render('Modes', True, WHITE)
+def _multi_menu():
+    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
+    multi_menu_screen.start()
 
-    for btn in modes_btn:
-        btn.set_state(NButton.Normal)
+def _help_menu():
+    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
+    help_menu_screen.start()
 
-    while running:
-    
-        screen.fill(OAR_BLUE)
-        sidebar_display(select_mode)
-        main_screen = (SCREEN_WIDTH - sidebar.sidebar_rect.w)
-        
-        if fade_screen.finished:
-            
-            screen.blit(text_option, (sidebar.sidebar_rect.width + 
-                        main_screen/11, 
-                        title.y+TITLE.get_height()*1.15))
+def _options_menu():
+    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
+    options_menu_screen.start()
 
-            # updates the button's position every frame, 
-            # this is necessary if its position is affected by moving surfaces 
-            # (e.g. sidebar expanding / collapsing)
-            # as this makes the button's position responsive and not fixed
-            btn_pos = [(sidebar.sidebar_rect.width + main_screen/10, title.y+TITLE.get_height()*1.5),
-                       (((sidebar.sidebar_rect.width + main_screen/10 + btn_size[0])+(sidebar.sidebar_rect.width + 
-                            main_screen - main_screen/10 - btn_size[0]))/2 - btn_size[0]/2, title.y+TITLE.get_height()*1.5),
-                       ((sidebar.sidebar_rect.width + main_screen - main_screen/10 - btn_size[0]), title.y+TITLE.get_height()*1.5)]
+def _exit():
+    sys.exit()
 
-            if move_title:
-                title_upper(_custom_window)
-            else:
-                if anim_title_upper.IsFinished:
-                    anim_title_down.play()
-                    if anim_title_down.IsFinished:
-                        anim_title_upper.reset()
-                mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
-                        (0.05*SCREEN_WIDTH),
-                        y=title.y+TITLE.get_height()*2.2,
-                        width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
-                        (sidebar.sidebar_rect.w+
-                        (0.05*SCREEN_WIDTH)),
-                        height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
-                mode_window.draw()
-                
-            modes_btn_group.draw(btn_pos, caller_new_pos=((sidebar.sidebar_rect.width + 
-                                 main_screen - main_screen/10 - btn_size[0]), SCREEN_HEIGHT*0.85))
+#TODO: Needs refactoring in Sidebar
+sidebar.add_option(3, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
+                icon=play_icon, target=_select_mode)
+sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Multi', description='Play with friends!', 
+                icon=online_icon, target=_multi_menu)
+sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Help', description='Learn Damath!', 
+                icon=help_icon, icon_offset=55, target=_help_menu)
+sidebar.add_option(3, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Options', description='Adjust to your preferences!', 
+                icon=option_icon, target=_options_menu)
+sidebar.add_option(3, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                    text='Exit', description='Quit the game... :<', 
+                    icon=exit_icon, target=_exit)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit() 
+sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, sys.exit])
 
-        title_up_display()
-        screen.blit(CURSOR, pygame.mouse.get_pos())
-        pygame.display.update()
-        clock.tick(FPS)
-
-# --------- online menu function ---------
-
-def online_menu():
-
-    fade_screen.reset()
-    if anim_title_upper.IsFinished:
-        anim_title_down.play()
-    else:
-        anim_title_down.IsFinished = True
-        anim_title_up.play()
-
-    running = True
-    move_title = False
-    
-    while running:
-
-        screen.fill(OAR_BLUE)
-
-        mx, my = pygame.mouse.get_pos()
-        sidebar_display(online_menu)
-        main_screen = (SCREEN_WIDTH - sidebar.sidebar_rect.w)
-
-        if fade_screen.finished:
-            screen.blit(font.render('Multi', True, WHITE), 
-                        (sidebar.sidebar_rect.width + 
-                        main_screen*0.5-
-                        multi_local_btn.btn_rect.w*0.225, 
-                        title.y+TITLE.get_height()*1.15))
-
-            btn_pos = [((sidebar.sidebar_rect.w+(main_screen*0.5))-
-                        multi_local_btn.btn_rect.w*1.1, title.y+TITLE.get_height()*1.5),
-                       ((sidebar.sidebar_rect.w+(main_screen*0.5))+
-                        multi_online_btn.btn_rect.w*0.1, title.y+TITLE.get_height()*1.5)]
-
-            if move_title:
-                title_upper(_multi_window)
-            else:
-                if anim_title_upper.IsFinished:
-                    anim_title_down.play()
-                    if anim_title_down.IsFinished:
-                        anim_title_upper.reset()
-                mode_window.rect_window.wupdate(x=sidebar.sidebar_rect.w+
-                        (0.05*SCREEN_WIDTH),
-                        y=title.y+TITLE.get_height()*2.2,
-                        width=SCREEN_WIDTH-(0.05*SCREEN_WIDTH)-
-                        (sidebar.sidebar_rect.w+
-                        (0.05*SCREEN_WIDTH)),
-                        height=SCREEN_HEIGHT*0.75-(title.y+TITLE.get_height()*2.25))
-                if anim_title_down.IsPlaying:
-                    mode_window.draw()
-            
-            multi_button_group.draw(btn_pos)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x, y = event.pos
-                    # btn_selected(x, y, btn_list=[multi_local_btn], is_toggle=True, main_btn=multi_join_btn)
-                    if multi_local_btn.toggled:
-                        move_title = True
-                    else:
-                        move_title = False
-
-        title_up_display()
-        screen.blit(CURSOR, pygame.mouse.get_pos())
-        pygame.display.update()
-        clock.tick(FPS)
-
-# --------- help menu function ---------
-
-def help_menu():
-
-    fade_screen.reset()
-    if anim_title_upper.IsFinished:
-        anim_title_down.play()
-    else:
-        anim_title_down.IsFinished = True
-        anim_title_up.play()
-    running = True
-
-    t1_rectwin = create_window(screen, (sidebar.sidebar_rect.x+(0.0075*sidebar.sidebar_rect.w), SCREEN_HEIGHT*0.5), 200, 300, '#486582', border_color='#425D78', border_radius=10, border_thickness=8, cast_shadow=False)
-    t2_rectwin = create_window(screen, (750, 350), 200, 100, PERSIMMON_ORANGE, border_radius=8, border_thickness=2)
-    t3_rectwin = create_window(screen, (1000, 350), 200, 100, DARK_ORANGE, border_thickness=10)
-    t4_rectwin = create_window(screen, (750, 475), 475, 175, DARK_BLUE, border_thickness=16) 
-
-    expand_btn = NButton(screen, (0, 0), 125, 50, border_radius=8, shadow_offset=8)
-
-    while running:
-        screen.fill(OAR_BLUE)
-
-        mx, my = pygame.mouse.get_pos()
-        sidebar_display(help_menu)
-
-        if fade_screen.finished and anim_title_down.IsFinished:
-            screen.blit(font.render('Help', True, WHITE), 
-                        (sidebar.sidebar_rect.width + 
-                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
-                        SCREEN_HEIGHT/2.5))
-
-            t1_rectwin.wupdate(x=sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w),
-                                width=SCREEN_WIDTH-(0.25*sidebar.sidebar_rect.w)-
-                                (sidebar.sidebar_rect.w+(0.25*sidebar.sidebar_rect.w)),
-                                height=SCREEN_HEIGHT*0.125)
-
-            t1_rectwin.draw()
-
-            expand_btn.draw((t1_rectwin.x+t1_rectwin.w*0.5-expand_btn.get_rect().w*0.5, 
-                            t1_rectwin.y+t1_rectwin.h-
-                            expand_btn.get_rect().h*0.5))
-
-            gfxdraw.filled_polygon(screen, 
-                                [
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.515), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.485), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
-                                ],
-                                pygame.Color('#486582'))
-
-            gfxdraw.aapolygon(screen, 
-                                [
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)), 
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.625), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.525), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.475), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75)),
-                                (int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.375), 
-                                int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.3))
-                                ],
-                                pygame.Color('#425D78'))
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        # gfxdraw.aatrigon(screen, int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.4), 
-        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25), 
-        #                     int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.6), 
-        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.25),
-        #                     int(expand_btn.get_rect().x+expand_btn.get_rect().width*0.5), 
-        #                     int(expand_btn.get_rect().y+expand_btn.get_rect().height*0.75), 
-        #                     pygame.Color('#425D78'))
-
-        # t2_rectwin.draw()
-        # t3_rectwin.draw()
-        # t4_rectwin.draw()
-
-        if anim_title_upper.IsFinished:
-            anim_title_down.play()
-
-        title_up_display()
-        screen.blit(CURSOR, pygame.mouse.get_pos())
-        pygame.display.update()
-        clock.tick(FPS)
-
-# --------- options menu function ---------
-
-def options_menu():
-    
-    options_font = pygame.font.Font('font\CookieRun_Regular.ttf', int(SIDE_MENU_RECT_ACTIVE.height*0.06))
-    fade_screen.reset()
-    if anim_title_upper.IsFinished:
-        anim_title_down.play()
-    else:
-        anim_title_down.IsFinished = True
-        anim_title_up.play()
-    global MUSIC_VOLUME, SOUND_VOLUME
-    running = True
-    
-    while running:
-        screen.fill(OAR_BLUE)
-
-        mx, my = pygame.mouse.get_pos()
-        sidebar_display(options_menu)
-
-        if fade_screen.finished and anim_title_down.IsFinished:
-            screen.blit(font.render('Options', True, WHITE), 
-                        (sidebar.sidebar_rect.width + 
-                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/11, 
-                        SCREEN_HEIGHT/2.5))
-            music_slider.draw(int(sidebar.sidebar_rect.width + 
-                            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/2.5))
-            sound_slider.draw(int(sidebar.sidebar_rect.width + 
-                            (SCREEN_WIDTH-sidebar.sidebar_rect.width)/2.5))
-            screen.blit(options_font.render('Music', True, WHITE), 
-                        (int(sidebar.sidebar_rect.width + 
-                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/4.65),
-                        int(SCREEN_HEIGHT/1.75 - music_slider.height*6)))
-            screen.blit(options_font.render('SFX', True, WHITE), 
-                        (int(sidebar.sidebar_rect.width + 
-                        (SCREEN_WIDTH-sidebar.sidebar_rect.width)/4.65), 
-                        int(SCREEN_HEIGHT/1.50 - music_slider.height*6)))
-
-            if not sound_slider.get_slider_state() and music_slider.get_collider().collidepoint((mx, my)):
-                music_slider.update(mx)
-                MUSIC_VOLUME = music_slider.get_value()/100
-                pygame.mixer.music.set_volume(MUSIC_VOLUME)
-
-            elif not music_slider.get_slider_state() and sound_slider.get_collider().collidepoint((mx, my)):
-                sound_slider.update(mx)
-                SOUND_VOLUME = sound_slider.get_value()/100
-                change_volume(SOUND_VOLUME)
-
-        if anim_title_upper.IsFinished:
-            anim_title_down.play()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        title_up_display()
-        screen.blit(CURSOR, pygame.mouse.get_pos())
-        pygame.display.update()
-        clock.tick(FPS)
+select_mode_screen = SelectModeScreen(screen, bg_color=OAR_BLUE, target=_select_mode)
+multi_menu_screen = MultiMenuScreen(screen, bg_color=OAR_BLUE, target=_multi_menu)
+help_menu_screen = HelpMenuScreen(screen, bg_color=OAR_BLUE, target=_help_menu)
+options_menu_screen = OptionsMenuScreen(screen, bg_color=OAR_BLUE, target=_options_menu)
 
 # --------- pause function ---------
 
@@ -988,7 +476,7 @@ def pause(mode):
         
         pause_buttons_group.draw()
 
-        for event in pygame.event.get():
+        for event in event_loop.get_event():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -1079,7 +567,6 @@ def timer_thread():
         
 GameIsRunning = True
 thread_running = True
-
 
 # --------- start game function ---------
 # (when Start button is pressed)
@@ -1324,7 +811,8 @@ class Damath:
             title_surface.fill(OAR_BLUE)
 
             # pygame.draw.rect(screen, BLACK, TEST_side_menu)
-            sidebar_display(title)
+            sidebar.display(None)
+            screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
             title.display()
 
             if chip_animation:
@@ -1349,6 +837,10 @@ class Damath:
 
                     if event.key == pygame.K_MINUS:
                         Main.start_match()
+                        return
+                    
+                    if event.key == pygame.K_t:
+                        _select_mode()
                         return
 
             anim_title_breathe.update()
@@ -1519,14 +1011,14 @@ class Damath:
                 timer_color = LIGHT_GRAY
             global_timer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, timer_color)
 
-            change_volume(SOUND_VOLUME)
+            # change_volume(SOUND_VOLUME)
             #screen.blit(CLEAR_BG, (0, 0)) 
             screen.fill(OAR_BLUE)    
             screen.blit(side_menu_surface, (0, 0))
             side_menu_surface.fill(DARK_GRAY_BLUE)      
             
-            if game.winner() != None:
-                print(game.winner()) 
+            if self.Match.winner() != None:
+                print(self.Match.winner()) 
                 GameIsRunning = False
                 thread_running = False
                 game_ends()

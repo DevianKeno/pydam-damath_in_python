@@ -36,5 +36,5 @@ _MODES = [
 
 MODE = _MODES[1]
 
-versusAI = False
+versusAI = True
 

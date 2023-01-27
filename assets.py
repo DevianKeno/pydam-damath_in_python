@@ -12,6 +12,14 @@ CURSOR = pygame.transform.smoothscale(pygame.image.load('new_assets\cursor.png')
 
 # --------- x --------- 
 
+play_icon = 'new_assets\icons\icon_play.png'
+online_icon = 'new_assets\icons\icon_online.png'
+help_icon = 'new_assets\icons\icon_help.png'
+option_icon = 'new_assets\icons\icon_options.png'
+exit_icon = 'new_assets\icons\icon_exit.png'
+
+# --------- x --------- 
+
 BOARD = pygame.image.load('new_assets\\board_blue.png').convert_alpha()
 BOARD_SHADOW = pygame.image.load('new_assets\\board_shadow_bg.png').convert()
 
