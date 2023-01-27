@@ -12,7 +12,7 @@ from math import ceil
 from damath.actions import Actions
 from damath.board import *
 from damath.cheats import Cheats
-from damath.game import Match
+from damath.game import *
 from damath.piece import Piece
 from damath.ruleset import Ruleset
 from damath.scoreboard import Scoreboard
@@ -1374,10 +1374,10 @@ class WinnerWindow:
         self.sound_played = False
 
 class Damath:
-   
+
     def __init__(self) -> None:
         self.Queue = Queue()
-        self.Match = None
+        self.Match = Match()
 
     def start(self):
         self.title()
@@ -1403,6 +1403,12 @@ class Damath:
         anim_TEST_side_menu_breathe.play()
 
         while True:
+            try:
+                _start_match = Main.Queue.get(False)
+                _start_match()
+            except: 
+                pass
+
             screen.fill(OAR_BLUE)
             screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w) // 2) +
                         sidebar.sidebar_rect.w-title_surface.get_width() // 2, 0))
@@ -1493,9 +1499,7 @@ class Damath:
         # Console is always active, but its visibility (in-game GUI or external terminal)
         # is set by an option: showConsoleGUI
         Console.Game = Game
-
         self.Match = Game
-
         return Game
 
     def create_custom(self, rules: Ruleset=None) -> Match:
@@ -1522,23 +1526,23 @@ class Damath:
         Game.init()
         
         Console.Game = Game
-        
         self.Match = Game
-
         return Game
 
+    def get_rules(self) -> Ruleset:
+        """
+        Returns the match's ruleset.
+        """
+        if self.Game != None:
+            return self.Game.Rules
+
+    def add_match(self):
+        """
+        Adds a match to the Main queue and starts it.
+        """
+        self.Queue.put(self.start_match)
+
     def start_match(self, match: Match=None):
-
-        try:
-            self.Queue.put(self._start_match)
-            callback = self.Queue.get()
-        except self.Queue.Empty:
-            print("No match created.")
-            return
-
-        callback(match)
-
-    def _start_match(self, match):
         """
         Starts the actual match.
         """

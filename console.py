@@ -212,7 +212,7 @@ class DeveloperConsole:
                                 print("/smove       : selects and moves a piece")
                                 print("/timer       : toggle timer")
                             case "add":
-                                print("Usage: /add <col> <row> <player> <value>")
+                                print("Usage: /add <col> <row> <player:1|2> <value>")
                                 print("Adds a piece to the given board column and row arguments.")
                             case "connect":
                                 print("Usage: /connect <ip>")
@@ -223,11 +223,11 @@ class DeveloperConsole:
                             case "help":
                                 self.command_help()
                             case "host":
-                                print("Usage: /host <classic|speed|checkers>")
-                                print("Host a local match with specified mode.")
+                                print("Usage: /host")
+                                print("Host local match.")
                             case "match":
-                                print("Usage: /match <classic|speed|checkers>")
-                                print("Creates a match with mode.")
+                                print("Usage: /match <create|start> <classic|speed|checkers>")
+                                print("Creates a match with specified mode.")
                             case "move":
                                 print("Usage: /move <col> <row>")
                                 print("Moves the selected piece to the given board column and row arguments.")
@@ -247,19 +247,18 @@ class DeveloperConsole:
                     except:
                         self.command_help()
                 case "host":
-                    try:
-                        if args[1]:
-                            self.command_host(args[1])
-                    except:
-                        self.invalid_usage(args[0])
+                    self.command_host()
                 case "match":
                     try:
                         if args[1]:
                             match args[1]:
+                                case "create":
+                                    if args[2]:
+                                            self.command_match(args[2])
                                 case "start":
                                     self._command_match_start()
                                 case _:
-                                    self.command_match(args[1])
+                                    self.invalid_usage(args[0])
                     except:
                         self.invalid_usage(args[0])
                 case "move" | "mov":
@@ -333,10 +332,10 @@ class DeveloperConsole:
             print("A match is already running.")
             return
         if self._main.Match == None:
-            print("No match created yet. Create one with /match <mode>")
+            print("No match created yet. Create one with /match create <mode>")
             return
 
-        self._main.Queue.put(self._main.start_match())
+        self._main.Queue.put(self._main.add_match())
         
 
     def _command_ffyes(self):
@@ -401,7 +400,10 @@ class DeveloperConsole:
             print("Removed console operator privileges.")
 
     def command_draw(self):
-        #TODO: Check for match first
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
+            return
+
         print("Are you sure you want to offer a draw?")
         print("Type /draw <yes|no>")
 
@@ -409,11 +411,18 @@ class DeveloperConsole:
         self.stop()
 
     def command_forfeit(self):
-        #TODO: Check for match first
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
+            return
+
         print("Are you sure you want to forfeit?")
         print("Type /forfeit <yes|no>")
 
-    def command_host(self, mode):
+    def command_host(self):
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
+            return
+
         if self.IsClient:
             self._client.stop()
 
@@ -426,13 +435,16 @@ class DeveloperConsole:
             self._server.console = self
             self._server.start()
 
-            # self._main.create_match(mode)
-
             if self.ShowFeedback:
                 print(f"Hosted local match on {self._server.get_ip()}")
                 print(f"Join with /connect {self._server.get_ip()}")
 
     def command_match(self, mode):
+        #TODO: Can create a new match while one is still running
+        if self._main.Match.IsRunning:
+            print("A match is already running.")
+            return
+        
         try:
             self._main.create_match(mode)
             print(f"Match created. Start with /match start")
@@ -440,6 +452,10 @@ class DeveloperConsole:
             print(f"Failed to created match.")
             
     def command_move(self, destination):
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
+            return
+
         if not self._game.selected_piece:
             print("No piece selected. Select a piece with /select first")
             return
@@ -476,6 +492,10 @@ class DeveloperConsole:
         pass
 
     def command_select(self, cell, Bypass=False):
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
+            return
+
         if self._game.Board.IsFlipped:
             col, row = self._game.Board.to_raw(cell)
         else:
@@ -490,9 +510,9 @@ class DeveloperConsole:
         """
         Selects and immediately moves the piece to destination cell.
         """
-        
-        if self._main.Match == None:
-            print("No match started yet. Start a match with /match first")
+
+        if not self._main.Match.IsRunning:
+            print("There's not a match running.")
             return
         
         self._game.toggle_indicators()

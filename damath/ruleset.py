@@ -11,6 +11,11 @@ class Ruleset:
         self.players_count = 2
         self.set_classic()
 
+    def get_rulestr(self) -> str:
+        """
+        Returns the ruleset as a string.
+        """
+
     def set(self, mode: str):
         """
         Sets rules based on passed mode.
@@ -20,12 +25,17 @@ class Ruleset:
         """
 
         match mode:
-            case "Classic":
+            case "Classic" | "classic":
                 self.set_classic()
-            case "Speed":
+            case "Speed" | "speed":
                 self.set_speed()
-            case "Checkers":
+            case "Checkers" | "checkers":
                 self.set_checkers()
+
+    def set_str(self, ruleset: str):
+        """
+        Sets ruleset based on string.
+        """
 
     def set_classic(self):
         """
