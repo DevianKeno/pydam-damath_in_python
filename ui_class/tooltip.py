@@ -19,7 +19,7 @@ class Tooltip:
         self.tltp_h = self.tltp_height = height
         self.rect_color = rect_color
         self.text_color = text_color
-        self.text = text
+        self.tltp_text = text
 
         self.cast_shadow = cast_shadow
         self.tltp_shadow_offset = shadow_offset
@@ -45,7 +45,7 @@ class Tooltip:
         gfxdraw.box(self.surface, self.tltp_rect, pygame.Color(self.rect_color))
         gfxdraw.rectangle(self.surface, self.tltp_rect, pygame.Color(WHITE))
 
-        text = self.tltp_font.render(self.text, True, self.text_color)
+        text = self.tltp_font.render(self.tltp_text, True, self.text_color)
 
         self.surface.blit(text, (self.tltp_rect.x+
                 self.tltp_rect.w*0.5-(text.get_width()*0.5), 

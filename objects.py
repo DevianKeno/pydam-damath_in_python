@@ -4,7 +4,7 @@ from display_constants import *
 from ui_class.colors import *
 from ui_class.dropdown_menu import Dropdown
 from ui_class.image import Image
-from ui_class.new_btn import NButton
+from ui_class.new_btn import NButton, ButtonGroup
 from ui_class.rect_window import RectWindow
 from ui_class.textlist import TextList
 from ui_class.tween import *
@@ -109,7 +109,7 @@ btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.075)
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
                         SCREEN_HEIGHT/2), btn_size[0], btn_size[1], text='Classic', args='Classic',
-                        tooltip_text="The classic game of Damath.")
+                        tooltip_text="The classic game of Damath.", toggleable=True)
 speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 + 
                         btn_size[0])+(SIDE_MENU_RECT_CURRENT.width + 
@@ -117,13 +117,13 @@ speed_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width +
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
                         btn_size[0], btn_size[1], text='Speed', args='Speed',
-                        tooltip_text='Fast-paced game of Damath.')
+                        tooltip_text='Fast-paced game of Damath.', toggleable=True)
 custom_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
-                        btn_size[1], text='Custom', args='Custom',
-                        tooltip_text='Create your own variation!')
+                        btn_size[1], text='Custom',
+                        tooltip_text='Create your own variation!', toggleable=True)
 start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                             SCREEN_WIDTH)/2 - btn_size[0]//2,
                             SCREEN_HEIGHT/1.25), btn_size[0],
@@ -132,11 +132,8 @@ start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width +
                             shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
                             shadow_selected_color=(16, 30, 37), border_radius=10)
 
-toggle_btn = {
-    classic_btn : False,
-    speed_btn : False,
-    custom_btn : False
-}
+modes_btn = [classic_btn, speed_btn, custom_btn]
+modes_btn_group = ButtonGroup(modes_btn, 1, True, caller_btn=start_select_btn, pass_target=False, pass_args=True)
 
 # --------- Sidebar objects --------- 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
@@ -202,12 +199,8 @@ restart_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1
 main_menu_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1]*4), 
                 *__pause_btn_size, text='Main Menu', **__pause_btn_kwargs)
 
-pause_btns = {
-    resume_btn : False,
-    options_btn : False,
-    restart_btn : False,
-    main_menu_btn : False    
-}
+pause_buttons = [resume_btn, options_btn, restart_btn, main_menu_btn]
+pause_buttons_group = ButtonGroup(pause_buttons)
 
 # --------- Toggleables Window Objects  --------- 
 
@@ -215,23 +208,23 @@ pause_btns = {
 add_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='+', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            fontstyle='font/CookieRun_Bold.ttf')
+            fontstyle='font/CookieRun_Bold.ttf', toggleable=True)
 sub_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='-', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            fontstyle='font/CookieRun_Bold.ttf')
+            fontstyle='font/CookieRun_Bold.ttf', toggleable=True)
 mul_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='×', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            fontstyle='font/CookieRun_Bold.ttf')
+            fontstyle='font/CookieRun_Bold.ttf', toggleable=True)
 div_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='÷', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            fontstyle='font/CookieRun_Bold.ttf')
+            fontstyle='font/CookieRun_Bold.ttf', toggleable=True)
 random_btn = NButton(screen, (0, 0), int(SIDE_MENU_RECT_ACTIVE.height*0.08),
             int(SIDE_MENU_RECT_ACTIVE.height*0.08), text='?', shadow_offset=8,
             border_radius=16, fontsize=int(SIDE_MENU_RECT_ACTIVE.height*0.08),
-            fontstyle='font/CookieRun_Bold.ttf')
+            fontstyle='font/CookieRun_Bold.ttf', toggleable=True)
 
 symbols_btn = {
     add_btn: False,
@@ -242,7 +235,6 @@ symbols_btn = {
 }
 
 for key in [symbol for symbol in symbols_btn.keys()][:4]:
-    key.toggled = True
     key.set_state(NButton.Toggled)
 
 # ----- values  -----
@@ -275,14 +267,13 @@ multi_local_btn = NButton(screen, (((SIDE_MENU_RECT_CURRENT.width +
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]))/2 - btn_size[0]/2, SCREEN_HEIGHT/2),
                         btn_size[0], btn_size[1], text='Local', args='Local',
-                        tooltip_text='Play with your friends!')
+                        tooltip_text='Play with your friends!', toggleable=True)
 multi_online_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width) - 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10 - 
                         btn_size[0]), SCREEN_HEIGHT/2), btn_size[0], 
-                        btn_size[1], text='Online', args='Online',
-                        tooltip_text='Not available yet.')
-multi_online_btn.set_state(NButton.Disabled)
+                        btn_size[1], text='Online',
+                        tooltip_text='Not available yet.', toggleable=True)
 
 multi_join_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width + 
                             SCREEN_WIDTH)/2 - btn_size[0]//2,
@@ -292,4 +283,5 @@ multi_join_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width +
                             shadow_rect_color=(14, 33, 41), shadow_hovered_color=(16, 30, 37),
                             shadow_selected_color=(16, 30, 37), border_radius=10)
 
-multi_join_btn.set_state(NButton.Disabled)
+multi_button_group = ButtonGroup([multi_local_btn, multi_online_btn], 1, True, 
+                    caller_btn=multi_join_btn)

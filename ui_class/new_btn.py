@@ -6,6 +6,21 @@ from .colors import *
 state = str
 args = Iterable
 
+'''
+Guide for creating new buttons:
+
+    - first instantiate individual buttons using the NButton Class
+    - group them as a list and instantiate a new ButtonGroup Class
+        (Note: You will still need to create a ButtonGroup even if
+                there's only a single button you have to add, and 
+                this can also be helpful if we later decide to add more 
+                buttons in the same Screen with that singleton ButtonGroup)
+    - call the draw() method of the ButtonGroup inside the loop, 
+        you are allowed to pass new positions for the buttons if it is 
+        affected by any moving surfaces, or you can call it with no parameters
+        if you want all the buttons' positions in the ButtonGroup to be fixed
+'''
+
 class NButton(Tooltip):
 
     Normal = 'Normal'
@@ -24,7 +39,8 @@ class NButton(Tooltip):
                     shadow_selected_color=(54, 103, 126), shadow_disabled_color=(50, 50, 50),
                     shadow_toggled_color=(149, 49, 30), transition_duration = 10,
                     fontsize: int = 0, fontstyle = 'font\CookieRun_Regular.ttf', 
-                    shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[]): 
+                    shadow_offset: int=0, tooltip_text=None, target: Callable = None, args: Iterable=[],
+                    toggleable: bool=False): 
                     """
                     Creates an NButton (New Button) object
 
@@ -85,19 +101,20 @@ class NButton(Tooltip):
                     else:
                         self.shadow_offset = shadow_offset
 
-                    self.disabled = False
-                    self.toggled = False
-                    self.clicked = False
+                    self.toggleable = toggleable
                     self.prev_state = self.Normal
 
                     # Dict for button states : [button color, bool, shadow color]
                     self.states = {
-                        self.Normal: [self.rect_color, True, self.shadow_rect_color],
+                        self.Normal: [self.rect_color, False, self.shadow_rect_color],
                         self.Hovered: [self.hover_color, False, self.shadow_hovered_color],
                         self.Selected: [self.selected_color, False, self.shadow_selected_color],
-                        self.Disabled: [self.disabled_color, False, self.shadow_disabled_color],
+                        self.Disabled: [self.disabled_color, True, self.shadow_disabled_color],
                         self.Toggled: [self.toggled_color, False, self.shadow_toggled_color]
                     }
+
+                    if (self.target != None or self.args):
+                        self.states[self.Normal][1] = True
 
                     # button, shadow, text rect
                     self.btn_rect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -111,6 +128,14 @@ class NButton(Tooltip):
 
                     #TODO: Pass the text object and text.get_width()*1.25 as the tooltip rect's width
                     super().__init__(self.surface, 0, 0, self.width*1.25, self.height, PERSIMMON_ORANGE, (255, 255, 255), tooltip_text, shadow_offset=2)
+
+    @property
+    def toggled(self):
+        return self.states[self.Toggled][1]
+
+    @property
+    def clicked(self):
+        return self.states[self.Selected][1]
 
     def get_state(self) -> state:
         """
@@ -166,18 +191,20 @@ class NButton(Tooltip):
         if state not in _STATES:
             raise ValueError(f'Invalid argument. Expected one of the following: {_STATES}')
 
+        if state == self.Normal:
+            if self.get_target() == None and not self.get_args():
+                return
+
         if state == self.Hovered:
             if self.states[self.Toggled][1] or self.states[self.Selected][1] or self.states[self.Disabled][1]:
                 return
 
-        if state == self.Disabled:
-            self.disabled = True
-
-        if state == self.Selected:
-            if self.get_state() != self.Disabled:
-                self.clicked = True
-            else:
+        if state == self.Selected or state == self.Toggled:
+            if self.get_state() == self.Disabled:
                 return
+            elif state == self.Toggled and not self.toggleable:
+                raise ValueError("Non-toggleable buttons cannot be set to toggled.")
+
         # if the current state is different from the next state (the passed arg)
         if self.get_state() != state:
             self.color_idx = 0
@@ -247,11 +274,13 @@ class NButton(Tooltip):
 
         # checks for collision (hover)
         self.pos_reset = False
+        
         mx, my = pygame.mouse.get_pos()
-        if self.btn_rect.collidepoint((mx, my)) and self.get_state() != self.Disabled:
+        if self.btn_rect.collidepoint((mx, my)):
+            self.show_tooltip(1)
             self.set_state(self.Hovered)
         else:
-            if not self.toggled and self.get_state() != self.Disabled:
+            if not self.toggled and not self.clicked:
                 self.set_state(self.Normal)
 
         # changes position if a new position is passed
@@ -269,14 +298,13 @@ class NButton(Tooltip):
                             self.text_surface.get_size())
             
         # moves the button if toggled or clicked and mouse pressed
-        if self.toggled or (self.clicked and pygame.mouse.get_pressed()[0]):
+        if self.get_state() == self.Toggled or (self.get_state() == self.Selected and pygame.mouse.get_pressed()[0]):
             self.btn_rect.move_ip(0, self.shadow_offset/1.5)
             self.text_rect.move_ip(0, self.shadow_offset/1.5)
             self.moved = True
         # if clicked and the mouse button is no longer pressed
-        elif self.clicked and not pygame.mouse.get_pressed()[0]:
+        elif self.get_state() == self.Selected and not pygame.mouse.get_pressed()[0]:
             self.set_state(self.Normal)
-            self.clicked = False
             if self.moved:
                 self.moved = False
                 self.pos_reset = True
@@ -304,3 +332,161 @@ class NButton(Tooltip):
         pygame.draw.rect(self.surface, fade_color, self.btn_rect, 
                             border_radius=self.border_radius)
         self.surface.blit(self.text_surface, self.text_rect)
+
+class ButtonGroup:
+
+    def __init__(self, btn_list: list, allowed_selection: int=None, auto_unselect: bool=False, \
+                    *, caller_btn=None, pass_target: bool=False, pass_args: bool=False):
+        """
+        Creates a button group, ideal for creating a radio / options / toggle buttons that 
+        can only allow limited numbers of toggled / clicked buttons
+
+        Only the buttons inside this ButtonGroup can be selected or toggled, so clickable buttons
+        inside the same Screen should be grouped for it to function properly 
+
+        Optional Arguments:
+
+
+        - allowed_selection
+                - number of buttons the user is allowed to select / toggle
+                - Default = len(btn_list) - 1
+        - auto_unselect
+                - if the number of buttons selected exceed the allowed selection,
+                the button will unselect automatically or not
+                - Default = False
+        - caller_btn
+                - button where other buttons can pass their targets / args to
+                - Default = None
+        - pass_target
+                - if True, pass the toggled button's target to the caller button
+                - Default = False
+        - pass_args
+                - if True, pass the toggled button's arguments to the caller button
+                - Default = False
+        """
+
+        self.btn_list = btn_list
+        if allowed_selection == None:
+            self.allowed_selection = len(btn_list) - 1
+        else:
+            if allowed_selection < len(btn_list):
+                self.allowed_selection = allowed_selection
+            else:
+                raise ValueError("Allowed selection should be less than the total number of buttons.")
+                
+        self.auto_unselect = auto_unselect
+        self.active_btns = []
+        self.caller_btn = caller_btn
+
+        if self.caller_btn != None:
+            self.pass_target = pass_target
+            self.pass_args = pass_args
+        else:
+            if pass_args or pass_target:
+                raise AttributeError("No caller button passed. Cannot assign values to pass_args or pass_target.")
+
+    @property
+    def btns_selected(self):
+        return len(self.active_btns)
+
+    def _set_state(self, btn: NButton, state):
+
+        btn.set_state(state)
+
+        if btn.clicked or btn.toggled: 
+            self.active_btns.append(btn)
+        elif btn.get_state() == btn.Disabled:
+            return
+        else:
+            if btn in self.active_btns:
+                self.active_btns.remove(btn)
+
+    def draw(self, new_pos_list: list=None, caller_new_pos: tuple=None):
+        """
+        Draws the buttons in the group,
+
+        a new position can be passed as a list corresponding to the ordered lists of buttons passed,
+        and a new position for the caller button can be passed separately in caller_new_pos
+        """
+
+        if new_pos_list == None:
+            new_pos_list = [None] * len(self.btn_list) 
+
+        for btn, pos in zip(self.btn_list, new_pos_list):
+            if pos != None:
+                btn.draw(pos)
+            else:
+                btn.draw()
+
+        if self.caller_btn != None:
+            if caller_new_pos != None:
+                self.caller_btn.draw(caller_new_pos)
+            else:
+                self.caller_btn.draw()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    x, y = event.pos
+
+                    if self.caller_btn != None:
+                        if self.caller_btn.btn_rect.collidepoint((x, y)):
+                            self.caller_btn.set_state(self.caller_btn.Selected)
+                            self.caller_btn.call_target()
+
+                    # check if any buttons are hovered when the mouse is clicked
+                    # and change it to its selected / toggled state
+                    for btn in self.btn_list:
+                        if btn.btn_rect.collidepoint((x, y)):
+
+                            if btn.toggleable:
+                                if not btn.states[btn.Toggled][1]:
+                                    if self.btns_selected < self.allowed_selection:
+                                        self._set_state(btn, btn.Toggled)
+                                        if self.caller_btn != None:
+                                            if self.pass_target:
+                                                self.caller_btn.set_target(btn.get_target())
+                                            if self.pass_args:
+                                                self.caller_btn.set_args(btn.get_args())                                     
+                                    else:
+                                        if self.auto_unselect:
+                                            self._set_state(btn, btn.Toggled)
+                                            if btn.toggled:
+                                                for remaining_btn in self.active_btns:
+                                                    if self.btns_selected >= self.allowed_selection:
+                                                        if remaining_btn != btn:
+                                                            self._set_state(remaining_btn, remaining_btn.Normal)
+                                                if self.caller_btn != None:
+                                                    if self.pass_target:
+                                                        self.caller_btn.set_target(btn.get_target())
+                                                    if self.pass_args:
+                                                        self.caller_btn.set_args(btn.get_args())   
+                                else:
+                                    self._set_state(btn, btn.Normal)
+                            else:
+                                self._set_state(btn, btn.Selected)
+                                btn.call_target()
+
+        if self.caller_btn != None:
+            if len(self.active_btns) == 0:
+                if self.pass_target:
+                    self.caller_btn.set_target(None)
+                if self.pass_args:
+                    self.caller_btn.set_args(None)
+                self.caller_btn.set_state(self.caller_btn.Disabled)
+            else:
+                if self.pass_target:
+                    if self.caller_btn.get_target() != None:
+                        if self.caller_btn.get_state() != self.caller_btn.Selected:
+                            self.caller_btn.set_state(self.caller_btn.Normal)
+                    else:
+                        self.caller_btn.set_state(self.caller_btn.Disabled)
+                if self.pass_args:
+                    if self.caller_btn.get_args() != None:
+                        if self.caller_btn.get_state() != self.caller_btn.Selected:
+                            self.caller_btn.set_state(self.caller_btn.Normal)
+                    else:
+                        self.caller_btn.set_state(self.caller_btn.Disabled)

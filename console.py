@@ -76,7 +76,7 @@ class DeveloperConsole:
         if enableDebugMode:
             print("[Debug]: Console started.")
         
-        self.console_thread = threading.Thread(target=self.read)  
+        self.console_thread = threading.Thread(target=self.read, daemon=True)  
         self.console_thread.start()
 
     def stop(self):
