@@ -26,7 +26,6 @@ class Server:
         self.c = None
 
         self.ChatIsRunning = False
-        self.chat_thread = threading.Thread(target=self.start_chat_service)
 
     @property
     def console(self):
@@ -78,9 +77,10 @@ class Server:
         c, addr = self.s.accept()
         print(f"Got connection from {addr}")
         self.connected_clients_count += 1
-        print (f"Waiting for players... ({self.connected_clients_count + 1}/2)")
+        print (f"Match starting... ({self.connected_clients_count + 1}/2)")
         self.IsConnected = True
         self.IsSender = True
+        # self._console._command_match_start()
         return c, addr
 
     def run_server(self):
@@ -123,50 +123,5 @@ class Server:
         
         return self.c.recv(maxBufferSize).decode('UTF-8').strip()
 
-    def start_chat_service(self):
-        """
-        Chat.
-        """
-        
-        self.ChatIsRunning = True
-
-        # while game is running
-        while True:
-            # Establish connection with client.
-            if self.IsConnected:
-                self.msg = input()
-
-    def listen_for_commands(self, command):
-        
-        pass
-
-    def get_ip(self):
+    def get_port(self):
         return self.ip
-
-class Match:
-
-    def __init__(self) -> None:
-        pass
-
-    def host_match(self):
-        """
-        Hosts the match.
-        """
-        
-        self.ChatIsRunning = True
-
-        # while game is running
-        while True:
-            # Establish connection with client.
-            if self.IsConnected:
-                if self.IsSender == True:
-                    input_msg = input("")
-                    self.msg = input_msg
-                    self.IsSender = False
-
-    def out(self, message):
-        """
-        Sends a message to client.
-        """
-
-        self.msg = message

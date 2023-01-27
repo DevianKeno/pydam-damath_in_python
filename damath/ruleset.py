@@ -9,6 +9,7 @@ class Ruleset:
         """
         
         self.players_count = 2
+        self.IsCustom = False
         self.set_classic()
 
     def get_rulestr(self) -> str:
@@ -16,7 +17,29 @@ class Ruleset:
         Returns the ruleset as a string.
         """
 
-    def set(self, mode: str):
+        rule_str = "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}".format(
+                    self.mode,
+                    self.symbolAdd,
+                    self.symbolSubtract,
+                    self.symbolMultiply,
+                    self.symbolDivide,
+                    self.symbolRandom,
+                    self.piece_values,
+                    self.allowPromotion,
+                    self.allowCapture,
+                    self.allowChainCapture,
+                    self.allowMandatoryCapture,
+                    self.enableTimer,
+                    self.timer_turn,
+                    self.timer_global,
+                    self.allowActions ,
+                    self.allowCheats ,
+                    self.ai
+                    )
+
+        return rule_str
+
+    def set_mode(self, mode: str):
         """
         Sets rules based on passed mode.
         - Classic
@@ -32,7 +55,7 @@ class Ruleset:
             case "Checkers" | "checkers":
                 self.set_checkers()
 
-    def set_str(self, ruleset: str):
+    def set_rulestr(self, ruleset: str):
         """
         Sets ruleset based on string.
         """

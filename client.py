@@ -26,7 +26,6 @@ class Client:
         self.c = None
         
         self.ChatIsRunning = False
-        self.chat_thread = threading.Thread(target=self.start_chat_service)
 
     @property
     def console(self):
@@ -62,15 +61,15 @@ class Client:
             return
         self.IsConnecting = True
 
-        print(f"Connecting to server...")
+        print(f"Connecting to local match...")
         try:
             self.c.connect((addr, port))
         except:
-            print(f"Failed to connect to local server")
+            print(f"Failed to connect to local match")
             self.IsConnecting = False
             return
 
-        print(f"Connected to local server {addr}")
+        print(f"Connected to local match {addr}")
         self.IsConnecting = False
         self.IsConnected = True
         self._console.IsClient = True
@@ -85,7 +84,7 @@ class Client:
                 else:
                     self._console.run_command(reply.strip('ping'))
             except:
-                print(f"Disconnected from the host.")
+                print(f"Disconnected from the match.")
                 self.c.close()
                 self.IsConnected = False
                 # self.reconnect(self.ip)
@@ -107,17 +106,4 @@ class Client:
         """
 
         self.msg = message
-
-    def start_chat_service(self):
-        """
-        Chat.
-        """
-        
-        self.ChatIsRunning = True
-
-        # while game is running
-        while True:
-            # Establish connection with client.
-            if self.IsConnected:
-                self.msg = input()
             

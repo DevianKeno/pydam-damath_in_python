@@ -2,6 +2,7 @@ import pygame
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.game import Match
 from damath.piece import Piece
+from damath.ruleset import Ruleset
 from damath.timer import *
 from objects import chips_surface
 from options import *
@@ -23,6 +24,7 @@ class DeveloperConsole:
         self.IsServer = False
         self.IsClient = False
         self.IsRunning = False
+        self.IsPaused = False
 
         self.ip_address = ''
         self.command = ''
@@ -75,6 +77,7 @@ class DeveloperConsole:
 
         if enableDebugMode:
             print("[Debug]: Console started.")
+        print("Type /help for a list of available commands")
         
         self.console_thread = threading.Thread(target=self.read, daemon=True)  
         self.console_thread.start()
@@ -83,7 +86,6 @@ class DeveloperConsole:
         """
         Stops the console.
         """
-
         self.IsRunning = False
 
     def listen(self, command):
@@ -93,8 +95,9 @@ class DeveloperConsole:
 
         if command == None or command == '':
             return
+        if enableDebugMode:
+            print(f"[Debug]: Command: {command}")
 
-        print(f"[Debug]: Command: {command}")
         self.message = command
 
         if self._server != None:
@@ -110,16 +113,23 @@ class DeveloperConsole:
         """
         
         while self.IsRunning:
-            self.command = input(f"> ")
+            if self.IsPaused:
+                continue
+            self.command = input(f"")
             self.run_command(self.command)
 
         if enableDebugMode:
             print("[Debug]: Closed the console.")
         return
 
-    def echo(self, *args):
-        
-        pass
+    def pause(self, value: bool=None):
+        """
+        Pauses user input reading. Toggles with no argument.
+        """
+        if value != None:
+            self.IsPaused = value
+            return
+        self.IsPaused = not self.IsPaused
 
     def run_command(self, command):
         command_raw = command
@@ -288,7 +298,13 @@ class DeveloperConsole:
                                     if args[4]:
                                         self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
                     except:
-                        self.invalid_usage(args[0])             
+                        self.invalid_usage(args[0])    
+                case "setrulestr":
+                    try:
+                        if args[1]:
+                            self.set_match_rulestr(command_raw)
+                    except:
+                        print("Invalid command, type /help for available commands")
                 case "timerp":
                     self.command_timer()
                 case _:
@@ -300,8 +316,65 @@ class DeveloperConsole:
         """
         Prompts proper command usage.
         """
-        
         print(f"Improper command usage, type /help {command} for usage")
+
+    def get_match_rule(self, match: Match=None) -> Ruleset:
+        if match != None:
+            try:
+                return match.Rules
+            except:
+                print("Match has no ruleset.")
+                return
+        else:
+            try:
+                return self._main.Match.Rules
+            except:
+                print("Failed to get match ruleset.")
+                return
+
+    def get_match_rulestr(self, match: Match=None, IsCommand: bool=False) -> str:
+        if match.Rules != None:
+            try:
+                rulestr = match.Rules.get_rulestr()
+                if IsCommand:
+                    return "setrulestr {}".format(rulestr)
+                return rulestr
+            except:
+                print("Match has no ruleset.")
+                return
+        else:
+            try:
+                return self._main.Match.Rules.get_rulestr()
+            except:
+                print("Failed to get match rulestr.")
+                return
+
+    def set_match_rule(self, ruleset: Ruleset):
+        try:
+            self._main.Match.Rules = ruleset
+        except:
+            print("Failed to set ruleset.")
+
+    def set_match_rulestr(self, rulestr: str):
+        rulestr = rulestr[11:]
+        try:
+            self._main.Match.Rules.set_rulestr(rulestr)
+        except:
+            print("Failed to set rulestr.")
+
+    def init_server(self):
+        pass
+            
+    def init_client(self):
+        if not self.IsClient:
+            return
+        if self._main.Match == None:
+            pass
+
+        # self._command_match()
+        self._command_flip()
+        self._command_lock()
+
 
     # Commands list
 
@@ -316,14 +389,6 @@ class DeveloperConsole:
     def _command_init_server(self):
         self.command_op()
 
-    def _command_init_client(self):
-        if self._game == None:
-            #self.command_match()
-            return
-        
-        self._command_flip()
-        self._command_lock()
-
     def _command_lock(self):
         self._game.toggle_player_controls()
 
@@ -336,7 +401,6 @@ class DeveloperConsole:
             return
 
         self._main.Queue.put(self._main.add_match())
-        
 
     def _command_ffyes(self):
         #TODO
@@ -419,16 +483,15 @@ class DeveloperConsole:
         print("Type /forfeit <yes|no>")
 
     def command_host(self):
-        if not self._main.Match.IsRunning:
-            print("There's not a match running.")
+        if not self._main.Match:
+            print("Create a match first with /match create <mode>.")
             return
-
         if self.IsClient:
             self._client.stop()
 
         try:
             if self._server.IsRunning:
-                print(f"Local match already hosted on {self._server.get_ip()}")
+                print(f"Local match already hosted on {self._server.get_port()}")
                 return
         except:
             self._server = server
@@ -436,8 +499,8 @@ class DeveloperConsole:
             self._server.start()
 
             if self.ShowFeedback:
-                print(f"Hosted local match on {self._server.get_ip()}")
-                print(f"Join with /connect {self._server.get_ip()}")
+                print(f"Hosted local match on {self._server.get_port()}")
+                print(f"Join with /connect <your_local_ip>")
 
     def command_match(self, mode):
         #TODO: Can create a new match while one is still running
@@ -455,7 +518,6 @@ class DeveloperConsole:
         if not self._main.Match.IsRunning:
             print("There's not a match running.")
             return
-
         if not self._game.selected_piece:
             print("No piece selected. Select a piece with /select first")
             return
