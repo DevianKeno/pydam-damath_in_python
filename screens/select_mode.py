@@ -1,5 +1,6 @@
 import pygame
 from .main_menu_screen import MainMenu
+from ui_class.colors import *
 from display_constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from objects import sidebar, btn_size, classic_btn, speed_btn, custom_btn, \
         start_select_btn, modes_btn, modes_btn_group, title, TITLE
@@ -94,3 +95,5 @@ class SelectMode(MainMenu):
 
     def after_looping(self):
         pass
+    
+select_mode_screen = SelectMode(OAR_BLUE)

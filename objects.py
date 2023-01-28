@@ -137,6 +137,7 @@ cheats_window_orange_long = Window(CHEAT_WINDOW_ORANGE_LONG, screen,
 # --------- Buttons  --------- 
 
 btn_size = (SCREEN_WIDTH*0.1607, SCREEN_HEIGHT*0.075)
+
 classic_btn = NButton(screen, (SIDE_MENU_RECT_CURRENT.width + 
                         (SCREEN_WIDTH-SIDE_MENU_RECT_CURRENT.width)/10, 
                         SCREEN_HEIGHT/2), btn_size[0], btn_size[1], text='Classic', args='Classic',

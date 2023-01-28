@@ -20,7 +20,7 @@ from damath.constants import *
 from damath.timer import *
 from display_constants import *
 from event_loop import event_loop
-from screens.select_mode import SelectMode
+from screens.select_mode import *
 from screens.multi_menu import MultiMenu
 from ui_class.button import Button, ButtonList
 from ui_class.colors import * 
@@ -29,6 +29,7 @@ from ui_class.fade import *
 from ui_class.main_menu import *
 from ui_class.themes_option import Themes, ThemesList
 from ui_class.image import *
+from ui_class.scene import *
 from ui_class.tween import *
 from ui_class.rect_window import *
 from ui_class.mode_window import *
@@ -38,6 +39,9 @@ from audio_constants import *
 from objects import *
 from assets import *
 from options import *
+
+from scenes.title_scene import *
+from scenes.game_scene import *
 
 # --------- initialization ---------
 pygame.init()
@@ -380,16 +384,17 @@ def sidebar_update(func):
 # --------- MAIN MENU SCREENS ---------
 
 @sidebar_update
-def display_screen(Screen):
+def display_screen(screen):
     """
-    Displays the passed Screen
+    Displays the passed screen.
     """
-    if Screen == select_mode_screen:
-        start_select_btn.set_target(Main.create_and_start_match)
-    Screen.display()
+    if screen == select_mode_screen:
+        classic_btn.set_target(Main.create_match('Classic'))
+        speed_btn.set_target(Main.create_match('Speed'))
+        start_select_btn.set_target(Main.start_match())
+    screen.display()
 
 # --------- Screen Objects ---------
-select_mode_screen = SelectMode(OAR_BLUE)
 multi_mode_screen = MultiMenu(OAR_BLUE)
 
 sidebar_init()
@@ -749,6 +754,7 @@ class WinnerWindow:
         self.delay_time = 0
         self.sound_played = False
 
+
 class Damath:
 
     def __init__(self) -> None:
@@ -756,86 +762,16 @@ class Damath:
         self.Match = Match()
 
     def start(self):
-        self.title()
+        TitleScene = S_Title()
+        TitleScene.Main = self
+        TitleScene.load()
 
-    def title(self):
-        """
-        Launch Title Screen.
-        """
-        
-        pygame.mixer.music.load('audio/DamPy.wav')
-        pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(MUSIC_VOLUME)
-
-        # full_trans_reset()
-        # game.reset()
-
-        anim_title_slide_up.reset()
-        anim_title_breathe.play()
-        # anim_title_squeeze.play()
-        # anim_title_rotate.play()
-        
-        anim_TEST_side_menu_scale.play()
-        anim_TEST_side_menu_breathe.play()
-
-        while True:
-            try:
-                _start_match = Main.Queue.get(False)
-                _start_match()
-            except: 
-                pass
-
-            screen.fill(OAR_BLUE)
-            screen.blit(title_surface, (((SCREEN_WIDTH-sidebar.sidebar_rect.w) // 2) +
-                        sidebar.sidebar_rect.w-title_surface.get_width() // 2, 0))
-            title_surface.fill(OAR_BLUE)
-
-            # pygame.draw.rect(screen, BLACK, TEST_side_menu)
-            sidebar.display(None)
-            screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
-            title.display()
-
-            if chip_animation:
-                for i in range(len(red_chips)):
-                    red_chips[i].next_frame()
-                    blue_chips[i].next_frame()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()   
-
-                # Debug
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        Main.start_match('Classic')
-                        return
-
-                    if event.key == pygame.K_EQUALS:
-                        Main.start_match('Classic')
-                        return
-
-                    if event.key == pygame.K_MINUS:
-                        Main.start_match()
-                        return
-                    
-                    if event.key == pygame.K_t:
-                        display_screen(select_mode_screen)
-                        return
-
-            anim_title_breathe.update()
-            anim_title_squeeze.update()
-            anim_title_rotate.update()
-            # anim_TEST_side_menu_scale.update()
-            # anim_TEST_side_menu_breathe.update()
-            
-            screen.blit(CURSOR, pygame.mouse.get_pos())
-            pygame.display.update()
-            clock.tick(FPS)     
-
+    """
+    Methods
+    """
     def create_match(self, mode: str) -> Match:
         """
-        Creates a new match with specified mode.
+        Creates a new self.Match with specified mode.
         The created match is stored as the attribute "Damath.Match" and is overridden by succeeding created matches.
         A different instance of a match can also be created as the function returns a Match class.
         """
@@ -938,6 +874,8 @@ class Damath:
                 print("No match created.")
                 return
 
+        GameScene.Match = match
+
         global thread_running, text_mode, global_timer_text
 
         if Rules.allowActions:
@@ -946,6 +884,7 @@ class Damath:
             actions.Game = match
             actions.Console = Console
             actions.init()
+            GameScene.Actions = actions
 
         if Rules.allowCheats:
             cheats = Cheats()
@@ -953,6 +892,7 @@ class Damath:
             cheats.Game = match
             cheats.Console = Console
             cheats.init()
+            GameScene.Cheats = cheats
         
         # This can be set as soon as the match is created
         if Rules.mode == 'Classic':
@@ -962,12 +902,6 @@ class Damath:
             turn_timer.set_duration(15)
             global_timer.set_duration(300)
 
-        # This too
-        if Rules.IsVersusAI:
-            text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
-        else:
-            text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
-
         TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
 
         if Options.enableDebugMode:
@@ -976,368 +910,30 @@ class Damath:
         pygame.mixer.music.stop()
         full_trans_reset()
 
-        match.IsRunning = True
-        while match.IsRunning:
-            if Rules.enableTimer:
-                if not TIMERTHREAD.is_alive():
-                    TIMERTHREAD.start() 
+        if Rules.enableTimer:
+            if not TIMERTHREAD.is_alive():
+                TIMERTHREAD.start() 
+            GameScene.TurnTimer = turn_timer
+            GameScene.GlobalTimer = global_timer
 
-            mins, secs = global_timer.get_remaining_time()
-            if global_timer.is_running:
-                timer_color = WHITE
-            else:
-                timer_color = LIGHT_GRAY
-            global_timer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, timer_color)
-
-            # change_volume(SOUND_VOLUME)
-            #screen.blit(CLEAR_BG, (0, 0)) 
-            screen.fill(OAR_BLUE)    
-            screen.blit(side_menu_surface, (0, 0))
-            side_menu_surface.fill(DARK_GRAY_BLUE)      
-            
-            if self.Match.check_for_winner() != None:
-                print(self.Match.check_for_winner()) 
-                GameIsRunning = False
-                thread_running = False
-                game_ends()
-                
-            # Get current mouse position
-            m_pos = pygame.mouse.get_pos()
-
-            if return_btn.top_rect.collidepoint(m_pos):
-                return_btn.hover_update(pause, _fade=False)
-            else:
-                return_btn.reset()
-
-            screen.blit(game_side_surface, (0, 0))
-            game_side_surface.fill(DARK_GRAY_BLUE)
-            
-            screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
-            board_area_surface.fill(OAR_BLUE)
-
-            # damath_board_shadow.display()
-            damath_board.display()
-
-            # Render coordinates surface
-            board_area_surface.blit(board_x_coords_surface, board_x_coords_rect)
-            board_area_surface.blit(board_y_coords_surface, board_y_coords_rect)
-            board_x_coords_surface.fill(DARK_GRAY_BLUE)
-            board_y_coords_surface.fill(DARK_GRAY_BLUE)
-
-            # Renders chips
-            board_area_surface.blit(chips_surface, (tiles_rect))
-            
-            # Render captured pieces
-            if not match.Board.IsFlipped:
-                board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
-                board_area_surface.blit(left_captured_pieces_surface, (left_captured_pieces_rect))
-            else:
-                board_area_surface.blit(right_captured_pieces_surface, (left_captured_pieces_rect))
-                board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
-            right_captured_pieces_surface.fill(OAR_BLUE)
-            left_captured_pieces_surface.fill(OAR_BLUE)
-            
-            # Display side bar elements
-            mini_title.display()
-
-            match.Board.draw()
-
-            screen.blit(text_scores,
-                        (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
-
-            screen.blit(global_timer_text,
-                        (game_side_surface.get_width()//2-global_timer_text.get_width()//2, game_side_surface.get_height()*0.825)) 
-
-            screen.blit(text_mode,
-                        (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
-
-            if Rules.allowActions:
-                actions.draw_menu()
-
-            if Rules.allowCheats:
-                cheats.draw_menu()
-
-                if cheats.ShowEVWindow:
-                    if cheats.ev_window.collidepoint(m_pos):
-                        cheats.check_for_hover(m_pos)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    GameIsRunning = False
-                    thread_running = False
-                    pygame.quit()
-                    sys.exit()
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                        if Rules.allowCheats:
-                            if cheats.ShowDropdown:
-                                cheats.hide_menus()
-                            else:
-                                pause(Rules.mode)
-                        else:
-                            pause(Rules.mode)
-                        break
-                # Legacy cheat codes
-                    if Rules.allowCheats:
-                        _keys = pygame.key.get_pressed()
-                        
-                        if _keys[pygame.K_LCTRL]:
-
-                            if _keys[pygame.K_w]: # king pieces
-
-                                if _keys[pygame.K_1]: # blue pieces
-                                    drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                    piece = match.Board.get_piece((drow, dcol))
-                                    if dcol % 2 == 1:
-                                        if drow % 2 == 1:
-                                            if piece.color == RED:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left -= 1
-                                                match.Board.white_left += 1
-                                            elif piece.color == 0:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.white_left += 1                                 
-                                    else:
-                                        if drow % 2 == 0:
-                                            if piece.color == RED:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left -= 1
-                                                match.Board.white_left += 1
-                                            elif piece.color == 0:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.white_left += 1  
-
-                                if _keys[pygame.K_2]: # red pieces
-                                    drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                    piece = match.Board.get_piece((drow, dcol))
-                                    if dcol % 2 == 1:
-                                        if drow % 2 == 1:
-                                            if piece.color == LIGHT_BLUE:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left += 1
-                                                match.Board.white_left -= 1
-                                            elif piece.color == 0:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left += 1                                 
-                                    else:
-                                        if drow % 2 == 0:
-                                            if piece.color == LIGHT_BLUE:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left += 1
-                                                match.Board.white_left -= 1
-                                            elif piece.color == 0:
-                                                match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                                match.Board.board[drow][dcol].king = True
-                                                match.Board.red_left += 1  
-
-                            elif _keys[pygame.K_1]: # add normal blue piece
-                                drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                piece = match.Board.get_piece((drow, dcol))
-                                if dcol % 2 == 1:
-                                    if drow % 2 == 1:
-                                        if piece.color == RED:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            match.Board.red_left -= 1
-                                            match.Board.white_left += 1
-                                        elif piece.color == 0:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            match.Board.white_left += 1                                 
-                                else:
-                                    if drow % 2 == 0:
-                                        if piece.color == RED:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            match.Board.red_left -= 1
-                                            match.Board.white_left += 1
-                                        elif piece.color == 0:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            match.Board.white_left += 1  
-
-                            elif _keys[pygame.K_2]: # add normal red piece
-                                drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                piece = match.Board.get_piece((drow, dcol))
-                                if dcol % 2 == 1:
-                                    if drow % 2 == 1:
-                                        if piece.color == LIGHT_BLUE:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            match.Board.red_left += 1
-                                            match.Board.white_left -= 1
-                                        elif piece.color == 0:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            match.Board.red_left += 1                                 
-                                else:
-                                    if drow % 2 == 0:
-                                        if piece.color == LIGHT_BLUE:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            match.Board.red_left += 1
-                                            match.Board.white_left -= 1
-                                        elif piece.color == 0:
-                                            match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            match.Board.red_left += 1
-
-                        if _keys[pygame.K_LSHIFT]:
-                            if _keys[pygame.K_c]: # change turn
-                                match.change_turn()
-                            if _keys[pygame.K_1]: # match resets
-                                match.reset()
-                            if _keys[pygame.K_2]: # blue wins
-                                match.scoreboard.p1_score = 1
-                                match.scoreboard.p2_score = 0
-                                match.Board.orange_pieces_count = 0
-                            if _keys[pygame.K_3]: # red wins
-                                match.scoreboard.p1_score = 0
-                                match.scoreboard.p2_score = 1
-                                match.Board.blue_pieces_count = 0
-                            if _keys[pygame.K_4]: # make all pieces king
-                                for i in range(8):
-                                    for j in range(8):
-                                        match.Board.board[i][j].IsKing = True
-                            if _keys[pygame.K_5]: # make all pieces not king
-                                for i in range(8):
-                                    for j in range(8):
-                                        match.Board.board[i][j].IsKing = False   
-                            if _keys[pygame.K_6]: # removes all pieces
-                                for i in range(8):
-                                    for j in range(8):
-                                        match.Board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
-                            if _keys[pygame.K_7]: # displays a single chip in both ends
-                                for i in range(8):
-                                    for j in range(8):
-                                        match.Board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
-                                match.Board.board[0][2] = Piece(chips_surface, 0, 2, PLAYER_TWO, 2)   
-                                match.Board.board[7][7] = Piece(chips_surface, 7, 7, PLAYER_ONE, 2)  
-                                match.Board.red_left = 1
-                                match.Board.white_left = 1
-                            if pygame.mouse.get_pressed()[2]: #removes the piece
-                                drow, dcol = get_cell_from_mouse(pygame.mouse.get_pos())
-                                piece = [match.Board.get_piece((drow, dcol))]
-                                match.Board.move_to_graveyard(piece)
-
-                        if _keys[pygame.K_m]:
-                            if _keys[pygame.K_0]:
-                                match.set_mode('Naturals')
-                            elif _keys[pygame.K_1]:
-                                match.set_mode('Integers')
-                            elif _keys[pygame.K_2]:
-                                match.set_mode('Rationals')
-                            elif _keys[pygame.K_3]:
-                                match.set_mode('Radicals')
-                            elif _keys[pygame.K_4]:
-                                match.set_mode('Polynomials')
-                    
-                        if cheats.IsTyping:
-                            if event.key == pygame.K_RETURN:
-                                print(cheats.input)
-                                cheats.input.text = ''
-                            elif event.key == pygame.K_BACKSPACE:
-                                cheats.input.text = cheats.input.text[:-1]
-                            else:
-                                cheats.input.text += event.unicode
-
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # Left click
-                    if pygame.mouse.get_pressed()[0]:
-                        
-                        if board_rect.collidepoint(m_pos):
-                            cell = get_cell_from_mouse_raw(m_pos)
-                            col, row = cell
-
-                            if match.moved_piece != None:
-                                if row != match.moved_piece.row or row != match.moved_piece.col:
-                                    INVALID_SOUND.play()
-                                
-                            if Rules.allowCheats:
-                                if not cheats.ShowDropdown:
-                                    if (-1 < row < ROWS) and (-1 < col < COLS):
-                                        if Rules.IsMultiplayer:
-                                            Console.listen(match.select(cell))
-                                        if Rules.IsVersusAI:
-                                            if match.turn == PLAYER_ONE:
-                                                match.select(cell)
-                                        else:
-                                            match.select(cell)
-                            else:
-                                if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    if Rules.IsVersusAI:
-                                        if match.turn == PLAYER_ONE:
-                                            match.select(cell)
-                                    else:
-                                        match.select(cell)
-                                    
-                        if Rules.allowActions:
-                            if actions.ShowDropdown:
-                                if actions.dropdown.window.collidepoint(m_pos):
-                                    actions.invoke()
-                                elif actions.ShowFFWindow or actions.ShowODWindow:
-                                    if actions.confirmation_window.collidepoint(m_pos):
-                                        x, y = event.pos
-                                        # btn_selected(x, y, btn_list=[actions.button_ff_yes, actions.button_no, actions.button_od_yes])
-                                    else:
-                                        actions.hide_menus()
-                                else:
-                                    actions.hide_menus()
-
-                        if Rules.allowCheats:
-                            if cheats.ShowDropdown:
-                                if cheats.dropdown.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
-                                    cheats.invoke()
-                                elif cheats.ShowEVWindow:
-                                    if cheats.ev_window.collidepoint(m_pos):
-                                        # Clicked on "Done"
-                                        if cheats.selected_done == 1:
-                                            cheats.invoke()
-                                            cheats.hide_menus()
-                                        
-                                        # Clicked on text box
-                                        if cheats.text_box_rect.collidepoint(m_pos):
-                                            cheats.IsTyping = True
-                                            cheats.input_box.clear()
-                                    else:
-                                        cheats.hide_menus()
-                                else:
-                                    cheats.IsTyping = False
-                                    cheats.hide_menus()
-                                
-                    # Right click
-                    if pygame.mouse.get_pressed()[2]:
-                        if Rules.allowCheats:
-                            cell = get_cell_from_mouse_raw(m_pos)
-                            col, row = cell
-
-                            if not cheats.ShowEVWindow:
-                                cheats.select(cell)
-
-                                if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    cheats.create_dropdown(m_pos)
-                                    actions.hide_menus()
-                                else:
-                                    if not game_side_surface.get_rect().collidepoint(m_pos):
-                                        cheats.create_dropdown(m_pos, OnBoard=False)
-                                        actions.hide_menus()
-                                    else:
-                                        actions.create_dropdown(m_pos)
-                                        cheats.hide_menus()
-
-            screen.blit(CURSOR, pygame.mouse.get_pos())
-            match.update()
-            pygame.display.update()
-            clock.tick(FPS)
+        GameScene.load()
 
 # Start console
 Console = DeveloperConsole()
 
-Main = Damath()
+Main = None
+if not Main:
+    Main = Damath()
+else:
+    Main = Main
+
 Console.Main = Main
 Console.start()
-Main.create_match("Classic")
+
 Main.start()
 
 
-# Main.splash()
+class S_Splash(Scene):
+
+    def __init__(self) -> None:
+        super().__init__()
