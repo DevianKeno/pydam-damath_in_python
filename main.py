@@ -388,10 +388,7 @@ def display_screen(Screen):
     """
     if Screen == select_mode_screen:
         start_select_btn.set_target(Main.create_and_start_match)
-    try:
-        Screen.display()
-    except:
-        print("STILL IN PROGRESS")
+    Screen.display()
 
 # --------- Screen Objects ---------
 select_mode_screen = SelectMode(OAR_BLUE)
@@ -859,6 +856,7 @@ class Damath:
         Rules.allowActions = True
         Rules.allowCheats = True
         Rules.IsMultiplayer = True
+        Rules.piece_values = "Integers"
 
         # Once Start is pressed, instantiate other major classes
         # This can be put inside a separate function, taking Rules as param

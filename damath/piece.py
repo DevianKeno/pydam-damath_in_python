@@ -31,7 +31,7 @@ class Piece(Image):
         
         self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
         
-        match Rules.mode:
+        match Rules.piece_values:
             case 'Rationals':
                 self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.24))
             case 'Radicals':
