@@ -52,9 +52,9 @@ class Config:
 
         if not os.path.isfile(filepath):
             self.create_config()
-        self.read(filepath)
 
         try:
+            self.read(filepath)
             self.update_from_config()
         except:
             print(f"Error reading file {filepath}.\nCreating new config file...")
