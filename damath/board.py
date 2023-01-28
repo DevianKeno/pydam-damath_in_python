@@ -284,7 +284,7 @@ class Board:
                     self.pieces[col][row] = Piece(surface, (col, row), PLAYER_ONE, num[val_counter])
                     self.moveables.append((col, row))
 
-                    if enableDebugMode:
+                    if Options.enableDebugMode:
                         print(f"[Debug]: Created {PLAYER_ONE} piece \"{num[val_counter]}\" at cell ({col}, {row})")
 
                     val_counter-=1
@@ -300,7 +300,7 @@ class Board:
                     self.pieces[col][row] = Piece(surface, (col, row), PLAYER_TWO, num[val_counter])
                     self.moveables.append((col, row))
 
-                    if enableDebugMode:
+                    if Options.enableDebugMode:
                         print(f"[Debug]: Created {PLAYER_TWO} piece \"{num[val_counter]}\" at cell ({col}, {row})")
 
                     val_counter+=1
@@ -423,7 +423,7 @@ class Board:
         destination_row = destination[1]
         destination_piece = self.pieces[destination_col][destination_row]
 
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_col}, {destination_row})")
 
         # Play animation

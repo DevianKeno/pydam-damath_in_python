@@ -63,7 +63,7 @@ def get_cell_from_mouse(pos):
     col = (x - selection_guide_rect.w) // square_size
     row = abs(((y - selection_guide_rect.h) // square_size) - 7)
 
-    if enableDebugMode:
+    if Options.enableDebugMode:
         print(f"[Debug/Action]: Clicked on cell ({col}, {row})")
     return col, row
 
@@ -72,19 +72,17 @@ def get_cell_from_mouse_raw(pos):
     Returns a cell (column and row) from the board based from mouse position.
     Returns a negative value if out of bounds of the board.
     """
-    
     x, y = pos
     col = (x - selection_guide_rect.w) // square_size
     row = (y - selection_guide_rect.h) // square_size
-
-    if enableDebugMode:
-        print(f"[Debug/Action]: Clicked on cell ({col}, {row}), raw")
 
     if col < 0 or col > 7:
         return -1, -1
     if row < 0 or row > 7:
         return -1, -1
 
+    if Options.enableDebugMode:
+        print(f"[Debug/Action]: Clicked on cell ({col}, {row}), raw")
     return col, row
 
 def anim_dim():
@@ -531,14 +529,14 @@ def timer_thread():
         time.sleep(0.1)
         #print(turn_timer.remaining_time)
         
-        if turn_timer.starttime_started and turn_timer.is_running:
+        if turn_timer.start_time_started and turn_timer.is_running:
             turn_timer.update()
             if turn_timer.remaining_time >= 0:
                 turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
             else:
                 game.change_turn()
 
-        if global_timer.starttime_started and global_timer.is_running:
+        if global_timer.start_time_started and global_timer.is_running:
             global_timer.update()
             if ceil(global_timer.remaining_time) >= 0:
                 global_timer.remaining_time = global_timer.endtime - global_timer.currenttime
@@ -639,9 +637,9 @@ def game_ends():
     winner_anim_frames = []
 
     # only load the frames of the winning color
-    print(game.winner() == RED)
+    print(game.check_for_winner() == RED)
 
-    if game.winner() == PLAYER_TWO:
+    if game.check_for_winner() == PLAYER_TWO:
         for i in range(21):
             frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+18}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
             winner_anim_frames.append(frame)
@@ -855,7 +853,7 @@ class Damath:
         # MANUAL RULE SET FOR DEBUGGING
         Rules.allowActions = True
         Rules.allowCheats = True
-        Rules.IsMultiplayer = True
+        Rules.IsMultiplayer = False
         Rules.piece_values = "Integers"
 
         # Once Start is pressed, instantiate other major classes
@@ -965,14 +963,14 @@ class Damath:
             global_timer.set_duration(300)
 
         # This too
-        if Rules.ai:
-            text_mode = font_cookie_run_reg.render(str(Rules.mode)+" (vs Xena)", True, OAR_BLUE)
+        if Rules.IsVersusAI:
+            text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
         else:
             text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
 
         TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
 
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f'[Debug]: Playing on {Rules.mode} mode')
 
         pygame.mixer.music.stop()
@@ -997,8 +995,8 @@ class Damath:
             screen.blit(side_menu_surface, (0, 0))
             side_menu_surface.fill(DARK_GRAY_BLUE)      
             
-            if self.Match.winner() != None:
-                print(self.Match.winner()) 
+            if self.Match.check_for_winner() != None:
+                print(self.Match.check_for_winner()) 
                 GameIsRunning = False
                 thread_running = False
                 game_ends()
@@ -1258,16 +1256,16 @@ class Damath:
                             if Rules.allowCheats:
                                 if not cheats.ShowDropdown:
                                     if (-1 < row < ROWS) and (-1 < col < COLS):
-                                        if match.IsMultiplayer:
+                                        if Rules.IsMultiplayer:
                                             Console.listen(match.select(cell))
-                                        if Rules.ai:
+                                        if Rules.IsVersusAI:
                                             if match.turn == PLAYER_ONE:
                                                 match.select(cell)
                                         else:
                                             match.select(cell)
                             else:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    if Rules.ai:
+                                    if Rules.IsVersusAI:
                                         if match.turn == PLAYER_ONE:
                                             match.select(cell)
                                     else:

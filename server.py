@@ -3,6 +3,7 @@ Server.
 """
 
 from _thread import *
+from options import *
 import socket
 import threading
 
@@ -13,7 +14,7 @@ class Server:
         # reserve a port on your computer in our
         # case it is 12345 but it can be anything
         self._console = None
-        self.port = 12345
+        self.port = Options.port
         self.msg = ''
         self.reply = ''
         self.IsRunning = False

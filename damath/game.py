@@ -48,7 +48,6 @@ class Match:
         self.ControlsIsEnabled = True
         self.DrawIndicators = True
         self.TurnRequiresCapture = False
-        self.IsMultiplayer = Rules.IsMultiplayer
 
     @property
     def Surface(self):
@@ -60,25 +59,10 @@ class Match:
 
     def set_mode(self, mode):
         Rules.set_mode("Classic")
-        Piece.mode = mode
-        Scoreboard.mode = mode
-        self.Board.set_mode(mode)
 
     def update(self):
         self.Scores.draw_scores()
         self.Scores.draw_turn_indicator(self.turn)
-
-    def winner(self):   
-        if (self.Board.blue_pieces_count <=0 or self.Board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
-            p1, p2 = self.Scores.score()
-
-            if p2 > p1:
-                return PLAYER_TWO 
-            elif p1 > p2:
-                return PLAYER_ONE
-            else:
-                return "TIE"
-        return None
 
     def reset(self):
         self.Scores.reset()
@@ -110,7 +94,7 @@ class Match:
         # positive game evaluation value means PLAYER_ONE (Blue) is winning
         self.game_evaluation = p1_eval - p2_eval
         
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Evaluation] Game Value: {self.game_evaluation}")
         self.get_all_possible_moves(self.Board.pieces, self.turn)
 
@@ -136,15 +120,12 @@ class Match:
                     if moves:
                         self.movables[piece] = moves
         
-        #BUG: Bug in some king pieces where no valid moves are returned on first click,
-        #     causing the function to fail to count those moves, and will only do so 
-        #     after the player reselects the affected king piece
         piece_movables = list(self.movables.keys())
         valid_moves = []
         for move in list(self.movables.values()):
             valid_moves.extend(move)
 
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Evaluation] Number of valid moves: {len(valid_moves)}")
             print(f"[Evaluation] Number of movables pieces: {len(piece_movables)}")
 
@@ -163,7 +144,7 @@ class Match:
                 self.select_piece(self.Board.get_piece(cell), IsOperator)
                 return
 
-        if self.IsMultiplayer:
+        if Rules.IsMultiplayer:
             if not self.ControlsIsEnabled:
                 return
         
@@ -179,7 +160,7 @@ class Match:
             if piece_to_select == self.moved_piece:
                 piece_to_select = self.moved_piece
 
-        # If a piece is selected
+        # Handles selection of pieces
         if self.selected_piece:
             if piece_to_select.color == self.turn:
                 if self.TurnRequiresCapture:
@@ -203,7 +184,7 @@ class Match:
         
         if (cell) in self.valid_moves:
             # Send to console
-            if self.IsMultiplayer:
+            if Rules.IsMultiplayer:
                 if self.Board.IsFlipped:
                     col, row = self.Board.to_raw(cell)
                     piece_col, piece_row = self.Board.get_abs((self.selected_piece.col, self.selected_piece.row))
@@ -234,12 +215,11 @@ class Match:
             if piece.color != self.turn:
                 self.refresh()
                 self.Board.refresh()
-                INVALID_SOUND.play()
                 return
 
         self.selected_piece = piece
 
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Debug]: Selected piece ({self.selected_piece.col}, {self.selected_piece.row})")
 
         # Get moves
@@ -256,9 +236,7 @@ class Match:
 
         if not self.valid_moves:
             if self.selected_piece.HasSkipped:
-                # INVALID_SOUND.play()
                 return
-
             self.selected_piece.HasSkipped = False
         else:
             self.Board.selected_piece = self.selected_piece
@@ -269,7 +247,6 @@ class Match:
         """
         Gets the valid moves of the piece.
         """
-
         return self.Board.get_valid_moves(piece, moves_to_get, self.Board.IsFlipped)
 
     def _move_piece(self, piece, destination):
@@ -283,7 +260,6 @@ class Match:
 
         if piece_on_destination.color == 0 and (destination) in self.valid_moves:
             self.Board.move_piece(piece, destination_cell)
-            
             self.moved_piece = self.selected_piece
             skipped_list = list(self.valid_moves)
 
@@ -327,16 +303,13 @@ class Match:
         """
         Refreshes the game, removing all selections.
         """
-        
         self.selected_piece = None
         self.moved_piece = None
         self.valid_moves = {}
 
     def change_turn(self):
-        if self.IsMultiplayer:
-            # self.toggle_player_controls()
-            pass
-        
+        if Rules.IsMultiplayer:
+            self.toggle_player_controls()
         if self.selected_piece:
             self.Board.check_for_kings(self.selected_piece)
 
@@ -350,7 +323,7 @@ class Match:
 
         turn_timer.reset()
         
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Debug]: Turns changed, now {self.turn}")
 
         if Rules.allowMandatoryCapture:
@@ -368,7 +341,7 @@ class Match:
         
         col, row = self.Board.get_col_row((piece.col, piece.row))
 
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Debug]: Checking for possible captures for piece ({col}, {row})...")
                  
         self.Board.capturing_pieces.clear()
@@ -378,7 +351,7 @@ class Match:
         
         if self.Board.get_valid_moves(piece, "capture", self.Board.IsFlipped):
             if piece.HasPossibleCapture:
-                if enableDebugMode:
+                if Options.enableDebugMode:
                     print(f"[Debug]: Possible capture by ({piece.col}, {piece.row})")
                 
                 piece.IsMovable = True
@@ -386,7 +359,7 @@ class Match:
                 capturing_pieces += 1
 
         if capturing_pieces == 0:
-            if enableDebugMode:
+            if Options.enableDebugMode:
                 print(f"[Debug]: No possible captures for piece ({col}, {row})")
 
             self.Board.capturing_pieces.clear()
@@ -403,7 +376,7 @@ class Match:
         Checks all pieces of the current turn for possible captures.
         """
         
-        if enableDebugMode:
+        if Options.enableDebugMode:
             print(f"[Debug]: Checking for possible captures for {self.turn}...")
             
         self.Board.capturing_pieces.clear()
@@ -426,7 +399,7 @@ class Match:
                 if piece.color == self.turn:
                     if self.Board.get_valid_moves(piece, "capture", self.Board.IsFlipped):
                         if piece.HasPossibleCapture:
-                            if enableDebugMode:
+                            if Options.enableDebugMode:
                                 print(f"[Debug]: Possible capture by ({col}, {row})")
                             
                             piece.IsMovable = True
@@ -439,7 +412,7 @@ class Match:
                         orange_count -= 1
 
         if capturing_pieces == 0:
-            if enableDebugMode:
+            if Options.enableDebugMode:
                 print(f"[Debug]: No possible captures for {self.turn}")
 
             self.Board.capturing_pieces.clear()
@@ -449,6 +422,17 @@ class Match:
         else:
             self.TurnRequiresCapture = True
             return self.TurnRequiresCapture
+
+    def check_for_winner(self):   
+        if (self.Board.blue_pieces_count <= 0 or self.Board.orange_pieces_count <= 0 or global_timer.get_remaining_time() == (-1, 59)):
+            p1, p2 = self.Scores.get_scores()
+
+            if p2 > p1:
+                return PLAYER_TWO 
+            if p1 > p2:
+                return PLAYER_ONE
+            return "TIE"
+        return None
 
     def ai_move(self, piece, move):
         
@@ -477,7 +461,7 @@ class Match:
         #           - making a move that will quickly end the game if the AI's score is significantly
         #               bigger than the opponent's
 
-        if self.turn == PLAYER_TWO and self.winner() == None:
+        if self.turn == PLAYER_TWO and self.check_for_winner() == None:
             # this will occassionally throw an error if the bug persists 
             # (no valid moves are returned on first click)
             res = minimax(self, self.Board.pieces, 1, self.Scores.p1_score, self.Scores.p2_score, False, None)

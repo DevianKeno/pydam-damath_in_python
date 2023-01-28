@@ -60,6 +60,9 @@ from options import *
 if Options.enableDebugMode:
     print("Debug mode is enabled.")
 
+# Getting values
+Options.get(soundVolume)
+
 # Saving values (must be string)
 Options.set_value(enableDebugMode, 'False')
 Options.set_value(cursorColor, '219, 156, 112') # Tuple without parentheses
@@ -190,8 +193,8 @@ class Config:
             self.config.write(f)
         self.update_from_config()
 
-    def get_value(self, option):
-        return self.config[self.section][option]
+    def get(self, option):
+        return self.options[option]
     
     def set_value(self, option, value: str):
         """

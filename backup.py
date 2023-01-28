@@ -1396,8 +1396,8 @@ def start_game(mode, IsMultiplayer=False):
         screen.blit(side_menu_surface, (0, 0))
         side_menu_surface.fill(DARK_GRAY_BLUE)      
         
-        if game.winner() != None:
-            print(game.winner()) 
+        if game.check_for_winner() != None:
+            print(game.check_for_winner()) 
             GameIsRunning = False
             thread_running = False
             game_ends()
@@ -1824,9 +1824,9 @@ def game_ends():
     winner_anim_frames = []
 
     # only load the frames of the winning color
-    print(game.winner() == RED)
+    print(game.check_for_winner() == RED)
 
-    if game.winner() == PLAYER_TWO:
+    if game.check_for_winner() == PLAYER_TWO:
         for i in range(21):
             frame = pygame.transform.smoothscale(pygame.image.load(f'assets\win\RED_WINS\{i+18}.png'), (SCREEN_WIDTH, SCREEN_HEIGHT))
             winner_anim_frames.append(frame)

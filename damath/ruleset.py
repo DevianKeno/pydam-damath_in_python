@@ -11,6 +11,7 @@ class Ruleset:
         self.players_count = 2
         self.IsVersusAI = False
         self.IsCustom = False
+        self.IsMultiplayer = False
         self.set_classic()
 
     def get_rulestr(self) -> str:

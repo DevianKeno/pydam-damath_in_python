@@ -1,30 +1,31 @@
 import time
 from math import ceil
 from .constants import TIMER_DURATION
+from damath.ruleset import *
 
 class Timer:
 
-    def __init__(self, duration):
-        self.duration = duration 
-        self.starttime = 0 
-        self.starttime_started = False
+    def __init__(self, duration_in_seconds: int):
+        self.duration = duration_in_seconds 
+        self.start_time = 0 
+        self.start_time_started = False
         self.currenttime = 0
         self.endtime = 0
-        self.remaining_time = duration
+        self.remaining_time = duration_in_seconds
         self.is_running = False 
     
-    def set_duration(self, duration):
-        self.duration = duration
+    def set_duration(self, duration_in_seconds):
+        self.duration = duration_in_seconds
 
     def start_timer(self):
-        if not self.starttime_started:
-            self.starttime = time.time()
-            self.starttime_started = True
+        if not self.start_time_started:
+            self.start_time = time.time()
+            self.start_time_started = True
 
         self.is_running = True
         
     def update(self):
-        self.endtime = self.starttime + self.duration 
+        self.endtime = self.start_time + self.duration 
         self.currenttime = time.time()
 
     def get_remaining_time(self):
@@ -34,7 +35,7 @@ class Timer:
         self.is_running = False
 
     def resume(self):
-        self.starttime += ((time.time() - self.starttime) - (self.duration - self.remaining_time))
+        self.start_time += ((time.time() - self.start_time) - (self.duration - self.remaining_time))
         self.is_running = True
 
     def toggle(self):
@@ -49,15 +50,13 @@ class Timer:
     def reset(self):
         self.remaining_time = self.duration
         self.is_running = True
-        self.starttime = time.time()
-        self.endtime = self.starttime + self.duration
-
-turn_timer = Timer(TIMER_DURATION)
+        self.start_time = time.time()
+        self.endtime = self.start_time + self.duration
 
 class GlobalTimer(Timer):
 
-    def __init__(self, duration):
-        Timer.__init__(self, duration)
+    def __init__(self, duration_in_seconds):
+        Timer.__init__(self, duration_in_seconds)
 
     def get_remaining_time(self) -> tuple:
         """
@@ -71,4 +70,5 @@ class GlobalTimer(Timer):
 
     #TODO: implement pause and resume and connect it to the turn timer (after fixing pause menu)
 
-global_timer = GlobalTimer(5)
+global_timer = GlobalTimer(Rules.timer_global)
+turn_timer = Timer(Rules.timer_turn)

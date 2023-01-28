@@ -183,7 +183,10 @@ class Scoreboard:
 
         return result
 
-    def score(self):
+    def get_scores(self) -> tuple:
+        """
+        Returns the scores of both players.
+        """
         return self.p1_score, self.p2_score
 
     def reset(self):

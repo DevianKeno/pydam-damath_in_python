@@ -3,6 +3,7 @@ Server.
 """
 
 from _thread import *
+from options import *
 import socket
 import threading  
 
@@ -10,7 +11,7 @@ class Client:
 
     def __init__(self) -> None:
         # Define the port on which you want to connect
-        self.port = 12345
+        self.port = Options.port
         self.ip = ''
         self.localhost = '127.0.0.1'
         self.msg = ''
