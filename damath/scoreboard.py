@@ -7,6 +7,7 @@ import operator
 import re
 from math import sqrt, ceil
 from .constants import *
+from .ruleset import Rules
 from ui_class.colors import LIGHT_GRAY
 from ui_class.fade import fade
 from ui_class.font import *
@@ -15,8 +16,6 @@ from .timer import *
 from options import *
 
 class Scoreboard:
-
-    mode = MODE
 
     def __init__(self, surface=None):
         self._surface = surface
@@ -79,7 +78,7 @@ class Scoreboard:
             scoreboard_p1_chip.display()
             scoreboard_p2_chip.display(100)
 
-            if enableTimer:
+            if Rules.enableTimer:
                 if not turn_timer.is_running:
                     timer_color = LIGHT_GRAY
                 elif remaining_time > 10:
@@ -92,7 +91,7 @@ class Scoreboard:
             scoreboard_p2_chip.display()
             scoreboard_p1_chip.display(100)
 
-            if enableTimer:
+            if Rules.enableTimer:
                 if not turn_timer.is_running:
                     timer_color = LIGHT_GRAY
                 elif remaining_time > 10:
@@ -112,8 +111,8 @@ class Scoreboard:
         piece_num = piece.number
         nums = list(num.number for num in numbers)
 
-        if self.mode != 'Integers' and self.mode != 'Naturals':
-            if self.mode == 'Rationals':
+        if Rules.mode != 'Integers' and Rules.mode != 'Naturals':
+            if Rules.mode == 'Rationals':
                 
                 val_dict = {
                     '10/10': 10/10, '7/10': 7/10, '2/10': 2/10,
@@ -125,7 +124,7 @@ class Scoreboard:
                 nums = list(val_dict.get(i) for i in nums)
                 piece_num = val_dict.get(piece.number)
 
-            elif self.mode == 'Radicals':
+            elif Rules.mode == 'Radicals':
 
                 val_dict = {
                         '-9√2': -9*sqrt(2), '-√8':-(sqrt(8)), '4√18':4*sqrt(18), 
@@ -137,7 +136,7 @@ class Scoreboard:
                 nums = list(val_dict.get(i) for i in nums)
                 piece_num = val_dict.get(piece.number)
 
-            if self.mode == 'Polynomials':
+            if Rules.mode == 'Polynomials':
                 #TODO: needs fixing of the assignment of values for row and col
                 nums = []
                 for num in numbers:

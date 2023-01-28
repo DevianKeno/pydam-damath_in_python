@@ -14,7 +14,7 @@ from damath.board import *
 from damath.cheats import Cheats
 from damath.game import *
 from damath.piece import Piece
-from damath.ruleset import Ruleset
+from damath.ruleset import *
 from damath.scoreboard import Scoreboard
 from damath.constants import *
 from damath.timer import *
@@ -860,9 +860,6 @@ class Damath:
         A different instance of a match can also be created as the function returns a Match class.
         """
 
-        # Create an instance of Rules first
-        Rules = Ruleset()
-
         # For custom games
         # Call this if a toggleable is pressed
         # e.g. Promotion toggleable
@@ -871,7 +868,7 @@ class Damath:
         Rules.allowCheats = True
         
         # For pre-defined modes
-        Rules.set(mode)
+        Rules.set_mode(mode)
 
         # MANUAL RULE SET FOR DEBUGGING
         Rules.allowActions = True
@@ -892,8 +889,6 @@ class Damath:
         Game.Surface = chips_surface
         Game.Board = Gameboard
         Game.Scores = Scores
-        # Assign the modified ruleset to the "Game" class
-        Game.Rules = Rules  
         Game.init()
         
         # Assign the match to the developer console
@@ -923,7 +918,9 @@ class Damath:
         Game.Surface = chips_surface
         Game.Board = Gameboard
         Game.Scores = Scores
-        Game.Rules = rules  
+        
+        Gameboard.Rules = rules
+        Game.Rules = rules
         Game.init()
         
         Console.Game = Game
@@ -962,14 +959,14 @@ class Damath:
 
         global thread_running, text_mode, global_timer_text
 
-        if match.Rules.allowActions:
+        if Rules.allowActions:
             actions = Actions()
             actions.Surface = screen
             actions.Game = match
             actions.Console = Console
             actions.init()
 
-        if match.Rules.allowCheats:
+        if Rules.allowCheats:
             cheats = Cheats()
             cheats.Surface = screen
             cheats.Game = match
@@ -977,30 +974,30 @@ class Damath:
             cheats.init()
         
         # This can be set as soon as the match is created
-        if match.Rules.mode == 'Classic':
+        if Rules.mode == 'Classic':
             turn_timer.set_duration(60)
             global_timer.set_duration(1200)
-        elif match.Rules.mode == 'Speed':
+        elif Rules.mode == 'Speed':
             turn_timer.set_duration(15)
             global_timer.set_duration(300)
 
         # This too
-        if versusAI:
-            text_mode = font_cookie_run_reg.render(str(match.Rules.mode)+" (vs Xena)", True, OAR_BLUE)
+        if Rules.ai:
+            text_mode = font_cookie_run_reg.render(str(Rules.mode)+" (vs Xena)", True, OAR_BLUE)
         else:
-            text_mode = font_cookie_run_reg.render(str(match.Rules.mode), True, OAR_BLUE)
+            text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
 
         TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
 
         if enableDebugMode:
-            print(f'[Debug]: Playing on {match.Rules.mode} mode')
+            print(f'[Debug]: Playing on {Rules.mode} mode')
 
         pygame.mixer.music.stop()
         full_trans_reset()
 
         match.IsRunning = True
         while match.IsRunning:
-            if match.Rules.enableTimer:
+            if Rules.enableTimer:
                 if not TIMERTHREAD.is_alive():
                     TIMERTHREAD.start() 
 
@@ -1073,10 +1070,10 @@ class Damath:
             screen.blit(text_mode,
                         (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
-            if match.Rules.allowActions:
+            if Rules.allowActions:
                 actions.draw_menu()
 
-            if match.Rules.allowCheats:
+            if Rules.allowCheats:
                 cheats.draw_menu()
 
                 if cheats.ShowEVWindow:
@@ -1092,16 +1089,16 @@ class Damath:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
-                        if match.Rules.allowCheats:
+                        if Rules.allowCheats:
                             if cheats.ShowDropdown:
                                 cheats.hide_menus()
                             else:
-                                pause(match.Rules.mode)
+                                pause(Rules.mode)
                         else:
-                            pause(match.Rules.mode)
+                            pause(Rules.mode)
                         break
                 # Legacy cheat codes
-                    if match.Rules.allowCheats:
+                    if Rules.allowCheats:
                         _keys = pygame.key.get_pressed()
                         
                         if _keys[pygame.K_LCTRL]:
@@ -1275,25 +1272,25 @@ class Damath:
                                 if row != match.moved_piece.row or row != match.moved_piece.col:
                                     INVALID_SOUND.play()
                                 
-                            if match.Rules.allowCheats:
+                            if Rules.allowCheats:
                                 if not cheats.ShowDropdown:
                                     if (-1 < row < ROWS) and (-1 < col < COLS):
                                         if match.IsMultiplayer:
                                             Console.listen(match.select(cell))
-                                        if versusAI:
+                                        if Rules.ai:
                                             if match.turn == PLAYER_ONE:
                                                 match.select(cell)
                                         else:
                                             match.select(cell)
                             else:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
-                                    if versusAI:
+                                    if Rules.ai:
                                         if match.turn == PLAYER_ONE:
                                             match.select(cell)
                                     else:
                                         match.select(cell)
                                     
-                        if match.Rules.allowActions:
+                        if Rules.allowActions:
                             if actions.ShowDropdown:
                                 if actions.dropdown.window.collidepoint(m_pos):
                                     actions.invoke()
@@ -1306,7 +1303,7 @@ class Damath:
                                 else:
                                     actions.hide_menus()
 
-                        if match.Rules.allowCheats:
+                        if Rules.allowCheats:
                             if cheats.ShowDropdown:
                                 if cheats.dropdown.window.collidepoint(m_pos) and not cheats.ShowEVWindow:
                                     cheats.invoke()
@@ -1329,7 +1326,7 @@ class Damath:
                                 
                     # Right click
                     if pygame.mouse.get_pressed()[2]:
-                        if match.Rules.allowCheats:
+                        if Rules.allowCheats:
                             cell = get_cell_from_mouse_raw(m_pos)
                             col, row = cell
 

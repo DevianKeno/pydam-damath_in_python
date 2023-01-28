@@ -3,7 +3,6 @@ Server.
 """
 
 from _thread import *
-from options import maxBufferSize
 import socket
 import threading  
 
@@ -77,7 +76,7 @@ class Client:
         
         while self.IsConnected:
             try:
-                reply = self.c.recv(maxBufferSize).decode('UTF-8').strip()
+                reply = self.c.recv(1024).decode('UTF-8').strip()
 
                 if reply == 'ping':
                     self.c.send('pong'.encode())

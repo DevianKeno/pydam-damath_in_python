@@ -9,6 +9,7 @@ class Ruleset:
         """
         
         self.players_count = 2
+        self.IsVersusAI = False
         self.IsCustom = False
         self.set_classic()
 
@@ -147,3 +148,4 @@ class Ruleset:
         
         self.ai = None
 
+Rules = Ruleset()

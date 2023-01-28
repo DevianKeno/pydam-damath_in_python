@@ -1,5 +1,6 @@
 import pygame
 from .piece import Piece
+from .ruleset import Rules
 from .constants import *
 from audio_constants import *
 from display_constants import BG_COLOR
@@ -15,12 +16,9 @@ piece_height = square_size
 piece_width = square_size * .874
 
 class Board:
-    
-    mode = MODE
 
     def __init__(self, surface=None, theme=None):
         self._surface = surface
-
         self.pieces = []
         self.theme = theme    
         self.symbol_map = {}
@@ -240,7 +238,7 @@ class Board:
     def _init_chips(self, surface):
         val_counter = 0
         
-        match self.mode:
+        match Rules.piece_values:
             case 'Naturals':
                 num = [
                     3, 6, 9, 12,
@@ -342,9 +340,10 @@ class Board:
 
         self.draw_symbols(self._surface)
         self.draw_coordinates()
-        self.draw_selected_piece_indicator()
-        self.draw_capturing_piece_indicator()
-        self.draw_valid_moves(self.valid_moves)
+        if Options.showIndicators:
+            self.draw_selected_piece_indicator()
+            self.draw_capturing_piece_indicator()
+            self.draw_valid_moves(self.valid_moves)
         self.draw_chips()
         
     def draw_symbols(self, surface):
@@ -393,7 +392,7 @@ class Board:
         if not self.capturing_pieces:
             return
 
-        if allowMandatoryCapture:
+        if Rules.allowMandatoryCapture:
             for i, piece in enumerate(self.capturing_pieces):
                 col, row = (piece[0], piece[1])
                 capturing_piece_rect = pygame.Rect((col*square_size, row*square_size), (square_size, square_size))   
@@ -429,7 +428,7 @@ class Board:
 
         # Play animation
         if enableAnimations:
-            self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), chipMoveAnimationSpeed, ease_type=easeOutQuint)
+            self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), Options.chipMoveAnimationSpeed, ease_type=easeOutQuint)
             self.anim_move_piece.play()
 
         self.pieces[destination_col][destination_row] = piece

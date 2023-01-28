@@ -1,5 +1,6 @@
 import pygame
 from .constants import *
+from .ruleset import Rules
 from objects import square_size, right_captured_pieces_surface, left_captured_pieces_surface
 from assets import BLUE_PIECE, ORANGE_PIECE, BLUE_PIECE_KING, ORANGE_PIECE_KING
 from ui_class.image import Image
@@ -7,30 +8,30 @@ from options import *
 
 class Piece(Image):
 
-    mode = MODE
-
     def __init__(self, surface, cell=(), color=None, value=''):
         self.surface = surface
         self.cell = cell
         self.col = cell[0]
         self.row = cell[1]
-        self.color = color
-        self.number = value
-        self.num = None
-        self.HasPossibleCapture = False
-        self.IsKing = False
-        self.IsOnPromotion = False
-        self.HasSkipped = False
-        self.IsCaptured = False
-        self.IsMovable = True
         self.x = 0
         self.y = 0
         self.w = square_size * 0.874
         self.h = square_size
+
+        self.color = color
+        self.number = value
+        self.num = None
+
+        self.IsMovable = True
+        self.HasSkipped = False
+        self.HasPossibleCapture = False
+        self.IsCaptured = False
+        self.IsKing = False
+        self.IsOnPromotion = False
         
         self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.3))
         
-        match self.mode:
+        match Rules.mode:
             case 'Rationals':
                 self.font = pygame.font.Font('font\CookieRun_Bold.ttf', int(square_size*0.24))
             case 'Radicals':

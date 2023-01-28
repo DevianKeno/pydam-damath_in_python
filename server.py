@@ -3,7 +3,6 @@ Server.
 """
 
 from _thread import *
-from options import maxBufferSize
 import socket
 import threading
 
@@ -93,7 +92,7 @@ class Server:
 
         while self.IsConnected:
             try:
-                reply = self.c.recv(maxBufferSize).decode('UTF-8').strip()
+                reply = self.c.recv(1024).decode('UTF-8').strip()
 
                 if reply == 'pong':
                     self.c.send('ping'.encode())
@@ -121,7 +120,7 @@ class Server:
         Receives message.
         """
         
-        return self.c.recv(maxBufferSize).decode('UTF-8').strip()
+        return self.c.recv(1024).decode('UTF-8').strip()
 
     def get_port(self):
         return self.ip

@@ -4,6 +4,7 @@ import time
 from multipledispatch import dispatch
 from .board import Board
 from .piece import Piece
+from .ruleset import Rules
 from .scoreboard import Scoreboard
 from .constants import *
 from .timer import *
@@ -24,7 +25,6 @@ class Match:
         self._surface = surface
         self.Board = board
         self.Scores = scoreboard
-        self.Rules = None
         self.ControlsIsEnabled = True
         self.IsRunning = False
 
@@ -48,7 +48,7 @@ class Match:
         self.ControlsIsEnabled = True
         self.DrawIndicators = True
         self.TurnRequiresCapture = False
-        self.IsMultiplayer = self.Rules.IsMultiplayer
+        self.IsMultiplayer = Rules.IsMultiplayer
 
     @property
     def Surface(self):
@@ -59,7 +59,7 @@ class Match:
         self._surface = value
 
     def set_mode(self, mode):
-        self.Rules.set("Classic")
+        Rules.set_mode("Classic")
         Piece.mode = mode
         Scoreboard.mode = mode
         self.Board.set_mode(mode)
@@ -217,7 +217,7 @@ class Match:
             if not self.selected_piece.HasPossibleCapture:
                 self.change_turn()
             else:
-                if versusAI:
+                if Rules.ai:
                     self.versus_ai()
 
             return self.command
@@ -245,7 +245,7 @@ class Match:
         # Get moves
         moves_to_get = "all"
         
-        if allowMandatoryCapture:
+        if Rules.allowMandatoryCapture:
             if not self.selected_piece.IsMovable:
                 return
 
@@ -353,11 +353,11 @@ class Match:
         if enableDebugMode:
             print(f"[Debug]: Turns changed, now {self.turn}")
 
-        if allowMandatoryCapture:
+        if Rules.allowMandatoryCapture:
             self.check_for_captures()
 
         self.evaluate()
-        if versusAI:
+        if Rules.ai:
             self.versus_ai()
 
     @dispatch(Piece)

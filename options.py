@@ -126,27 +126,28 @@ class Config:
         try:
             self.cursorColor = tuple(map(int, (self.options[cursorColor].split(','))))
         except:
+            #TODO: this is gonna return an error when used
             self.cursorColor = self.set_value(cursorColor, DEFAULT_OPTIONS[cursorColor])
 
         try:
             self.port = int(self.options[port])
         except:
-            self.port = self.set_value(port, DEFAULT_OPTIONS[port])
+            self.port = int(self.set_value(port, DEFAULT_OPTIONS[port]))
             
         try:
             self.chipMoveAnimationSpeed = float(self.options[chipMoveAnimationSpeed])
         except:
-            self.chipMoveAnimationSpeed = self.set_value(chipMoveAnimationSpeed, DEFAULT_OPTIONS[chipMoveAnimationSpeed])
+            self.chipMoveAnimationSpeed = float(self.set_value(chipMoveAnimationSpeed, DEFAULT_OPTIONS[chipMoveAnimationSpeed]))
 
         try:
             self.musicVolume = int(self.options[musicVolume])
         except:
-            self.musicVolume = self.set_value(musicVolume, DEFAULT_OPTIONS[musicVolume])
+            self.musicVolume = int(self.set_value(musicVolume, DEFAULT_OPTIONS[musicVolume]))
 
         try:
             self.soundVolume = int(self.options[soundVolume])
         except:
-            self.soundVolume = self.set_value(soundVolume, DEFAULT_OPTIONS[soundVolume])
+            self.soundVolume = int(self.set_value(soundVolume, DEFAULT_OPTIONS[soundVolume]))
 
     def read_all(self):
         list_of_value = []
@@ -187,6 +188,7 @@ class Config:
             for option in DEFAULT_OPTIONS:
                 self.config[self.section][option] = DEFAULT_OPTIONS[option]
             self.config.write(f)
+        self.update_from_config()
 
     def get_value(self, option):
         return self.config[self.section][option]
