@@ -39,9 +39,9 @@ title = Image(TITLE, title_surface,
               (title_surface.get_width()//2, title_surface.get_height()//2),
               (TITLE.get_width(), TITLE.get_height()))
 
-anim_title_up = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine)
-anim_title_upper = Move(title, (title.x, 0-TITLE.get_height()), 1, ease_type=easeInOutSine, init_pos=(title.x, SCREEN_HEIGHT*0.1))
-anim_title_down = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine, init_pos=(title.x, 0-TITLE.get_height()))
+anim_title_slide_up = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine)
+anim_title_slide_past_screen = Move(title, (title.x, 0-TITLE.get_height()), 1, ease_type=easeInOutSine, init_pos=(title.x, SCREEN_HEIGHT*0.1))
+anim_title_slide_down = Move(title, (title.x, SCREEN_HEIGHT*0.1), 1, ease_type=easeInOutSine, init_pos=(title.x, 0-TITLE.get_height()))
 anim_title_breathe = Move(title, (title.x, title.y+20), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_squeeze = Scale(title, (1, 1.5), 1, ease_type=easeInOutSine, loop=ping_pong)
 anim_title_rotate  = Rotate(title, 360, 1, ease_type=easeInOutElastic, loop=clamp)
@@ -168,6 +168,26 @@ modes_btn_group = ButtonGroup(modes_btn, 1, True, caller_btn=start_select_btn, p
 
 # --------- Sidebar objects --------- 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)
+
+sidebar.add_option(3, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
+                icon=play_icon)
+sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Multi', description='Play with friends!', 
+                icon=online_icon)
+sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Help', description='Learn Damath!', 
+                icon=help_icon, icon_offset=55)
+sidebar.add_option(3, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                text='Options', description='Adjust to your preferences!', 
+                icon=option_icon)
+sidebar.add_option(3, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
+                side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
+                    text='Exit', description='Quit the game... :<', 
+                    icon=exit_icon)
 
 # --------- Mode Toggleables Window  --------- 
 

@@ -59,7 +59,7 @@ class Sidebar:
 
     def _init(self):
 
-        self.target_functions = {
+        self.args = {
             "sb_play": None,
             "sb_online": None,
             "sb_help": None,
@@ -84,11 +84,11 @@ class Sidebar:
                                 self.w, self.h)
         
         self.anim_move = (self.diff/self.anim_duration)
-    
-    def set_target(self, targets):
 
-        for key, target in zip(self.target_functions.keys(), targets):
-            self.target_functions[key] = target
+    def set_args(self, args):
+
+        for key, arg in zip(self.args.keys(), args):
+            self.args[key] = arg
 
     def _draw(self, nwidth=None, nheight=None):
         """
@@ -102,8 +102,6 @@ class Sidebar:
         
         self.sidebar_rect.update(self.x, self.y, nwidth, nheight)
         pygame.draw.rect(self.surface, self.color, self.sidebar_rect)
-
-
 
         if self.anim_idx >= self.anim_duration//4:
             if self.options is not None:
@@ -229,13 +227,12 @@ class Sidebar:
                 self.get_option(option).set_state(state)
 
     def display(self, caller):
-
-        for id in self.target_functions.keys():
-            if self.target_functions[id] == caller:
-                self.target_functions[id] = None
+        
+        for id in self.args.keys():
+            if str(id) == str(caller):
                 self.get_option(id).target = None
             else:
-                self.get_option(id).target = self.target_functions[id]
+                self.get_option(id).args = self.args[id]
 
         # if caller == title:
         #     for opt in self.options.keys():
@@ -297,7 +294,7 @@ class SidebarOptions:
         if self.args is None:
             return self.target()
 
-        self.target(args for args in self.args)
+        self.target(*self.args)
 
     def set_state(self, state):
         """

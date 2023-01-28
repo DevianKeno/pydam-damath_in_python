@@ -1,74 +1,100 @@
 import pygame
 import sys
-from display_constants import FPS
+from abc import *
+from typing import Type, BinaryIO
+from display_constants import FPS, SCREEN_WIDTH, SCREEN_HEIGHT, screen
 from event_loop import event_loop
 from objects import CURSOR
 from ui_class.colors import OAR_BLUE
 
-clock = pygame.time.Clock()
-class Screen:
-    
-    def __init__(self, screen: pygame.Surface, bg_color=OAR_BLUE, bg_music=None, on_loop: bool=True, target=None):
+width = int
+height = int
+class Screen(ABC):
+
+    clock = pygame.time.Clock()
+
+    def __init__(self, bg_color, bg_music: BinaryIO):
 
         self.screen = screen
         self.bg_color = bg_color
-
         self.bg_music = bg_music
-        self.on_loop = on_loop
+
         self.music_playing = False
         self.running = False
-        self.target = target
 
-    def play_music(self): 
-        
-        pygame.mixer_music.stop()
+    @property
+    def size(self) -> tuple[width, height]:
+        return tuple(self.screen.get_size())
 
-        if self.bg_music != None:
-            pygame.mixer_music.load()
-            if self.on_loop:
-                pygame.mixer_music.play(-1)
-            else:
-                pygame.mixer_music.play()
-            
-            self.music_playing = True
+    @property
+    def width(self) -> width:
+        return self.screen.get_width()
 
+    @property
+    def height(self) -> height:
+        return self.screen.get_height()
+
+    @abstractmethod
     def before_looping(self):
         """
         Override this function with the code that you
         want to execute BEFORE the loop starts
         """
 
-        if not self.music_playing:
-            self.play_music()
-
+    @abstractmethod
     def while_looping(self):
         """
-        Override this function with the code that you
-        want to execute WHILE on loop
-        """        
+        Place here the order of layers you want to display while looping
+        (e.g. fill() -> draw_something() -> do_something() -> show_cursor())
 
-        self.screen.blit(CURSOR, pygame.mouse.get_pos())
+        check_event() and update() will automatically be called 
+        after all the codes here has been executed
+        """
 
+    # @abstractmethod
     def after_looping(self):
         """
         Override this function with the code that you
         want to execute AFTER the loop finishes
         """
-        print("stopped")
 
-    def start(self):
+    def fill(self):
+        """
+        Fills the screen with the passed bg color,
 
-        self.before_looping()
-        self.running = True
-        
-        while self.running:
-            self.while_looping()
-            self.event_loop()
-            self.update()
+        It will automatically be called at the very start of the loop
+        before calling while_looping()
+        """
+        self.screen.fill(self.bg_color)
 
-        self.after_looping()
+    def play_music(self): 
+        """
+        Stops any music that is currently playing if there's any,
+        and play the passed bg_music on loop
+        """
+        pygame.mixer_music.stop()
 
-    def event_loop(self):
+        if self.bg_music != None:
+            pygame.mixer_music.load(self.bg_music)
+            pygame.mixer_music.play(-1)
+
+            self.music_playing = True
+
+    def display_cursor(self):
+        """
+        It basically displays the cursor to the screen,
+
+        It will automatically be called after get_events
+        """
+        self.screen.blit(CURSOR, pygame.mouse.get_pos())
+
+    def get_events(self):
+        """
+        Event loop.
+
+        This automatically gets called after
+        executing while_looping()
+        """
         for event in event_loop.get_event():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -76,8 +102,35 @@ class Screen:
                 sys.exit()    
 
     def update(self):
-        pygame.display.update()
-        clock.tick(FPS)
+        """
+        Updates the whole display.
 
-    def reset(self):
+        This automatically gets called 
+        after executing display_cursor()
+        """
+        pygame.display.update()
+        self.clock.tick(FPS)
+    
+    def display(self):
+        """
+        Starts the loop
+        """
+        self.play_music()
+        self.before_looping()
+        self.running = True
+        
+        while self.running:
+            self.fill()
+            self.while_looping()
+            self.get_events()
+            self.display_cursor()
+            self.update()
+
+        self.after_looping()
+
+    def stop(self):
+        """
+        Stops the loop.
+        """
         self.running = False
+

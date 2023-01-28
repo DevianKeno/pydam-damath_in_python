@@ -1,7 +1,7 @@
 # 
 # Damath
 # 
-
+from __future__ import annotations
 import pygame 
 import sys
 import random 
@@ -20,22 +20,16 @@ from damath.constants import *
 from damath.timer import *
 from display_constants import *
 from event_loop import event_loop
-import screens.sidebar_display
-from screens.select_mode import SelectModeScreen
-from screens.multi_menu import MultiMenuScreen
-from screens.help_menu import HelpMenuScreen
-from screens.options_menu import OptionsMenuScreen
+from screens.select_mode import SelectMode
+from screens.multi_menu import MultiMenu
 from ui_class.button import Button, ButtonList
-from ui_class.new_btn import NButton
 from ui_class.colors import * 
 from ui_class.constants import START_BTN_DIMENSION, START_BTN_POSITION
 from ui_class.fade import *
-from ui_class.fade_anim import Fade
 from ui_class.main_menu import *
 from ui_class.themes_option import Themes, ThemesList
 from ui_class.image import *
 from ui_class.tween import *
-from ui_class.slider import Slider
 from ui_class.rect_window import *
 from ui_class.mode_window import *
 from queue import Queue
@@ -351,7 +345,6 @@ def full_trans_reset():
     transition_in.reset()
     transition_out.reset()
 
-
 # --------- Side menu rect tweenable --------- 
 
 TEST_side_menu = pygame.Rect(0, 0, SCREEN_WIDTH*0.15, SCREEN_HEIGHT)
@@ -363,56 +356,48 @@ anim_TEST_side_menu_scale   = Scale_Rect(TEST_side_menu, (0.5, 0.5), 1, along_ce
 play_again_btn   = Button(screen, 250, 60, (255, SCREEN_HEIGHT//2 + 120), 5, None, text='Play Again', fontsize=26)
 back_to_menu_btn = Button(screen, 250, 60, (545, SCREEN_HEIGHT//2 + 120), 5, None, text='Back to Main Menu', fontsize=18)
 
-# Decluttered menu functions, but Sidebar needs to be fixed to 
-# avoid unnecessary function declarations just to maintain sidebar option's stored functions
-# since it gets removed everytime a function calls it to avoid recursion error
-def _select_mode():
-    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
-    start_select_btn.set_target(Main.create_and_start_match)
-    select_mode_screen.start()
+# --------- Sidebar Targets ---------
 
-def _multi_menu():
-    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
-    multi_menu_screen.start()
+def sidebar_init():
+    """
+    Sets args and target for sidebar options
+    """
+    for option in list(sidebar.args.keys()):
+        if option != 'sb_exit':
+            target = display_screen
+        else:
+            target = sys.exit
+        sidebar.get_option(option).target = target
+    sidebar.set_args([[select_mode_screen], [multi_mode_screen], [None], [None], [None]])
 
-def _help_menu():
-    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
-    help_menu_screen.start()
+def sidebar_update(func):
+    """
+    made update() as a decorator
+    """
+    def update(Screen):
+        sidebar_init()
+        return func(Screen)
+    return update
 
-def _options_menu():
-    sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, _exit])
-    options_menu_screen.start()
+# --------- MAIN MENU SCREENS ---------
 
-def _exit():
-    sys.exit()
+@sidebar_update
+def display_screen(Screen):
+    """
+    Displays the passed Screen
+    """
+    if Screen == select_mode_screen:
+        start_select_btn.set_target(Main.create_and_start_match)
+    try:
+        Screen.display()
+    except:
+        print("STILL IN PROGRESS")
 
-#TODO: Needs refactoring in Sidebar
-sidebar.add_option(3, "sb_play", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                side_menu_surface.get_height()/2.5+mainmenu_opt_gap*0.15), text='Play', description='Play Damath!',
-                icon=play_icon, target=_select_mode)
-sidebar.add_option(3, "sb_online", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                side_menu_surface.get_height()/2.5+(1*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                text='Multi', description='Play with friends!', 
-                icon=online_icon, target=_multi_menu)
-sidebar.add_option(3, "sb_help", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                side_menu_surface.get_height()/2.5+(2*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                text='Help', description='Learn Damath!', 
-                icon=help_icon, icon_offset=55, target=_help_menu)
-sidebar.add_option(3, "sb_options", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                side_menu_surface.get_height()/2.5+(3*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                text='Options', description='Adjust to your preferences!', 
-                icon=option_icon, target=_options_menu)
-sidebar.add_option(3, "sb_exit", pos=(SIDE_MENU_RECT_ACTIVE.width/4, 
-                side_menu_surface.get_height()/2.5+(4*mainmenu_opt_gap+mainmenu_opt_gap*0.15)),
-                    text='Exit', description='Quit the game... :<', 
-                    icon=exit_icon, target=_exit)
+# --------- Screen Objects ---------
+select_mode_screen = SelectMode(OAR_BLUE)
+multi_mode_screen = MultiMenu(OAR_BLUE)
 
-sidebar.set_target([_select_mode, _multi_menu, _help_menu, _options_menu, sys.exit])
-
-select_mode_screen = SelectModeScreen(screen, bg_color=OAR_BLUE, target=_select_mode)
-multi_menu_screen = MultiMenuScreen(screen, bg_color=OAR_BLUE, target=_multi_menu)
-help_menu_screen = HelpMenuScreen(screen, bg_color=OAR_BLUE, target=_help_menu)
-options_menu_screen = OptionsMenuScreen(screen, bg_color=OAR_BLUE, target=_options_menu)
+sidebar_init()
 
 # --------- pause function ---------
 
@@ -790,7 +775,7 @@ class Damath:
         # full_trans_reset()
         # game.reset()
 
-        anim_title_up.reset()
+        anim_title_slide_up.reset()
         anim_title_breathe.play()
         # anim_title_squeeze.play()
         # anim_title_rotate.play()
@@ -840,7 +825,7 @@ class Damath:
                         return
                     
                     if event.key == pygame.K_t:
-                        _select_mode()
+                        display_screen(select_mode_screen)
                         return
 
             anim_title_breathe.update()

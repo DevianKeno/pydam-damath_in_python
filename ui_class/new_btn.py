@@ -278,7 +278,7 @@ class NButton(Tooltip):
         
         mx, my = pygame.mouse.get_pos()
         if self.btn_rect.collidepoint((mx, my)):
-            self.show_tooltip(1)
+            # self.show_tooltip(1)
             self.set_state(self.Hovered)
         else:
             if not self.toggled and not self.clicked:
