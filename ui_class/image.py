@@ -12,8 +12,10 @@ class Image:
         self.rect = img.get_rect()
         self.w = size[0]
         self.h = size[1]
+        self.pos = pos
         self.x = pos[0] - self.w // 2
         self.y = pos[1] - self.h // 2
+        self.pos_center = pos
         self.rotation = 0
         self.anim_scale = False
         self.anim_rot = False

@@ -20,7 +20,7 @@ exit_icon = 'new_assets\icons\icon_exit.png'
 
 # --------- x --------- 
 
-BOARD = pygame.image.load('new_assets\\board_blue.png').convert_alpha()
+BOARD = pygame.image.load('new_assets\\board_blank.png').convert_alpha()
 BOARD_SHADOW = pygame.image.load('new_assets\\board_shadow_bg.png').convert()
 
 BLUE_PIECE = pygame.image.load('new_assets\chips\chip_blue.png').convert_alpha()

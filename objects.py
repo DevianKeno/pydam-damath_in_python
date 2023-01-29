@@ -114,9 +114,13 @@ scoreboard_p1_chip = Image(BLUE_PIECE, game_side_surface,
                            (scoreboard_p1_score_area.x+scoreboard_p1_score_area.w*0.1, scoreboard_p1_score_area.y+scoreboard_p1_score_area.h*0.15),
                            (game_side_surface.get_width()*0.213, game_side_surface.get_height()*0.13))
 
+scoreboard_p1_chip_pos = scoreboard_p1_chip.pos
+
 scoreboard_p2_chip = Image(ORANGE_PIECE, game_side_surface,
                            (scoreboard_p2_score_area.x+scoreboard_p2_score_area.w*0.1, scoreboard_p2_score_area.y+scoreboard_p2_score_area.h*0.15),
                            (game_side_surface.get_width()*0.213, game_side_surface.get_height()*0.13))
+
+scoreboard_p2_chip_pos = scoreboard_p2_chip.pos
 
 # scoreboard_rect     = pygame.Rect(SIDE_MENU_RECT_ACTIVE.w//2-SCOREBOARD_WIDTH//2, SIDE_MENU_RECT_ACTIVE.h//1.8-SCOREBOARD_HEIGHT//2, SCOREBOARD_WIDTH, SCOREBOARD_HEIGHT)
 

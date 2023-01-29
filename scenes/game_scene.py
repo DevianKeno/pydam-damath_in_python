@@ -46,28 +46,27 @@ class S_Game(Scene):
         self.name = "Game Scene"
         self.description = """Main board game scene."""
         # Scene objects
+        self.Console = None
         self.Match = None
         self.Actions = None
         self.Cheats = None
         self.TurnTimer = None
         self.GlobalTimer = None
+        self.text_mode = None
 
-    def display(self):
+    def on_entry(self):
         if Rules.IsVersusAI:
-            text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
+            self.text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
         else:
-            text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
+            self.text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
 
+    def update(self):
         mins, secs = self.GlobalTimer.get_remaining_time()
         if self.GlobalTimer.is_running:
             timer_color = WHITE
         else:
             timer_color = LIGHT_GRAY
         self.GlobalTimer_text = font_cookie_run_reg.render(str(f'{mins:02d}:{secs:02d}'), True, timer_color)
-
-        screen.fill(OAR_BLUE)    
-        screen.blit(side_menu_surface, (0, 0))
-        side_menu_surface.fill(DARK_GRAY_BLUE)      
         
         if self.Match.check_for_winner() != None:
             print(self.Match.check_for_winner()) 
@@ -75,9 +74,12 @@ class S_Game(Scene):
             thread_running = False
             # game_ends()
 
+    def display(self):
+        screen.fill(OAR_BLUE)    
+        screen.blit(side_menu_surface, (0, 0))
+        side_menu_surface.fill(DARK_GRAY_BLUE)
         screen.blit(game_side_surface, (0, 0))
         game_side_surface.fill(DARK_GRAY_BLUE)
-        
         screen.blit(board_area_surface, (game_side_surface.get_width(), 0))
         board_area_surface.fill(OAR_BLUE)
 
@@ -93,6 +95,7 @@ class S_Game(Scene):
         # Renders chips
         board_area_surface.blit(chips_surface, (tiles_rect))
         
+        self.Match.Board.draw()
         # Render captured pieces
         if not self.Match.Board.IsFlipped:
             board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
@@ -102,27 +105,23 @@ class S_Game(Scene):
             board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
         right_captured_pieces_surface.fill(OAR_BLUE)
         left_captured_pieces_surface.fill(OAR_BLUE)
+
         
         # Display side bar elements
         mini_title.display()
 
-        self.Match.Board.draw()
-
         screen.blit(text_scores,
                     (game_side_surface.get_width()//2-text_scores.get_width()//2, game_side_surface.get_height()*0.2))
-
         screen.blit(self.GlobalTimer_text,
                     (game_side_surface.get_width()//2-self.GlobalTimer_text.get_width()//2, game_side_surface.get_height()*0.825)) 
-
-        screen.blit(text_mode,
-                    (game_side_surface.get_width()//2-text_mode.get_width()//2, game_side_surface.get_height()*0.9))
+        screen.blit(self.text_mode,
+                    (game_side_surface.get_width()//2-self.text_mode.get_width()//2, game_side_surface.get_height()*0.9))
 
         if Rules.allowActions:
             self.Actions.draw_menu()
 
         if Rules.allowCheats:
             self.Cheats.draw_menu()
-
             if self.Cheats.ShowEVWindow:
                 if self.Cheats.ev_window.collidepoint(self.m_pos):
                     self.Cheats.check_for_hover(self.m_pos)
@@ -161,24 +160,24 @@ class S_Game(Scene):
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
                                         if piece.color == RED:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left -= 1
                                             self.Match.Board.white_left += 1
                                         elif piece.color == 0:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.white_left += 1                                 
                                 else:
                                     if drow % 2 == 0:
                                         if piece.color == RED:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left -= 1
                                             self.Match.Board.white_left += 1
                                         elif piece.color == 0:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.white_left += 1  
 
                             if _keys[pygame.K_2]: # red pieces
@@ -187,24 +186,24 @@ class S_Game(Scene):
                                 if dcol % 2 == 1:
                                     if drow % 2 == 1:
                                         if piece.color == LIGHT_BLUE:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left += 1
                                             self.Match.Board.white_left -= 1
                                         elif piece.color == 0:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left += 1                                 
                                 else:
                                     if drow % 2 == 0:
                                         if piece.color == LIGHT_BLUE:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left += 1
                                             self.Match.Board.white_left -= 1
                                         elif piece.color == 0:
-                                            self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
-                                            self.Match.Board.board[drow][dcol].king = True
+                                            self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                            self.Match.Board.pieces[drow][dcol].king = True
                                             self.Match.Board.red_left += 1  
 
                         elif _keys[pygame.K_1]: # add normal blue piece
@@ -213,20 +212,20 @@ class S_Game(Scene):
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
                                     if piece.color == RED:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         self.Match.Board.red_left -= 1
                                         self.Match.Board.white_left += 1
                                     elif piece.color == 0:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         self.Match.Board.white_left += 1                                 
                             else:
                                 if drow % 2 == 0:
                                     if piece.color == RED:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         self.Match.Board.red_left -= 1
                                         self.Match.Board.white_left += 1
                                     elif piece.color == 0:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, LIGHT_BLUE, 100)
                                         self.Match.Board.white_left += 1  
 
                         elif _keys[pygame.K_2]: # add normal red piece
@@ -235,20 +234,20 @@ class S_Game(Scene):
                             if dcol % 2 == 1:
                                 if drow % 2 == 1:
                                     if piece.color == LIGHT_BLUE:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         self.Match.Board.red_left += 1
                                         self.Match.Board.white_left -= 1
                                     elif piece.color == 0:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         self.Match.Board.red_left += 1                                 
                             else:
                                 if drow % 2 == 0:
                                     if piece.color == LIGHT_BLUE:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         self.Match.Board.red_left += 1
                                         self.Match.Board.white_left -= 1
                                     elif piece.color == 0:
-                                        self.Match.Board.board[drow][dcol] = Piece(drow, dcol, RED, 100)
+                                        self.Match.Board.pieces[drow][dcol] = Piece(drow, dcol, RED, 100)
                                         self.Match.Board.red_left += 1
 
                     if _keys[pygame.K_LSHIFT]:
@@ -267,21 +266,21 @@ class S_Game(Scene):
                         if _keys[pygame.K_4]: # make all pieces king
                             for i in range(8):
                                 for j in range(8):
-                                    self.Match.Board.board[i][j].IsKing = True
+                                    self.Match.Board.pieces[i][j].IsKing = True
                         if _keys[pygame.K_5]: # make all pieces not king
                             for i in range(8):
                                 for j in range(8):
-                                    self.Match.Board.board[i][j].IsKing = False   
+                                    self.Match.Board.pieces[i][j].IsKing = False   
                         if _keys[pygame.K_6]: # removes all pieces
                             for i in range(8):
                                 for j in range(8):
-                                    self.Match.Board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
+                                    self.Match.Board.pieces[i][j] = Piece(chips_surface, i, j, 0, 0)
                         if _keys[pygame.K_7]: # displays a single chip in both ends
                             for i in range(8):
                                 for j in range(8):
-                                    self.Match.Board.board[i][j] = Piece(chips_surface, i, j, 0, 0)
-                            self.Match.Board.board[0][2] = Piece(chips_surface, 0, 2, PLAYER_TWO, 2)   
-                            self.Match.Board.board[7][7] = Piece(chips_surface, 7, 7, PLAYER_ONE, 2)  
+                                    self.Match.Board.pieces[i][j] = Piece(chips_surface, i, j, 0, 0)
+                            self.Match.Board.pieces[0][2] = Piece(chips_surface, 0, 2, PLAYER_TWO, 2)   
+                            self.Match.Board.pieces[7][7] = Piece(chips_surface, 7, 7, PLAYER_ONE, 2)  
                             self.Match.Board.red_left = 1
                             self.Match.Board.white_left = 1
                         if pygame.mouse.get_pressed()[2]: #removes the piece
@@ -326,7 +325,7 @@ class S_Game(Scene):
                             if not self.Cheats.ShowDropdown:
                                 if (-1 < row < ROWS) and (-1 < col < COLS):
                                     if Rules.IsMultiplayer:
-                                        Console.listen(self.Match.select(cell))
+                                        self.Console.listen(self.Match.select(cell))
                                     if Rules.IsVersusAI:
                                         if self.Match.turn == PLAYER_ONE:
                                             self.Match.select(cell)
@@ -393,7 +392,5 @@ class S_Game(Scene):
                                 else:
                                     self.Actions.create_dropdown(self.m_pos)
                                     self.Cheats.hide_menus()
-
-        return super().late_update()
 
 GameScene = S_Game()

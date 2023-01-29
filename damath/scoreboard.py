@@ -11,9 +11,10 @@ from .ruleset import Rules
 from ui_class.colors import LIGHT_GRAY
 from ui_class.fade import fade
 from ui_class.font import *
-from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip
+from objects import scoreboard_p1_score_area, scoreboard_p2_score_area, scoreboard_p1_chip, scoreboard_p2_chip, scoreboard_p1_chip_pos, scoreboard_p2_chip_pos
 from .timer import *
 from options import *
+from ui_class.tween import *
 
 class Scoreboard:
 
@@ -75,8 +76,8 @@ class Scoreboard:
         timerfont = pygame.font.Font(CookieRun_Bold, int(scoreboard_p1_chip.w//2.5))
         
         if turn == PLAYER_ONE:
-            scoreboard_p1_chip.display()
-            scoreboard_p2_chip.display(100)
+            scoreboard_p1_chip.display(255)
+            scoreboard_p2_chip.display(0)
 
             if Rules.enableTimer:
                 if not turn_timer.is_running:
@@ -88,8 +89,8 @@ class Scoreboard:
                 timer_text = timerfont.render(str(remaining_time), True, timer_color)
                 self._surface.blit(timer_text,(scoreboard_p1_chip.x+(scoreboard_p1_chip.w//2-timer_text.get_width()//2), scoreboard_p1_chip.y+(scoreboard_p1_chip.h//2.35-timer_text.get_height()//2)))
         else:
-            scoreboard_p2_chip.display()
-            scoreboard_p1_chip.display(100)
+            scoreboard_p2_chip.display(255)
+            scoreboard_p1_chip.display(0)
 
             if Rules.enableTimer:
                 if not turn_timer.is_running:
@@ -105,7 +106,7 @@ class Scoreboard:
         result = 0
         OPERATOR_MAP = {'+' : operator.add,
                         '-' : operator.sub,
-                        'x' : operator.mul,
+                        '×' : operator.mul,
                         '÷' : operator.truediv}
 
         piece_num = piece.number

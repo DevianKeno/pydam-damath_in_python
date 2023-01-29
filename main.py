@@ -759,8 +759,8 @@ class Damath:
 
     def __init__(self) -> None:
         self.Queue = Queue()
-        self.Match = Match()
-
+        self.Match = None
+        
     def start(self):
         TitleScene = S_Title()
         TitleScene.Main = self
@@ -875,6 +875,7 @@ class Damath:
                 return
 
         GameScene.Match = match
+        GameScene.Console = Console
 
         global thread_running, text_mode, global_timer_text
 

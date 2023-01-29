@@ -34,7 +34,6 @@ class Scene():
         self.surface = value
 
 
-    # Abstract methods
     """
     Abstract methods.
 
@@ -75,6 +74,7 @@ class Scene():
         """
         pass
 
+
     """
     Private methods.
     """
@@ -114,6 +114,7 @@ class Scene():
 
     def _load_on_top(self, scene):
         self.display()
+
 
     """
     Public methods.

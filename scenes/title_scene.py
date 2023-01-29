@@ -17,15 +17,6 @@ class S_Title(Scene):
         # Scene objects
         self.Main = None
 
-    def on_entry(self):
-        print(f"{self.name} has been loaded.")
-
-    def on_exit(self):
-        print(f"{self.name} has been unloaded.")
-
-    def update(self):
-        print(f"I am called every frame.")
-
     def display(self):
         try:
             _start_match = self.Main.Queue.get(False)
