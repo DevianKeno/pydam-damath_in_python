@@ -80,7 +80,7 @@ class Server:
         print (f"Match starting... ({self.connected_clients_count + 1}/2)")
         self.IsConnected = True
         self.IsSender = True
-        # self._console._command_match_start()
+        self._console._command_match_start()
         return c, addr
 
     def run_server(self):
