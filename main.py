@@ -796,6 +796,8 @@ class Damath:
         # This can be put inside a separate function, taking Rules as param
         Gameboard = Board() # The board is now referred to as the "Gameboard"
         Gameboard.surface = chips_surface
+        Gameboard.Symbols = Symbol()
+        Gameboard.Symbols.surface = chips_surface
         Gameboard.init()
 
         Scores = Scoreboard()   # The scoreboard is now "Scoreboard"
@@ -825,6 +827,8 @@ class Damath:
 
         Gameboard = Board()
         Gameboard.surface = chips_surface
+        Gameboard.Symbols = Symbol()
+        Gameboard.Symbols.surface = chips_surface
         Gameboard.init()
 
         Scores = Scoreboard() 

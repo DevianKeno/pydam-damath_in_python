@@ -2,6 +2,7 @@ import pygame
 from .piece import Piece
 from .ruleset import Rules
 from .constants import *
+from .symbols import Symbol
 from audio_constants import *
 from display_constants import BG_COLOR
 from ui_class.font import *
@@ -19,8 +20,10 @@ class Board:
 
     def __init__(self, surface=None, theme=None):
         self._surface = surface
+
         self.pieces = []
         self.theme = theme    
+        self.Symbols = None
         self.symbol_map = {}
         self.x_coordinates = None
         self.y_coordinates = None
@@ -339,6 +342,7 @@ class Board:
                 self.anim_capture.update()
 
         self.draw_symbols(self._surface)
+        self.Symbols.draw()
         self.draw_coordinates()
         if Options.showIndicators:
             self.draw_selected_piece_indicator()
@@ -462,7 +466,7 @@ class Board:
                 CAPTURE_SOUND.play()
     
     def piece_landed(self, col, row):
-        return self.symbol_map[(col, row)]
+        return self.Symbols.symbol_map[(col, row)]
 
     def set_all_moveables(self, IsMovable=True):
         """

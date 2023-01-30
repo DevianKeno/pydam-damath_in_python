@@ -12,15 +12,15 @@ def get_xy_from_cell(tile: tuple):
     """
     col, row = tile
     
-    x = (col * square_size) + square_size * 0.225
-    y = (abs(row - 7) * square_size) + square_size * 0.05
+    x = (col * square_size)
+    y = (abs(row - 7) * square_size)
 
     return x, y
 
 class Symbol:
 
     def __init__(self) -> None:
-        self.surface = chips_surface
+        self._surface = chips_surface
         self.symbol_map = {}
         self.symbol_pos_map = {}
         self.add = '' 
@@ -28,11 +28,20 @@ class Symbol:
         self.multiply = ''
         self.divide = ''
 
-        self.font = pygame.font.Font(Hitmo_Black, int(square_size*1.2))
+        self.font = pygame.font.Font(Hitmo_Black, int(square_size*1.25))
 
         self.init()
         self.generate()
         self.calculate_positions()
+        self.align_center()
+
+    @property
+    def surface(self):
+        return self._surface
+
+    @surface.setter
+    def surface(self, value: pygame.Surface):
+        self._surface = value
 
     def init(self):
         if Rules.symbolAdd:
@@ -55,6 +64,14 @@ class Symbol:
         for key in self.symbol_map:
             col, row = key
             self.symbol_pos_map.update({(col, row):get_xy_from_cell((col, row))})
+            
+
+    def align_center(self):
+        for key in self.symbol_pos_map:
+            text_symbol = self.font.render(self.symbol_map[key], True, BLACK)
+            text_symbol_rect = text_symbol.get_rect(centerx = (self.symbol_pos_map[key][0] + (square_size//2)),
+                                                    centery = (self.symbol_pos_map[key][1] + (square_size//2) + text_symbol.get_height()*0.075 ))
+            self.symbol_pos_map.update({key: (text_symbol_rect.x, text_symbol_rect.y)})
 
     def generate(self):
         """
@@ -97,4 +114,4 @@ class Symbol:
     def draw(self):
         for key in self.symbol_map:
             text_symbol = self.font.render(self.symbol_map[key], True, DARK_GRAY_BLUE)
-            self.surface.blit(text_symbol, (self.symbol_pos_map[key]))
+            self._surface.blit(text_symbol, self.symbol_pos_map[key])
