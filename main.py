@@ -42,6 +42,7 @@ from options import *
 
 from scenes.title_scene import *
 from scenes.game_scene import *
+from scenes.host_game_scene import *
 
 # --------- initialization ---------
 pygame.init()
@@ -769,92 +770,51 @@ class Damath:
     """
     Methods
     """
-    def create_match(self, mode: str) -> Match:
+    def create_match(self, mode: str='classic') -> Match:
         """
         Creates a new self.Match with specified mode.
-        The created match is stored as the attribute "Damath.Match" and is overridden by succeeding created matches.
-        A different instance of a match can also be created as the function returns a Match class.
-        """
-
-        # For custom games
-        # Call this if a toggleable is pressed
-        # e.g. Promotion toggleable
-        Rules.allowPromotion = not Rules.allowPromotion
-        # or manual set
-        Rules.allowCheats = True
-        
-        # For pre-defined modes
+        The created match is stored as the member "Damath.Match" and is overridden by succeeding created matches.
+        """        
         Rules.set_mode(mode)
+        self.Match = Match()
 
-        # MANUAL RULE SET FOR DEBUGGING
-        Rules.allowActions = True
-        Rules.allowCheats = True
-        Rules.IsMultiplayer = False
-        Rules.piece_values = "Integers"
-        Rules.symbolRandom = True
-
-        # Once Start is pressed, instantiate other major classes
-        # This can be put inside a separate function, taking Rules as param
-        Gameboard = Board() # The board is now referred to as the "Gameboard"
-        Gameboard.surface = chips_surface
-        Gameboard.Symbols = Symbol()
-        Gameboard.Symbols.surface = chips_surface
-        Gameboard.init()
-
-        Scores = Scoreboard()   # The scoreboard is now "Scoreboard"
-        Scores.surface = game_side_surface
-        Scores.init()
-
-        Game = Match()  # The game (or "a single game") is now referred to as a "Match"
-        Game.Surface = chips_surface
-        Game.Board = Gameboard
-        Game.Scores = Scores
-        Game.init()
-        
-        # Assign the match to the developer console
-        # Console is always active, but its visibility (in-game GUI or external terminal)
-        # is set by an option: showConsoleGUI
-        Console.Game = Game
-        self.Match = Game
-        return Game
-
-    def create_custom(self, rules: Ruleset=None) -> Match:
+    def create_custom(self, rules: Ruleset=None):
         """
         Creates a custom match with specified rules.
+        Not passing a Ruleset will set the mode to 'Classic'.
         """
-
-        if rules == None:
+        if rules != None:
+            Rules = rules
+        else:
             rules = Ruleset()
 
-        Gameboard = Board()
-        Gameboard.surface = chips_surface
-        Gameboard.Symbols = Symbol()
-        Gameboard.Symbols.surface = chips_surface
-        Gameboard.init()
+    def host_match(self, match: Match=None):
+        """
+        Hosts a multiplayer match.
+        """
+        if match == None:
+            if self.Match != None:
+                match = self.Match
+            else:
+                print("Create a match first.")
+                return
+        Rules.IsMultiplayer = True
 
-        Scores = Scoreboard() 
-        Scores.surface = game_side_surface
-        Scores.init()
-
-        Game = Match()
-        Game.Surface = chips_surface
-        Game.Board = Gameboard
-        Game.Scores = Scores
-        
-        Gameboard.Rules = rules
-        Game.Rules = rules
-        Game.init()
-        
-        Console.Game = Game
-        self.Match = Game
-        return Game
+    def set_rules(self, ruleset: Ruleset):
+        """
+        Set match rules manually.
+        """
+        if self.Match != None:
+            self.Match.Rules = ruleset
+        else:
+            print("No match to set ruleset to.")
 
     def get_rules(self) -> Ruleset:
         """
         Returns the match's ruleset.
         """
-        if self.Game != None:
-            return self.Game.Rules
+        if self.Match != None:
+            return self.Match.Rules
 
     def add_match(self):
         """
@@ -862,16 +822,10 @@ class Damath:
         """
         self.Queue.put(self.start_match)
 
-    def create_and_start_match(self, mode):
-
-        self.create_match(mode)
-        self.start_match()
-
     def start_match(self, match: Match=None):
         """
         Starts the actual match.
         """
-
         if match == None:
             if self.Match != None:
                 match = self.Match
@@ -879,10 +833,23 @@ class Damath:
                 print("No match created.")
                 return
 
-        GameScene.Match = match
-        GameScene.Console = Console
+        # Initializations
+        Gameboard = Board()
+        Gameboard.Symbols = Symbol()
+        Gameboard.surface = chips_surface
+        Gameboard.Symbols.surface = chips_surface
+        Gameboard.init()
 
-        global thread_running, text_mode, global_timer_text
+        Scores = Scoreboard()
+        Scores.surface = game_side_surface
+        Scores.init()
+
+        self.Match.Surface = chips_surface
+        self.Match.Board = Gameboard
+        self.Match.Scores = Scores
+        self.Match.init()
+        
+        Console.Game = self.Match
 
         if Rules.allowActions:
             actions = Actions()
@@ -899,30 +866,26 @@ class Damath:
             cheats.Console = Console
             cheats.init()
             GameScene.Cheats = cheats
-        
-        # This can be set as soon as the match is created
-        if Rules.mode == 'Classic':
-            turn_timer.set_duration(60)
-            global_timer.set_duration(1200)
-        elif Rules.mode == 'Speed':
-            turn_timer.set_duration(15)
-            global_timer.set_duration(300)
-
+            
         TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
-
-        if Options.enableDebugMode:
-            print(f'[Debug]: Playing on {Rules.mode} mode')
-
-        pygame.mixer.music.stop()
-        full_trans_reset()
-
         if Rules.enableTimer:
             if not TIMERTHREAD.is_alive():
                 TIMERTHREAD.start() 
             GameScene.TurnTimer = turn_timer
             GameScene.GlobalTimer = global_timer
 
-        GameScene.load()
+        pygame.mixer.music.stop()
+
+        if Options.enableDebugMode:
+            print(f'[Debug]: Playing on {Rules.mode} mode')
+
+        if Rules.IsMultiplayer:
+            HostGameScene.Match = match
+            HostGameScene.load()
+        else:            
+            GameScene.Match = match
+            GameScene.Console = Console
+            GameScene.load()
 
 # Start console
 Console = DeveloperConsole()

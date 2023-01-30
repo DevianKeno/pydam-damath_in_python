@@ -73,7 +73,7 @@ class Client:
         self.IsConnecting = False
         self.IsConnected = True
         self._console.IsClient = True
-        self._console._command_init_client()
+        self._console.init_client()
         
         while self.IsConnected:
             try:

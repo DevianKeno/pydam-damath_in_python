@@ -43,12 +43,15 @@ class S_Title(Scene):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.unload()
-                    self.Main.create_match('classic')
+                    self.Main.create_match()
                     self.Main.start_match()
                     return
 
                 if event.key == pygame.K_MINUS:
                     self.unload()
+                    self.Main.create_match()
+                    self.Main.host_match()
+                    self.Main.start_match()
                     return
                 
                 if event.key == pygame.K_t:

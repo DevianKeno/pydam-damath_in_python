@@ -125,8 +125,8 @@ class S_Game(Scene):
             if self.Cheats.ShowEVWindow:
                 if self.Cheats.ev_window.collidepoint(self.m_pos):
                     self.Cheats.check_for_hover(self.m_pos)
-
-        self.Match.update()
+        
+        self.Match.draw()
 
     def late_update(self):
         for event in self.events:

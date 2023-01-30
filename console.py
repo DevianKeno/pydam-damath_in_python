@@ -8,6 +8,7 @@ from objects import chips_surface
 from options import *
 from client import Client
 from server import Server
+from player import Player
 import threading
 
 client = Client()
@@ -20,6 +21,7 @@ class DeveloperConsole:
         self._game = None
         self._server = None
         self._client = None
+        self.Player = None
 
         self.IsServer = False
         self.IsClient = False
@@ -66,11 +68,24 @@ class DeveloperConsole:
     def client(self, value: Client):
         self._client = value
 
+
+    """
+    Console private methods.
+    """
+    def _invalid_usage(self, command):
+        """
+        Prompts proper command usage.
+        """
+        print(f"Improper command usage, type /help {command} for usage")
+
+
+    """
+    Console public methods.
+    """
     def start(self):
         """
         Starts the console.
         """
-
         if self.IsRunning:
             return
         self.IsRunning = True
@@ -92,7 +107,6 @@ class DeveloperConsole:
         """
         Listen for commands.
         """
-
         if command == None or command == '':
             return
         if enableDebugMode:
@@ -107,11 +121,21 @@ class DeveloperConsole:
             if self.IsClient:
                 self._client.send(self.message)
 
+    def send(self, message=''):
+        """
+        Send something to the connection.
+        """
+        if self._server != None:
+            if self.IsServer:
+                self._server.send(message)
+        if self._client != None:
+            if self.IsClient:
+                self._client.send(message)
+
     def read(self):
         """
         Reads for user commands.
         """
-        
         while self.IsRunning:
             if self.IsPaused:
                 continue
@@ -150,7 +174,7 @@ class DeveloperConsole:
                                     if args[4]:
                                         self.command_add((int(args[1]), int(args[2])), int(args[3]), int(args[4]))
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "chat":
                     try:
                         if args[1]:
@@ -161,16 +185,17 @@ class DeveloperConsole:
                                 case "chat":
                                     self.command_chat(command_raw)
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "connect" | "join":
                     try:
                         if args[1]:
-                            if args[2]:
-                                self.command_connect(args[1], args[2])
-                            else:
+                            try:
+                                if args[2]:
+                                    self.command_connect(args[1], args[2])
+                            except:
                                 self.command_connect(args[1])
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "ct":
                     self.command_change_turn()
                 case "deop":
@@ -271,28 +296,28 @@ class DeveloperConsole:
                                 case "start":
                                     self._command_match_start()
                                 case _:
-                                    self.invalid_usage(args[0])
+                                    self._invalid_usage(args[0])
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "move" | "mov":
                     try:
                         self.command_move((int(args[1]), int(args[2])))
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "op":
                     self.command_op()
                 case "remove" | "rm":
                     try:
                         self.command_remove((int(args[1]), int(args[2])))
                     except:
-                        self.invalid_usage(args[0])
+                        self._invalid_usage(args[0])
                 case "restart":
                     self.command_restart()
                 case "select" | "sel":
                     try:
                         self.command_select((int(args[1]), int(args[2])))
                     except:
-                        self.invalid_usage(args[0])      
+                        self._invalid_usage(args[0])      
                 case "selmove" | "smove" | "sm":
                     try:
                         if args[1]:
@@ -301,7 +326,7 @@ class DeveloperConsole:
                                     if args[4]:
                                         self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
                     except:
-                        self.invalid_usage(args[0])    
+                        self._invalid_usage(args[0])    
                 case "setrulestr":
                     try:
                         if args[1]:
@@ -314,12 +339,6 @@ class DeveloperConsole:
                     print("Invalid command, type /help for available commands")
         except:
             pass
-
-    def invalid_usage(self, command):
-        """
-        Prompts proper command usage.
-        """
-        print(f"Improper command usage, type /help {command} for usage")
 
     def get_match_rule(self, match: Match=None) -> Ruleset:
         if match != None:
@@ -366,21 +385,26 @@ class DeveloperConsole:
             print("Failed to set rulestr.")
 
     def init_server(self):
-        pass
+        if not self.IsServer:
+            return
+
+        command = "chat ".format(self._main.Match.Rules.mode)
+        self.send(command)
+        self._command_match_start()
             
     def init_client(self):
         if not self.IsClient:
             return
         if self._main.Match == None:
-            pass
+            self._command_match()
 
-        # self._command_match()
         self._command_flip()
         self._command_lock()
 
 
-    # Commands list
-
+    """
+    Internal commands.
+    """
     def _command_drawyes(self):
         #TODO
         pass
@@ -388,9 +412,6 @@ class DeveloperConsole:
     def _command_drawno(self):
         #TODO:
         pass
-
-    def _command_init_server(self):
-        self.command_op()
 
     def _command_lock(self):
         self._game.toggle_player_controls()
@@ -402,7 +423,6 @@ class DeveloperConsole:
         if self._main.Match == None:
             print("No match created yet. Create one with /match create <mode>")
             return
-
         self._main.Queue.put(self._main.add_match())
 
     def _command_ffyes(self):
@@ -425,6 +445,9 @@ class DeveloperConsole:
         if self.IsClient:
             print("<Server> {}".format(message))
 
+    """
+    Commands list.
+    """
     def command_add(self, cell, player, value):
         if player == 1:
             color = PLAYER_ONE
@@ -507,9 +530,10 @@ class DeveloperConsole:
 
     def command_match(self, mode):
         #TODO: Can create a new match while one is still running
-        if self._main.Match.IsRunning:
-            print("A match is already running.")
-            return
+        if self._main.Match != None:
+            if self._main.Match.IsRunning:
+                print("A match is already running.")
+                return
         
         try:
             self._main.create_match(mode)

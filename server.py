@@ -80,13 +80,13 @@ class Server:
         print (f"Match starting... ({self.connected_clients_count + 1}/2)")
         self.IsConnected = True
         self.IsSender = True
-        self._console._command_match_start()
         return c, addr
 
     def run_server(self):
         # Listen for outside connections
         self.c, addr = self.listen_for_connections(1)
         self.ip = addr
+        self._console.init_server()
 
         # Send first ping
         self.c.send('ping'.encode())

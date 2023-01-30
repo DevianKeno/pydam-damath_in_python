@@ -17,6 +17,7 @@ chipMoveAnimationSpeed = 'chipMoveAnimationSpeed'
 showIndicators = 'showIndicators'
 musicVolume = 'musicVolume'
 soundVolume = 'soundVolume'
+username = 'username'
 
 DEFAULT_OPTIONS = {
     enableDebugMode : 'False',
@@ -27,7 +28,8 @@ DEFAULT_OPTIONS = {
     chipMoveAnimationSpeed : '0.5',
     showIndicators : 'True',
     musicVolume : '100',
-    soundVolume : '100'
+    soundVolume : '100',
+    username : 'Player'
 }
 
 def is_bool(value):
@@ -151,6 +153,8 @@ class Config:
             self.soundVolume = int(self.options[soundVolume])
         except:
             self.soundVolume = int(self.set_value(soundVolume, DEFAULT_OPTIONS[soundVolume]))
+
+        self.username = self.options[username]
 
     def read_all(self):
         list_of_value = []
