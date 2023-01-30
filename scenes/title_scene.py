@@ -5,8 +5,6 @@ from ui_class.scene import *
 from screens.select_mode import *
 from objects import *
 
-clock = pygame.time.Clock()
-
 
 class S_Title(Scene):
 
@@ -38,7 +36,7 @@ class S_Title(Scene):
         for event in self.events:
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()   
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:

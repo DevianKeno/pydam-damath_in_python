@@ -8,8 +8,8 @@ from damath.ruleset import *
 from damath.piece import *
 from console import *
 from audio_constants import *
+from scenes.pause_scene import *
 
-clock = pygame.time.Clock()
 
 def get_cell_from_mouse(pos):
     x, y = pos
@@ -53,6 +53,7 @@ class S_Game(Scene):
         self.TurnTimer = None
         self.GlobalTimer = None
         self.text_mode = None
+        self.IsPaused = False
 
     def on_entry(self):
         if Rules.IsVersusAI:
@@ -93,20 +94,20 @@ class S_Game(Scene):
         board_y_coords_surface.fill(DARK_GRAY_BLUE)
 
         # Renders chips
-        board_area_surface.blit(chips_surface, (tiles_rect))
+        if not self.IsPaused:
+            board_area_surface.blit(chips_surface, (tiles_rect))
+            # Render captured pieces
+            if not self.Match.Board.IsFlipped:
+                board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
+                board_area_surface.blit(left_captured_pieces_surface, (left_captured_pieces_rect))
+            else:
+                board_area_surface.blit(right_captured_pieces_surface, (left_captured_pieces_rect))
+                board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
+            right_captured_pieces_surface.fill(OAR_BLUE)
+            left_captured_pieces_surface.fill(OAR_BLUE)
         
         self.Match.Board.draw()
-        # Render captured pieces
-        if not self.Match.Board.IsFlipped:
-            board_area_surface.blit(right_captured_pieces_surface, (right_captured_pieces_rect))
-            board_area_surface.blit(left_captured_pieces_surface, (left_captured_pieces_rect))
-        else:
-            board_area_surface.blit(right_captured_pieces_surface, (left_captured_pieces_rect))
-            board_area_surface.blit(left_captured_pieces_surface, (right_captured_pieces_rect))
-        right_captured_pieces_surface.fill(OAR_BLUE)
-        left_captured_pieces_surface.fill(OAR_BLUE)
 
-        
         # Display side bar elements
         mini_title.display()
 
@@ -128,6 +129,18 @@ class S_Game(Scene):
         
         self.Match.draw()
 
+    def pause(self):
+        if not self.IsPaused:
+            self.IsPaused = True
+            self.TurnTimer.pause()
+            self.GlobalTimer.pause()
+            self.load_on_top(PauseScene)
+        else:
+            self.IsPaused = False
+            self.TurnTimer.resume()
+            self.GlobalTimer.resume()
+            self.unload_on_top(PauseScene)
+
     def late_update(self):
         for event in self.events:
             if event.type == pygame.QUIT:
@@ -142,9 +155,9 @@ class S_Game(Scene):
                         if self.Cheats.ShowDropdown:
                             self.Cheats.hide_menus()
                         else:
-                            pause(Rules.mode)
+                            self.pause()
                     else:
-                        pause(Rules.mode)
+                        self.pause()
                     break
             # Legacy cheat codes
                 if Rules.allowCheats:
@@ -312,6 +325,8 @@ class S_Game(Scene):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Left click
                 if pygame.mouse.get_pressed()[0]:
+                    if self.IsPaused:
+                        return
                     
                     if damath_board.rect.collidepoint(self.m_pos):
                         cell = get_cell_from_mouse_raw(self.m_pos)
@@ -375,6 +390,9 @@ class S_Game(Scene):
                             
                 # Right click
                 if pygame.mouse.get_pressed()[2]:
+                    if self.IsPaused:
+                        return
+
                     if Rules.allowCheats:
                         cell = get_cell_from_mouse_raw(self.m_pos)
                         col, row = cell

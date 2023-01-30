@@ -51,4 +51,10 @@ class S_HostGame(Scene):
   
         self.Match.Scores.draw_scores()
 
+    def late_update(self):
+        for event in self.events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
 HostGameScene = S_HostGame()

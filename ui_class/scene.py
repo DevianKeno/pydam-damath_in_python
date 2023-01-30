@@ -25,6 +25,8 @@ class Scene():
         self.m_pos = ()
         self.events = ()
 
+        self.scenes_on_top = []
+
     @property
     def Surface(self) -> pygame.Surface:
         return self.surface
@@ -99,6 +101,11 @@ class Scene():
         while self.IsLoaded:
             self._update()
             self.display()
+
+            if self.scenes_on_top != None:
+                for scene in self.scenes_on_top:
+                    scene.display()
+
             self._late_update()
             self.Cursor.draw()
             pygame.display.update()
@@ -113,7 +120,7 @@ class Scene():
         self.late_update()
 
     def _load_on_top(self, scene):
-        self.display()
+        scene.display()
 
 
     """
@@ -146,7 +153,13 @@ class Scene():
 
     def load_on_top(self, scene):
         """
-        Loads a scene on top of another scene.
+        Loads a scene on top of this scene.
         """
-        scene_thread = Thread(target=self._load_on_top, args=(scene), daemon=True)
-        scene_thread.start()
+        self.scenes_on_top.append(scene)
+
+    def unload_on_top(self, scene):
+        """
+        Unloads the scene on top of this scene.
+        """
+        self.scenes_on_top.remove(scene)
+        scene.unload()
