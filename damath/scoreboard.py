@@ -20,6 +20,7 @@ class Scoreboard:
 
     def __init__(self, surface=None):
         self._surface = surface
+        self.Game = None
         self.p1_score = 0 # Blue
         self.p2_score = 0 # Orange
 
@@ -37,11 +38,13 @@ class Scoreboard:
     def init(self):
         pass
 
+    def draw(self):
+        self.draw_scores()
+
     def draw_scores(self):
         """
         Displays the scores.
         """
-
         scoreboard_p1_score_area.display()
         p1_score, p2_score = str(round(self.p1_score, 1)), str(round(self.p2_score, 1))
 

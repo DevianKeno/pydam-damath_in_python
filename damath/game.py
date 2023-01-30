@@ -33,7 +33,6 @@ class Match:
         """
         Initialize match.
         """
-        
         self.command = None
 
         self.selected_cell = None   # Cell | Raw cell
@@ -61,7 +60,7 @@ class Match:
     def set_mode(self, mode):
         Rules.set_mode("Classic")
 
-    def update(self):
+    def draw(self):
         self.Scores.draw_scores()
         self.Scores.draw_turn_indicator(self.turn)
 

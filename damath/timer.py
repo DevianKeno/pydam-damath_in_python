@@ -5,7 +5,7 @@ from damath.ruleset import *
 
 class Timer:
 
-    def __init__(self, duration_in_seconds: int):
+    def __init__(self, duration_in_seconds):
         self.duration = duration_in_seconds 
         self.start_time = 0 
         self.start_time_started = False

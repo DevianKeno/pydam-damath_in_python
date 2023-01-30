@@ -186,10 +186,6 @@ class Board:
                 self.pieces[col][row].row = row
                 self.pieces[col][row].calc_pos()
 
-    def _set_surface_alpha(self):
-        self._surface.fill('#B9BABB')
-        self._surface.set_colorkey('#B9BABB')
-
     """
     Public methods
     """
@@ -256,7 +252,7 @@ class Board:
             if self.anim_capture:
                 self.anim_capture.update()
 
-        self._set_surface_alpha()
+        self.set_surface_alpha()
         if self.Symbols != None:
             self.Symbols.draw()
         self.draw_coordinates()
@@ -265,6 +261,10 @@ class Board:
             self.draw_capturing_piece_indicator()
             self.draw_valid_moves(self.valid_moves)
         self.draw_chips()
+
+    def set_surface_alpha(self):
+        self._surface.fill('#B9BABB')
+        self._surface.set_colorkey('#B9BABB')
 
     def draw_coordinates(self):
         """

@@ -1,13 +1,6 @@
 
 
-
-
-
-class Player:
-
-    def __init__(self, name="") -> None:
-        self.name = name
-        self.Stats = Statistics()
+from options import *
 
 class Statistics:
 
@@ -15,8 +8,8 @@ class Statistics:
         self.total_score = 0
         self.cumulative_score = []
 
+        self.total_turns = 0 
         self.total_moves = 0
-        self.total_moves_including_chains = 0
         self.moves = []
         
         self.capture_scores = []
