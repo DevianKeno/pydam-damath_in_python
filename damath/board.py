@@ -144,44 +144,6 @@ class Board:
     def init_symbols(self, surface):
         surface.fill('#B9BABB')
         surface.set_colorkey('#B9BABB')
-        SYMBOLS_SET_ONE = ["-", "x", "-", "x"]
-        SYMBOLS_SET_TWO = ["+", "÷", "+", "÷"]
-        symbol_counter = 0
-        symbol_counter_reversed = 3
-        
-        for col in range(COLS):
-            symbol_counter = 0
-            symbol_counter_reversed = 3
-
-            for row in range(0, ROWS, 2):
-                if (col % 2 == 0):
-                    row += 1
-                    
-                match col:
-                    case 0:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter]})
-                        symbol_counter += 1
-                    case 1:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter]})
-                        symbol_counter += 1
-                    case 2:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter]})
-                        symbol_counter += 1
-                    case 3:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter]})
-                        symbol_counter += 1
-                    case 4:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter_reversed]})
-                        symbol_counter_reversed -= 1
-                    case 5:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter_reversed]})
-                        symbol_counter_reversed -= 1
-                    case 6:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_TWO[symbol_counter_reversed]})
-                        symbol_counter_reversed -= 1
-                    case 7:
-                        self.symbol_map.update({(col, row):SYMBOLS_SET_ONE[symbol_counter_reversed]})
-                        symbol_counter_reversed -= 1
 
     def get_col_row(self, cell):
         """
@@ -341,8 +303,10 @@ class Board:
             if self.anim_capture:
                 self.anim_capture.update()
 
-        self.draw_symbols(self._surface)
-        self.Symbols.draw()
+        # self.draw_symbols(self._surface)
+
+        if self.Symbols != None:
+            self.Symbols.draw()
         self.draw_coordinates()
         if Options.showIndicators:
             self.draw_selected_piece_indicator()
@@ -464,9 +428,6 @@ class Board:
                 piece.make_king()
                 self.orange_kings += 1
                 CAPTURE_SOUND.play()
-    
-    def piece_landed(self, col, row):
-        return self.Symbols.symbol_map[(col, row)]
 
     def set_all_moveables(self, IsMovable=True):
         """
