@@ -1,10 +1,12 @@
 import pygame
+from random import shuffle
+
 from damath.constants import COLS, ROWS
 from damath.ruleset import Rules
-from ui_class.font import *
-from ui_class.colors import *
 from display_constants import screen
 from objects import selection_guide_rect, square_size, chips_surface
+from ui_class.font import *
+from ui_class.colors import *
 
 def get_xy_from_cell(tile: tuple):
     """
@@ -51,20 +53,15 @@ class Symbol:
         if Rules.symbolMultiply:
             self.multiply = '×'
         if Rules.symbolDivide:
-            self.divide = '÷'
+            self.divide = '÷'      
 
-        if not Rules.symbolRandom:
-            self.symbol_set_one = [self.subtract, self.multiply, self.subtract, self.multiply]
-            self.symbol_set_two = [self.add, self.divide, self.add, self.divide]
-        else:
-            self.symbol_set_one = [self.subtract, self.multiply, self.subtract, self.multiply]
-            self.symbol_set_two = [self.add, self.divide, self.add, self.divide]
+        self.symbol_set_one = [self.subtract, self.multiply, self.subtract, self.multiply]
+        self.symbol_set_two = [self.add, self.divide, self.add, self.divide]   
 
     def calculate_positions(self):
         for key in self.symbol_map:
             col, row = key
             self.symbol_pos_map.update({(col, row):get_xy_from_cell((col, row))})
-            
 
     def align_center(self):
         for key in self.symbol_pos_map:
@@ -74,6 +71,12 @@ class Symbol:
             self.symbol_pos_map.update({key: (text_symbol_rect.x, text_symbol_rect.y)})
 
     def generate(self):
+        if not Rules.symbolRandom:
+            self._generate_default()
+        else:
+            self._generate_random()
+    
+    def _generate_default(self):
         """
         Generates the symbol_map dictionary.
         
@@ -111,7 +114,20 @@ class Symbol:
                         self.symbol_map.update({(col, row):self.symbol_set_two[symbol_counter]})
                         symbol_counter += 1
 
+    def _generate_random(self):
+        self._generate_default()
+
+        temp_symbols = list(self.symbol_map.values())
+        shuffle(temp_symbols)
+        self.symbol_map = dict(zip(self.symbol_map, temp_symbols))
+
     def draw(self):
         for key in self.symbol_map:
             text_symbol = self.font.render(self.symbol_map[key], True, DARK_GRAY_BLUE)
             self._surface.blit(text_symbol, self.symbol_pos_map[key])
+
+    def get_symbol(self, tile):
+        """
+        Returns the symbol of the tile.
+        """
+        return self.symbol_map[tile]

@@ -204,7 +204,6 @@ class Match:
             return self.command
         else:
             self.refresh()
-            self.Board.refresh()
 
     def select_piece(self, piece, IsOperator=False):
         """
@@ -214,7 +213,6 @@ class Match:
         if not IsOperator:
             if piece.color != self.turn:
                 self.refresh()
-                self.Board.refresh()
                 return
 
         self.selected_piece = piece
@@ -256,29 +254,22 @@ class Match:
 
         piece_on_destination = self.Board.get_piece(destination)
         destination_cell = piece_on_destination.col, piece_on_destination.row
-        col, row = destination_cell
 
         if piece_on_destination.color == 0 and (destination) in self.valid_moves:
             self.Board.move_piece(piece, destination_cell)
             self.moved_piece = self.selected_piece
-            skipped_list = list(self.valid_moves)
-
-            # Get the skipped piece of the move:skipped_piece pair
-            skipped_piece = self.valid_moves[destination]
+            skipped_piece = self.valid_moves[destination] # Get the skipped piece of key:piece value pair
 
             if skipped_piece:
                 CAPTURE_SOUND.play()
                 self.moved_piece.HasSkipped = True
-                operations = []
 
-                if len(skipped_piece) > 1:
-                    for i in range(len(skipped_list)-1, (len(skipped_list)-1)-len(skipped_piece), -1):
-                        operations.append(self.Board.piece_landed(skipped_list[i][0], skipped_list[i][1]))
-                else:
-                    operations.append(self.Board.piece_landed(col, row))
-                self.Scores.score_update(self.selected_piece, skipped_piece, operations)
-                
-                self.Board.move_to_graveyard(skipped_piece)
+                if self.Board != None:
+                    self.Board.move_to_graveyard(skipped_piece)
+                    operation = self.Board.Symbols.get_symbol(destination_cell)
+
+                if self.Scores != None:
+                    self.Scores.score_update(self.selected_piece, skipped_piece, operation)
             else:
                 MOVE_SOUND.play()
 
@@ -286,12 +277,8 @@ class Match:
             if self.selected_piece.HasSkipped:
                 if self.check_for_captures(self.moved_piece):
                     self.select_piece(self.moved_piece)
-                else:
-                    self.moved_piece.HasSkipped = False
-                    return
-            else:
-                self.moved_piece.HasSkipped = False
-                return
+            self.moved_piece.HasSkipped = False
+            return
 
     def toggle_player_controls(self):
         self.ControlsIsEnabled = not self.ControlsIsEnabled
@@ -307,6 +294,9 @@ class Match:
         self.moved_piece = None
         self.valid_moves = {}
 
+        if self.Board != None:
+            self.Board.refresh()
+
     def change_turn(self):
         if Rules.IsMultiplayer:
             self.toggle_player_controls()
@@ -314,7 +304,6 @@ class Match:
             self.Board.check_for_kings(self.selected_piece)
 
         self.refresh()
-        self.Board.refresh()
 
         if self.turn == PLAYER_ONE:
             self.turn = PLAYER_TWO

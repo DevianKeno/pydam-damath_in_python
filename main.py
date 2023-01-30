@@ -791,6 +791,7 @@ class Damath:
         Rules.allowCheats = True
         Rules.IsMultiplayer = False
         Rules.piece_values = "Integers"
+        Rules.symbolRandom = True
 
         # Once Start is pressed, instantiate other major classes
         # This can be put inside a separate function, taking Rules as param
