@@ -8,6 +8,7 @@ from .ruleset import Rules
 from .scoreboard import Scoreboard
 from .constants import *
 from .timer import *
+from .statistics import *
 from audio_constants import *
 from ui_class.tween import *
 from objects import square_size

@@ -59,18 +59,10 @@ class Board:
     def surface(self, value: pygame.Surface):
         self._surface = value
 
-    def init(self):
-        self._init_rotation()
-        self._init_chips(self._surface)
-
-    def update_theme(self, theme):
-        self.theme = theme
-
     def _init_rotation(self):        
         """
         Initializes the first rotation of the board, as well as the coordinates.
         """       
-        
         _x_coordinates = ["0", "1", "2", "3", "4", "5", "6", "7"]
         _y_coordinates = ["7", "6", "5", "4", "3", "2", "1", "0"]
 
@@ -82,13 +74,74 @@ class Board:
                                     spacing = board_y_coords_rect.h * 0.0775,
                                     padding = [board_y_coords_rect.h * 0.04, board_y_coords_rect.w * 0.2, 0, 0])
 
-    def flip(self):
-        """
-        Rotates the board by 180 degrees.
-        """
-        self._rotate_180()
-        self.recalculate_graveyard_positions()
+    def _init_chips(self):
+        val_counter = 0
+        
+        match Rules.piece_values:
+            case 'Naturals':
+                num = [
+                    3, 6, 9, 12,
+                    8, 11, 4, 1, 
+                    5, 2, 7, 10
+                ]
+            case 'Integers':
+                num = [2, -5, 8, -11,
+                       -7, 10, -3, 0,
+                       4, -1, 6, -9]
+            case 'Rationals':
+                num = [
+                    '3/10', '6/10', '9/10', '12/10',
+                    '8/10', '11/10', '4/10', '1/10',
+                    '5/10', '2/10', '7/10', '10/10'
+                ]
+            case 'Radicals':
+                num = [
+                    '144√8', '100√2', '-81√32', '-121√8',
+                    '64√2', '36√32', '-25√18', '-49√8',
+                    '16√32', '4√18', '-√8', '-9√2'
+                ]
+            case 'Polynomials':
+                num = [
+                    '78xy²', '66x²y', '-45y', '-55x',
+                    '36x²y', '28y', '-15x', '-21xy²',
+                    '10y', '6x', '-xy²', '-3x²y' 
+                ]
 
+        self.pieces = [[0]*COLS for i in range(ROWS)] # Generate 8 empty lists of 8 size
+
+        # Generate player one chips
+        val_counter = 11
+        for row in range(2, -1, -1):
+            for col in range(COLS):
+                if col % 2 != ((row) % 2):
+                    self.pieces[col][row] = Piece(self._surface, (col, row), PLAYER_ONE, num[val_counter])
+                    self.moveables.append((col, row))
+
+                    if Options.enableDebugMode:
+                        print(f"[Debug]: Created {PLAYER_ONE} piece \"{num[val_counter]}\" at cell ({col}, {row})")
+                    val_counter-=1
+                else:
+                    self.pieces[col][row] = Piece(self._surface, (col, row), 0, 0)
+
+        # Generate player two chips
+        val_counter = 0
+        for row in range(7, 4, -1):
+            for col in range(COLS):
+                if col % 2 != ((row) % 2):
+                    self.pieces[col][row] = Piece(self._surface, (col, row), PLAYER_TWO, num[val_counter])
+                    self.moveables.append((col, row))
+
+                    if Options.enableDebugMode:
+                        print(f"[Debug]: Created {PLAYER_TWO} piece \"{num[val_counter]}\" at cell ({col}, {row})")
+                    val_counter+=1
+                else:
+                    self.pieces[col][row] = Piece(self._surface, (col, row), 0, 0)
+
+        # Generate imaginary pieces at the middle of the board
+        for row in range(3, 5, 1):
+            for col in range(COLS):
+                self.pieces[col][row] = Piece(self._surface, (col, row), 0, 0)
+ 
     def _rotate_180(self):
         if self.IsFlipped:
             self.IsFlipped = False        
@@ -121,42 +174,39 @@ class Board:
         for i, row in enumerate(self.pieces):
             self.pieces[i].reverse()           
         self.pieces.reverse()
-        self.reset_pieces()
+        self._reset_pieces()
 
-    def reset_pieces(self):
+    def _reset_pieces(self):
         """
         Resets all piece's cells, and recalculates their x and y positions.
         """
-        
         for col in range(COLS):
             for row in range(ROWS):
                 self.pieces[col][row].col = col
                 self.pieces[col][row].row = row
                 self.pieces[col][row].calc_pos()
 
-    def refresh(self):
-        """
-        Sets some variables to None.
-        """
-        self.selected_piece = None
-        self.valid_moves = None
+    def _set_surface_alpha(self):
+        self._surface.fill('#B9BABB')
+        self._surface.set_colorkey('#B9BABB')
 
-    def init_symbols(self, surface):
-        surface.fill('#B9BABB')
-        surface.set_colorkey('#B9BABB')
+    """
+    Public methods
+    """
+    def init(self):
+        self._init_rotation()
+        self._init_chips()
 
     def get_col_row(self, cell):
         """
         Returns a cell relative to the board's coordinate given a raw cell.
         This considers the board's orientation. 
         """
-
         if cell[0] == -1 or cell[1] == -1:
             return
 
         col = cell[0]
         row = abs(cell[1] - 7)
-
         return col, row
 
     def to_raw(self, cell):
@@ -164,26 +214,22 @@ class Board:
         Converts a board-relative coordinate to raw coordinates.
         This considers the board's orientation. 
         """
-
         if cell[0] == -1 or cell[1] == -1:
             return
 
         col = abs(cell[0] - 7)
         row = cell[1]
-
         return col, row
 
     def get_abs(self, cell):
         """
-        Returns the flipped values of the given cell.
+        Returns flipped values of the given cell.
         """
-
         if cell[0] == -1 or cell[1] == -1:
             return
 
         col = abs(cell[0] - 7)
         row = abs(cell[1] - 7)
-
         return col, row
 
     def get_piece(self, cell):
@@ -191,120 +237,26 @@ class Board:
         Returns the piece in the specified cell.
         This considers the board's orientation. 
         """
-
         if cell[0] == -1 or cell[1] == -1:
             return
 
         col = cell[0]
         row = abs(cell[1] - 7)
-
         return self.pieces[col][row]
-
-    def _init_chips(self, surface):
-        val_counter = 0
-        
-        match Rules.piece_values:
-            case 'Naturals':
-                num = [
-                    3, 6, 9, 12,
-                    8, 11, 4, 1, 
-                    5, 2, 7, 10
-                ]
-
-            case 'Integers':
-                num = [2, -5, 8, -11,
-                       -7, 10, -3, 0,
-                       4, -1, 6, -9]
-
-            case 'Rationals':
-                num = [
-                    '3/10', '6/10', '9/10', '12/10',
-                    '8/10', '11/10', '4/10', '1/10',
-                    '5/10', '2/10', '7/10', '10/10'
-                ]
-
-            case 'Radicals':
-                num = [
-                    '144√8', '100√2', '-81√32', '-121√8',
-                    '64√2', '36√32', '-25√18', '-49√8',
-                    '16√32', '4√18', '-√8', '-9√2'
-                ]
-                
-            case 'Polynomials':
-                num = [
-                    '78xy²', '66x²y', '-45y', '-55x',
-                    '36x²y', '28y', '-15x', '-21xy²',
-                    '10y', '6x', '-xy²', '-3x²y' 
-                ]
-
-        # Generate 8 empty lists of 8 size
-        self.pieces = [[0]*COLS for i in range(ROWS)]
-
-        # Generate player one chips
-        val_counter = 11
-
-        for row in range(2, -1, -1):
-            for col in range(COLS):
-                if col % 2 != ((row) % 2):
-                    self.pieces[col][row] = Piece(surface, (col, row), PLAYER_ONE, num[val_counter])
-                    self.moveables.append((col, row))
-
-                    if Options.enableDebugMode:
-                        print(f"[Debug]: Created {PLAYER_ONE} piece \"{num[val_counter]}\" at cell ({col}, {row})")
-
-                    val_counter-=1
-                else:
-                    self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
-
-        # Generate player two chips
-        val_counter = 0
-
-        for row in range(7, 4, -1):
-            for col in range(COLS):
-                if col % 2 != ((row) % 2):
-                    self.pieces[col][row] = Piece(surface, (col, row), PLAYER_TWO, num[val_counter])
-                    self.moveables.append((col, row))
-
-                    if Options.enableDebugMode:
-                        print(f"[Debug]: Created {PLAYER_TWO} piece \"{num[val_counter]}\" at cell ({col}, {row})")
-
-                    val_counter+=1
-                else:
-                    self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
-
-
-        # Generate imaginary pieces at the middle of the board
-        for row in range(3, 5, 1):
-            for col in range(COLS):
-                self.pieces[col][row] = Piece(surface, (col, row), 0, 0)
-        
-        # print(f"Buffer") # Debug
-
-    def set_mode(self, mode):
-        """
-        Sets the mode of the match.
-        """
-        
-        self.mode = mode
-        self.pieces = []
-
-        self._init_chips(self._surface)
-        self.draw_chips()
 
     def draw(self):
         """
         Draws the board and its elements.
         """
 
-        if enableAnimations:
+        if Options.enableAnimations:
             #TODO: Needs optimization
             if self.anim_move_piece:
                 self.anim_move_piece.update()
             if self.anim_capture:
                 self.anim_capture.update()
 
-        # self.draw_symbols(self._surface)
-
+        self._set_surface_alpha()
         if self.Symbols != None:
             self.Symbols.draw()
         self.draw_coordinates()
@@ -313,22 +265,6 @@ class Board:
             self.draw_capturing_piece_indicator()
             self.draw_valid_moves(self.valid_moves)
         self.draw_chips()
-        
-    def draw_symbols(self, surface):
-        self.init_symbols(surface)
-
-    def draw_chips(self):
-        for row in range(ROWS):
-            for col in range(COLS):
-                piece = self.pieces[row][col]
-
-                if piece.color != 0:
-                    piece.display()
-        
-        for piece in self.blue_captured:
-            piece.display()
-        for piece in self.orange_captured:
-            piece.display()
 
     def draw_coordinates(self):
         """
@@ -382,6 +318,32 @@ class Board:
                 col, row = move
                 pygame.draw.circle(self._surface, color, (col * square_size + square_size//2, row * square_size + square_size//2), square_size*0.25)    
     
+    def draw_chips(self):
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.pieces[row][col]
+                if piece.color != 0:
+                    piece.display()
+        
+        for piece in self.blue_captured:
+            piece.display()
+        for piece in self.orange_captured:
+            piece.display()
+
+    def refresh(self):
+        """
+        Sets some variables to None.
+        """
+        self.selected_piece = None
+        self.valid_moves = None
+
+    def flip(self):
+        """
+        Rotates the board by 180 degrees.
+        """
+        self._rotate_180()
+        self.calculate_graveyard_positions()
+        
     def move_piece(self, piece, destination):
         """
         Moves given piece to destination cell.
@@ -395,7 +357,7 @@ class Board:
             print(f"[Debug]: Moved piece {piece.color}: ({piece.col}, {piece.row}) -> ({destination_col}, {destination_row})")
 
         # Play animation
-        if enableAnimations:
+        if Options.enableAnimations:
             self.anim_move_piece = Move(piece, (destination_piece.x, destination_piece.y), Options.chipMoveAnimationSpeed, ease_type=easeOutQuint)
             self.anim_move_piece.play()
 
@@ -433,7 +395,6 @@ class Board:
         """
         Sets all pieces state to be movable or not.
         """
-        
         for row in range(ROWS):
             for col in range(COLS):
                 self.pieces[col][row].IsMovable = IsMovable
@@ -462,9 +423,9 @@ class Board:
 
             self.pieces[piece.col][piece.row] = Piece(self._surface, (piece.col, piece.row), 0, 0)
 
-        self.recalculate_graveyard_positions()
+        self.calculate_graveyard_positions()
 
-    def recalculate_graveyard_positions(self):
+    def calculate_graveyard_positions(self):
         for i, captured_piece in enumerate(self.blue_captured):
             if i < 9:
                 captured_piece.x = (left_captured_pieces_surface.get_width() // 2) - 2 if not self.IsFlipped else (left_captured_pieces_surface.get_width() // 2) - (piece_width)
@@ -512,7 +473,6 @@ class Board:
         """
         Returns all the possible moves of the given piece.
         """
-        
         moves = {}
         up = -1
         down = 1
@@ -537,7 +497,7 @@ class Board:
             # Down
             moves.update(self._check_left(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
             moves.update(self._check_right(piece, starting_row=below, direction=down, max_distance=ROWS, type=type, BoardIsFlipped=BoardIsFlipped))
-        
+
         return moves
 
     def _check_left(self, piece, starting_row, direction, max_distance, type, BoardIsFlipped, skipped=[]):
@@ -676,10 +636,6 @@ class Board:
 
             cell_to_check = self.get_piece((right, row))
             
-            # if BoardIsFlipped:
-            #     right = abs(right - 7)
-            #     row = abs(row - 7)
-
             # Check if spot is empty
             if cell_to_check.color == 0:
                 # Check if piece had captured once

@@ -154,7 +154,7 @@ class DeveloperConsole:
                 case "chat":
                     try:
                         if args[1]:
-                            if args[1] == "in":
+                            if args[1] == "$$$in":
                                 self._command_chat_in(command_raw)
                                 return
                             match args[0]:
@@ -165,7 +165,10 @@ class DeveloperConsole:
                 case "connect" | "join":
                     try:
                         if args[1]:
-                            self.command_connect(args[1])
+                            if args[2]:
+                                self.command_connect(args[1], args[2])
+                            else:
+                                self.command_connect(args[1])
                     except:
                         self.invalid_usage(args[0])
                 case "ct":
@@ -225,7 +228,7 @@ class DeveloperConsole:
                                 print("Usage: /add <col> <row> <player:1|2> <value>")
                                 print("Adds a piece to the given board column and row arguments.")
                             case "connect":
-                                print("Usage: /connect <ip>")
+                                print("Usage: /connect <ip> [name]")
                                 print("Connect to a local game.")
                             case "chat":
                                 print("Usage: /chat <message>")
@@ -414,7 +417,7 @@ class DeveloperConsole:
         self._game.Board.flip()
 
     def _command_chat_in(self, message):
-        message = message[8:]
+        message = message[11:]
 
         if self.IsServer:
             print("<Client> {}".format(message))
@@ -435,15 +438,15 @@ class DeveloperConsole:
         message = message[5:]
 
         if self.IsServer:
-            self._server.send("chat in {}".format(message))
+            self._server.send("chat $$$in {}".format(message))
 
         if self.IsClient:
-            self._client.send("chat in {}".format(message))
+            self._client.send("chat $$$in {}".format(message))
 
     def command_change_turn(self):
         self._game.change_turn()
 
-    def command_connect(self, address):
+    def command_connect(self, address, name='Player'):
         if self.IsServer:
             self._server.stop()
 

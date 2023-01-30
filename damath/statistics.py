@@ -7,7 +7,7 @@ class Player:
 
     def __init__(self, name="") -> None:
         self.name = name
-        self.stats = Statistics()
+        self.Stats = Statistics()
 
 class Statistics:
 
@@ -17,6 +17,7 @@ class Statistics:
 
         self.total_moves = 0
         self.total_moves_including_chains = 0
+        self.moves = []
         
         self.capture_scores = []
         self.highest_single_capture_score = 0
@@ -34,7 +35,11 @@ class Statistics:
         self.average_time_per_turn = 0 
         self.total_time_used = 0
 
-class Move:
+    class Move:
+        """
+        Represents a move.
+        """
 
-    def __init__(self) -> None:
-        self.player = 0
+        def __init__(self) -> None:
+            self.piece = None
+            self.score_attained = 0
