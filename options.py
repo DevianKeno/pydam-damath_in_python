@@ -18,6 +18,7 @@ showIndicators = 'showIndicators'
 musicVolume = 'musicVolume'
 soundVolume = 'soundVolume'
 username = 'username'
+showSplash = 'showSplash'
 
 DEFAULT_OPTIONS = {
     enableDebugMode : 'False',
@@ -29,7 +30,8 @@ DEFAULT_OPTIONS = {
     showIndicators : 'True',
     musicVolume : '100',
     soundVolume : '100',
-    username : 'Player'
+    username : 'Player',
+    showSplash : 'True'
 }
 
 def is_bool(value):
@@ -155,6 +157,11 @@ class Config:
             self.soundVolume = int(self.set_value(soundVolume, DEFAULT_OPTIONS[soundVolume]))
 
         self.username = self.options[username]
+
+        if not is_bool(to_bool(self.options[showSplash])):
+            self.showSplash = self.set_value(showSplash, DEFAULT_OPTIONS[showSplash])
+        else:
+            self.showSplash = to_bool(self.options[showSplash])
 
     def read_all(self):
         list_of_value = []
