@@ -33,6 +33,9 @@ mainmenu_opt_gap      = menu_fontsize * 2.1
 side_menu_surface     = pygame.Surface((SCREEN_WIDTH*0.3, SCREEN_HEIGHT))
 title_surface         = pygame.Surface((SCREEN_WIDTH*0.7, SCREEN_HEIGHT))
 
+black_background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+splash = Image(SPLASH, screen, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2), (SCREEN_WIDTH*0.235, SCREEN_HEIGHT*0.208))
+
 # --------- Main Menu --------- 
 
 title = Image(TITLE, title_surface,

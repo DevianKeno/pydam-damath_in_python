@@ -43,6 +43,7 @@ from options import *
 from scenes.title_scene import *
 from scenes.game_scene import *
 from scenes.host_game_scene import *
+from scenes.splash_scene import *
 
 # --------- initialization ---------
 pygame.init()
@@ -434,37 +435,6 @@ def mini_options():
         pygame.display.update()
         clock.tick(FPS)
         
-def timer_thread():
-
-    global thread_running
-    turn_timer.reset()
-    global_timer.reset()
-
-    thread_running = True
-
-    turn_timer.start_timer()
-    global_timer.start_timer()  
-
-    while thread_running:
-        time.sleep(0.1)
-        #print(turn_timer.remaining_time)
-        
-        if turn_timer.start_time_started and turn_timer.is_running:
-            turn_timer.update()
-            if turn_timer.remaining_time >= 0:
-                turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
-            else:
-                game.change_turn()
-
-        if global_timer.start_time_started and global_timer.is_running:
-            global_timer.update()
-            if ceil(global_timer.remaining_time) >= 0:
-                global_timer.remaining_time = global_timer.endtime - global_timer.currenttime
-            else:
-                thread_running = False
-                return
-    return
-        
 GameIsRunning = True
 thread_running = True
 
@@ -670,6 +640,13 @@ class WinnerWindow:
         self.sound_played = False
 
 
+def load():
+    SplashScene.load()
+    pass
+
+splash_thread = Thread(target=load)
+
+
 class Damath:
 
     def __init__(self) -> None:
@@ -762,8 +739,13 @@ class Damath:
         self.Match.Board = Gameboard
         self.Match.Scores = Scores
         self.Match.init()
-        
-        Console.Game = self.Match
+
+        if Rules.enableTimer:
+            turn_timer.set_duration(Rules.timer_turn)
+            global_timer.set_duration(Rules.timer_global)
+            turn_timer.Match = self.Match
+            GameScene.TurnTimer = turn_timer
+            GameScene.GlobalTimer = global_timer
 
         if Rules.allowActions:
             actions = Actions()
@@ -781,12 +763,7 @@ class Damath:
             cheats.init()
             GameScene.Cheats = cheats
             
-        TIMERTHREAD = threading.Thread(target=timer_thread, daemon=True)
-        if Rules.enableTimer:
-            if not TIMERTHREAD.is_alive():
-                TIMERTHREAD.start() 
-            GameScene.TurnTimer = turn_timer
-            GameScene.GlobalTimer = global_timer
+        Console.Game = self.Match
 
         pygame.mixer.music.stop()
 
@@ -801,6 +778,8 @@ class Damath:
             GameScene.Console = Console
             GameScene.load()
 
+
+# ----- Main program -----
 # Start console
 Console = DeveloperConsole()
 
@@ -812,11 +791,4 @@ else:
 
 Console.Main = Main
 Console.start()
-
 Main.start()
-
-
-class S_Splash(Scene):
-
-    def __init__(self) -> None:
-        super().__init__()

@@ -61,6 +61,11 @@ class S_Game(Scene):
         else:
             self.text_mode = font_cookie_run_reg.render(str(Rules.mode), True, OAR_BLUE)
 
+        if not self.TurnTimer.is_running:
+            self.TurnTimer.start_timer()
+        if not self.GlobalTimer.is_running:
+            self.GlobalTimer.start_timer()
+
     def update(self):
         mins, secs = self.GlobalTimer.get_remaining_time()
         if self.GlobalTimer.is_running:

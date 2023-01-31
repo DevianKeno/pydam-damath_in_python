@@ -4,7 +4,7 @@ import pygame
 from ui_class.scene import *
 from screens.select_mode import *
 from objects import *
-
+from scenes.splash_scene import *
 
 class S_Title(Scene):
 
@@ -14,6 +14,11 @@ class S_Title(Scene):
         self.description = """Main title screen at the start of the game."""
         # Scene objects
         self.Main = None
+
+    def on_entry(self):
+        self.load_on_top(SplashScene)
+        self.execute(UNLOAD_ON_TOP, 3, SplashScene)
+        return super().on_entry()
 
     def display(self):
         try:
@@ -33,10 +38,14 @@ class S_Title(Scene):
         anim_title_breathe.play()
 
     def late_update(self):
+
         for event in self.events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+                    
+            if SplashScene.IsLoaded:
+                return
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:

@@ -2,28 +2,62 @@ import time
 from math import ceil
 from .constants import TIMER_DURATION
 from damath.ruleset import *
+from threading import Thread
+
 
 class Timer:
 
     def __init__(self, duration_in_seconds):
-        self.duration = duration_in_seconds 
+        self.duration = duration_in_seconds
+        self.Match = None
+
         self.start_time = 0 
         self.start_time_started = False
         self.currenttime = 0
         self.endtime = 0
         self.remaining_time = duration_in_seconds
-        self.is_running = False 
-    
-    def set_duration(self, duration_in_seconds):
-        self.duration = duration_in_seconds
+        self.is_running = False
+        self.thread_running = False
+
+        self.timer_thread = Thread(target=self._timer, daemon=True)
 
     def start_timer(self):
+        if not self.thread_running:
+            self.reset()
+            self.init_timer()
+            self.thread_running = True
+            self.timer_thread.start()
+        
+    def _timer(self):
+        while self.thread_running:
+            time.sleep(0.1)
+            
+            if turn_timer.start_time_started and turn_timer.is_running:
+                turn_timer.update()
+                if turn_timer.remaining_time >= 0:
+                    turn_timer.remaining_time = turn_timer.endtime - turn_timer.currenttime
+                else:
+                    self.Match.change_turn()
+
+            if global_timer.start_time_started and global_timer.is_running:
+                global_timer.update()
+                if ceil(global_timer.remaining_time) >= 0:
+                    global_timer.remaining_time = global_timer.endtime - global_timer.currenttime
+                else:
+                    self.thread_running = False
+                    return
+        return
+    
+    def init_timer(self):
         if not self.start_time_started:
             self.start_time = time.time()
             self.start_time_started = True
 
         self.is_running = True
-        
+
+    def set_duration(self, duration_in_seconds):
+        self.duration = duration_in_seconds
+
     def update(self):
         self.endtime = self.start_time + self.duration 
         self.currenttime = time.time()
