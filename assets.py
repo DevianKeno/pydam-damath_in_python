@@ -7,6 +7,7 @@ from damath.constants import *
 
 # --------- x --------- 
 
+SPLASH = pygame.image.load('new_assets\splash.png').convert_alpha()
 TITLE = pygame.transform.smoothscale_by(pygame.image.load('new_assets/title.png').convert_alpha(), 0.45)
 CURSOR = pygame.transform.smoothscale(pygame.image.load('new_assets\cursor.png').convert_alpha(), (32, 42))
 

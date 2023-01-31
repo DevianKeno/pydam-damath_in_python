@@ -6,6 +6,7 @@ from event_loop import *
 from display_constants import screen, FPS
 from threading import *
 from ui_class.cursor import Cursor
+from ui_class.scene_constants import *
 
 class Scene():
     """
@@ -155,6 +156,7 @@ class Scene():
         """
         Loads a scene on top of this scene.
         """
+        scene.IsLoaded = True
         self.scenes_on_top.append(scene)
 
     def unload_on_top(self, scene):
@@ -162,4 +164,47 @@ class Scene():
         Unloads the scene on top of this scene.
         """
         self.scenes_on_top.remove(scene)
+        scene.IsLoaded = False
         scene.unload()
+
+    def _execute(self, target, delay_in_seconds, *args):
+        for i in range(delay_in_seconds):
+            time.sleep(1)
+
+        match target:
+            case 0:
+                self.on_entry()
+                pass
+            case 1:
+                self.on_exit()
+                pass
+            case 2:
+                self.update()
+                pass
+            case 3:
+                self.load()
+                pass
+            case 4:
+                self.unload()
+                pass
+            case 5:
+                self.switch_to(args[0], args[1])
+                pass
+            case 6:
+                self.get_event()
+                pass
+            case 7:
+                self.load_on_top(args[0])
+                pass
+            case 8:
+                self.unload_on_top(args[0])
+            case 9:
+                self.execute(args[0], args[1], args[2])
+
+    def execute(self, target: int, delay_in_seconds=0, args=None):
+        """
+        Delays execution of internal method.
+        """
+        thread = Thread(target=self._execute, args=(target, delay_in_seconds, args))
+        thread.start()
+
