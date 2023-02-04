@@ -34,6 +34,18 @@ class Screen(ABC):
     def height(self) -> height:
         return self.screen.get_height()
 
+    @property
+    def mouse_pos(self) -> tuple:
+        return pygame.mouse.get_pos()
+
+    @property
+    def mx(self) -> int:
+        return self.mouse_pos[0]
+
+    @property
+    def my(self) -> int:
+        return self.mouse_pos[1]
+
     @abstractmethod
     def before_looping(self):
         """

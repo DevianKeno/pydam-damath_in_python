@@ -20,7 +20,8 @@ from damath.constants import *
 from damath.timer import *
 from display_constants import *
 from event_loop import event_loop
-from screens.select_mode import *
+from screens.select_mode import select_mode_screen
+from screens.options_menu import options_screen
 from screens.multi_menu import MultiMenu
 from ui_class.button import Button, ButtonList
 from ui_class.colors import * 
@@ -372,7 +373,7 @@ def sidebar_init():
         else:
             target = sys.exit
         sidebar.get_option(option).target = target
-    sidebar.set_args([[select_mode_screen], [multi_mode_screen], [None], [None], [None]])
+    sidebar.set_args([[select_mode_screen], [multi_mode_screen], [None], [options_screen], [None]])
 
 def sidebar_update(func):
     """
