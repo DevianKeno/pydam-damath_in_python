@@ -65,7 +65,7 @@ ICON_PAUSE_TIMER = pygame.image.load('new_assets\icons\icon_timer_pause.png').co
 ICON_RESUME_TIMER = pygame.image.load('new_assets\icons\icon_timer_play.png').convert_alpha()
 
 # --------- x --------- 
-ICON_BUFFERING = pygame.image.load('new_assets\\buffering.png').convert_alpha()
+ICON_BUFFERING = pygame.image.load('new_assets\\icons\icon_loading.png').convert_alpha()
 
 # --------- x --------- 
 

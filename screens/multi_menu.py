@@ -50,7 +50,7 @@ class MultiMenu(MainMenu):
         window_text = pygame.font.Font('font/CookieRun_Regular.ttf', int(multi_join_btn.height*0.6))
         window_text_surface = window_text.render("Searching for available matches...", True, OAR_BLUE)
         self.screen.blit(window_text_surface, (self.mode_window.rect_window.x + self.mode_window.rect_window.w*0.5 - window_text_surface.get_width()*0.5,
-                    self.mode_window.rect_window.y+(self.mode_window.rect_window.h*0.55)))
+                    self.mode_window.rect_window.y+(self.mode_window.rect_window.h*0.6)))
 
         #NOTE: a make-do rotate function for now as I can't seem to move the previously instantiated tween object and it only stays in the middle of the screen
         rotated_image = pygame.transform.rotate(self.buffering_icon, self.rot_idx)
