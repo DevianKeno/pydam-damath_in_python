@@ -387,13 +387,12 @@ def sidebar_update(func):
 
 @sidebar_update
 def display_screen(screen):
-    """
-    Displays the passed screen.
-    """
     if screen == select_mode_screen:
-        classic_btn.set_target(Main.create_match('Classic'))
-        speed_btn.set_target(Main.create_match('Speed'))
-        start_select_btn.set_target(Main.start_match())
+        classic_btn.set_target(Main.create_match)
+        classic_btn.set_args("classic")
+        speed_btn.set_target(Main.create_match)
+        speed_btn.set_args("speed")
+        start_select_btn.set_target(Main.start_match)
     screen.display()
 
 # --------- Screen Objects ---------

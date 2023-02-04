@@ -254,7 +254,8 @@ class NButton(Tooltip):
         """
         Calls the target function stored in the button
         """
-        self.set_state(self.Selected)
+        if not self.toggleable:
+            self.set_state(self.Selected)
         self.will_call_target = True
 
     def _call_target(self):
@@ -303,6 +304,8 @@ class NButton(Tooltip):
             self.btn_rect.move_ip(0, self.shadow_offset/1.5)
             self.text_rect.move_ip(0, self.shadow_offset/1.5)
             self.moved = True
+            if self.will_call_target and self.get_state() == self.Toggled:
+                self._call_target()
         # if clicked and the mouse button is no longer pressed
         elif self.get_state() == self.Selected and not pygame.mouse.get_pressed()[0]:
             self.set_state(self.Normal)
@@ -449,7 +452,10 @@ class ButtonGroup:
                                             if self.pass_target:
                                                 self.caller_btn.set_target(btn.get_target())
                                             if self.pass_args:
-                                                self.caller_btn.set_args(btn.get_args())                                     
+                                                self.caller_btn.set_args(btn.get_args()) 
+                                            elif (not self.pass_args and not self.pass_target):
+                                                btn.call_target()     
+                                                # self._set_state(btn, btn.Toggled)                               
                                     else:
                                         if self.auto_unselect:
                                             self._set_state(btn, btn.Toggled)
@@ -462,7 +468,9 @@ class ButtonGroup:
                                                     if self.pass_target:
                                                         self.caller_btn.set_target(btn.get_target())
                                                     if self.pass_args:
-                                                        self.caller_btn.set_args(btn.get_args())   
+                                                        self.caller_btn.set_args(btn.get_args())  
+                                                    elif (not self.pass_args and not self.pass_target):
+                                                        btn.call_target()      
                                 else:
                                     self._set_state(btn, btn.Normal)
                             else:
