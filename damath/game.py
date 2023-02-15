@@ -28,6 +28,7 @@ class Match:
         self.Scores = scoreboard
         self.ControlsIsEnabled = True
         self.IsRunning = False
+        self._console = None
 
     def init(self):
         """

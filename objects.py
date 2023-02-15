@@ -249,6 +249,14 @@ __pause_btn_kwargs = {
                 "fontsize" : int((pause_window.h*0.175) * 0.4)
                 }
 
+# --------- Victory Window Objects  --------- 
+
+victory_window = create_window(screen, (0, 0), 
+                SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.55,
+                DARK_BLUE, border_radius=10,
+                cast_shadow=False)
+
+
 resume_btn = NButton(screen, __pause_btn_pos, *__pause_btn_size, 
                 text='Resume', **__pause_btn_kwargs)
 options_btn = NButton(screen, (__pause_btn_pos[0], __pause_btn_pos[1]+btn_size[1]*1.35), 

@@ -2,7 +2,7 @@ import pygame
 from damath.constants import PLAYER_ONE, PLAYER_TWO
 from damath.game import Match
 from damath.piece import Piece
-from damath.ruleset import Ruleset
+from damath.ruleset import *
 from damath.timer import *
 from objects import chips_surface
 from options import *
@@ -186,6 +186,8 @@ class DeveloperConsole:
                                     self.command_chat(command_raw)
                     except:
                         self._invalid_usage(args[0])
+                case "cheats":
+                    self.command_cheats();
                 case "connect" | "join":
                     try:
                         if args[1]:
@@ -236,19 +238,20 @@ class DeveloperConsole:
                                 print("/draw        : offer draw")
                                 print("/forfeit     : resign from match")
                                 print("/help        : displays this")
-                                pass
+                                print("/host        : host local match")
+                                print("/match       : create a match")
                             case "2":
                                 print("List of available commands:")
                                 print("Page 2/2 | /help <page>")
-                                print("/host        : host local match")
-                                print("/match       : create a match")
                                 print("/move        : moves selected piece")
                                 print("/op          : make this console operator")
                                 print("/remove      : removes a piece")
                                 print("/restart     : restarts the match")
+                                print("/rules       : adjust match rules")
                                 print("/select      : selects a piece")
                                 print("/smove       : selects and moves a piece")
                                 print("/timer       : toggle timer")
+                                print("/toggle      : toggle certain rules")
                             case "add":
                                 print("Usage: /add <col> <row> <player:1|2> <value>")
                                 print("Adds a piece to the given board column and row arguments.")
@@ -274,6 +277,9 @@ class DeveloperConsole:
                                 print("Usage: /remove <col> <row>")
                                 print("Removes a piece given board column and row arguments.")
                                 print("Non-graveyard removal.")
+                            case "rules":
+                                print("Usage: /rules <get|set>")
+                                print("Gets or sets the match's rulestring.")
                             case "restart":
                                 print("Restarts the game.")
                             case "select":
@@ -282,6 +288,9 @@ class DeveloperConsole:
                             case "smove":
                                 print("Usage: /smove <piece_col> <piece_row> <col> <row>")
                                 print("Selects and immediately moves the piece to the given board column and row arguments.")
+                            case "toggle":
+                                print("Usage: /toggle <actions|cheats>")
+                                print("Toggle actions or cheats.")
                     except:
                         self.command_help()
                 case "host":
@@ -313,6 +322,17 @@ class DeveloperConsole:
                         self._invalid_usage(args[0])
                 case "restart":
                     self.command_restart()
+                case "rules":
+                    try:
+                        if args[1]:
+                            match args[1]:
+                                case "get":
+                                    print(Rules.get_rulestr())
+                                case "set":
+                                    if args[2]:
+                                        Rules.set_rulestr(args[2])
+                    except:
+                        self._invalid_usage(args[0])  
                 case "select" | "sel":
                     try:
                         self.command_select((int(args[1]), int(args[2])))
@@ -326,15 +346,15 @@ class DeveloperConsole:
                                     if args[4]:
                                         self.command_selmove((int(args[1]), int(args[2])), (int(args[3]), int(args[4])))
                     except:
-                        self._invalid_usage(args[0])    
-                case "setrulestr":
+                        self._invalid_usage(args[0])
+                case "timer":
+                    self.command_timer()
+                case "toggle":
                     try:
                         if args[1]:
-                            self.set_match_rulestr(command_raw)
+                            self.command_toggle(args[1])
                     except:
-                        print("Invalid command, type /help for available commands")
-                case "timerp":
-                    self.command_timer()
+                        self._invalid_usage(args[0])
                 case _:
                     print("Invalid command, type /help for available commands")
         except:
@@ -355,15 +375,16 @@ class DeveloperConsole:
                 return
 
     def get_match_rulestr(self, match: Match=None, IsCommand: bool=False) -> str:
-        if match.Rules != None:
-            try:
-                rulestr = match.Rules.get_rulestr()
-                if IsCommand:
-                    return "setrulestr {}".format(rulestr)
-                return rulestr
-            except:
-                print("Match has no ruleset.")
-                return
+        if match != None:
+            if match.Rules != None:
+                try:
+                    rulestr = match.Rules.get_rulestr()
+                    if IsCommand:
+                        return "setrulestr {}".format(rulestr)
+                    return rulestr
+                except:
+                    print("Match has no ruleset.")
+                    return
         else:
             try:
                 return self._main.Match.Rules.get_rulestr()
@@ -388,16 +409,17 @@ class DeveloperConsole:
         if not self.IsServer:
             return
 
-        command = "chat ".format(self._main.Match.Rules.mode)
-        self.send(command)
+        Rules.toggle_multiplayer()
         self._command_match_start()
             
     def init_client(self):
         if not self.IsClient:
             return
         if self._main.Match == None:
-            self._command_match()
+            self._main.create_match('classic')
 
+        Rules.toggle_multiplayer()
+        self._command_match_start()
         self._command_flip()
         self._command_lock()
 
@@ -434,7 +456,7 @@ class DeveloperConsole:
         print("player didn't forfeit")
         
     def _command_flip(self):
-        self._game.Board.flip()
+        self._main.Match.Board.flip()
 
     def _command_chat_in(self, message):
         message = message[11:]
@@ -468,6 +490,11 @@ class DeveloperConsole:
 
     def command_change_turn(self):
         self._game.change_turn()
+
+    def command_cheats(self):
+        if self.ShowFeedback:
+            print("Toggled cheats.")
+        self._main.Match.Rules.toggle_cheats()    
 
     def command_connect(self, address, name='Player'):
         if self.IsServer:
@@ -614,3 +641,13 @@ class DeveloperConsole:
 
     def command_timer(self):
         turn_timer.toggle()
+
+    def command_toggle(self, rule: str):
+        match rule:
+            case "actions":
+                Rules.toggle_actions()
+            case "cheats":
+                Rules.toggle_cheats()
+        
+        if self.ShowFeedback:
+            print(f"Toggled {rule}.")

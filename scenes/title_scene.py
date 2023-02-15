@@ -16,7 +16,8 @@ class S_Title(Scene):
         self.Main = None
 
     def on_entry(self):
-        self.load_on_top(SplashScene)
+        if Options.showSplash:
+            self.load_on_top(SplashScene)
         self.execute(UNLOAD_ON_TOP, 3, SplashScene)
         return super().on_entry()
 
@@ -32,7 +33,7 @@ class S_Title(Scene):
                     sidebar.sidebar_rect.w-title_surface.get_width() // 2, 0))
         title_surface.fill(OAR_BLUE)
         sidebar.display(None)
-        screen.blit(LOGO, (sidebar.sidebar_rect.width/2 - LOGO.get_width()/2, side_menu_surface.get_height()*0.075))
+        screen.blit(LOGO, (sidebar.sidebar_rect.width / 2 - LOGO.get_width() / 2, side_menu_surface.get_height() * 0.075))
         title.display()
 
         anim_title_breathe.play()

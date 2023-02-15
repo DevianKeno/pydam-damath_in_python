@@ -1,6 +1,4 @@
 
-import sys
-import pygame
 from ui_class.scene import *
 from screens.select_mode import *
 from objects import *

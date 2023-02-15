@@ -9,6 +9,7 @@ from damath.piece import *
 from console import *
 from audio_constants import *
 from scenes.pause_scene import *
+from scenes.victory_scene import *
 
 
 def get_cell_from_mouse(pos):
@@ -54,6 +55,7 @@ class S_Game(Scene):
         self.GlobalTimer = None
         self.text_mode = None
         self.IsPaused = False
+        self.IsVictory = False
 
     def on_entry(self):
         if Rules.IsVersusAI:
@@ -63,8 +65,12 @@ class S_Game(Scene):
 
         if not self.TurnTimer.is_running:
             self.TurnTimer.start_timer()
+            self.TurnTimer.Match = self.Match
         if not self.GlobalTimer.is_running:
             self.GlobalTimer.start_timer()
+            self.GlobalTimer.Match = self.Match
+
+        VictoryScene.Match = self.Match
 
     def update(self):
         mins, secs = self.GlobalTimer.get_remaining_time()
@@ -146,6 +152,14 @@ class S_Game(Scene):
             self.GlobalTimer.resume()
             self.unload_on_top(PauseScene)
 
+    def victory_test(self):
+        if not self.IsVictory:
+            self.IsVictory = True
+            self.load_on_top(VictoryScene)
+        else:
+            self.IsVictory = False
+            self.unload_on_top(VictoryScene)
+
     def late_update(self):
         for event in self.events:
             if event.type == pygame.QUIT:
@@ -155,15 +169,15 @@ class S_Game(Scene):
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE:
                     if Rules.allowCheats:
                         if self.Cheats.ShowDropdown:
                             self.Cheats.hide_menus()
-                        else:
-                            self.pause()
-                    else:
-                        self.pause()
-                    break
+                    self.pause()
+
+                if event.key == pygame.K_SPACE:
+                    self.victory_test()
+
             # Legacy cheat codes
                 if Rules.allowCheats:
                     _keys = pygame.key.get_pressed()
@@ -353,12 +367,14 @@ class S_Game(Scene):
                                         self.Match.select(cell)
                         else:
                             if (-1 < row < ROWS) and (-1 < col < COLS):
+                                if Rules.IsMultiplayer:
+                                    self.Console.listen(self.Match.select(cell))
                                 if Rules.IsVersusAI:
                                     if self.Match.turn == PLAYER_ONE:
                                         self.Match.select(cell)
                                 else:
                                     self.Match.select(cell)
-                                
+                            
                     if Rules.allowActions:
                         if self.Actions.ShowDropdown:
                             if self.Actions.dropdown.window.collidepoint(self.m_pos):
@@ -398,6 +414,14 @@ class S_Game(Scene):
                     if self.IsPaused:
                         return
 
+                    if Rules.allowActions:
+                        if game_side_surface.get_rect().collidepoint(self.m_pos):
+                            self.Actions.create_dropdown(self.m_pos)
+                            if Rules.allowCheats:
+                                self.Cheats.hide_menus()
+                        else:
+                            self.Actions.hide_menus()
+
                     if Rules.allowCheats:
                         cell = get_cell_from_mouse_raw(self.m_pos)
                         col, row = cell
@@ -407,13 +431,16 @@ class S_Game(Scene):
 
                             if (-1 < row < ROWS) and (-1 < col < COLS):
                                 self.Cheats.create_dropdown(self.m_pos)
-                                self.Actions.hide_menus()
+                                if Rules.allowActions:
+                                    self.Actions.hide_menus()
                             else:
                                 if not game_side_surface.get_rect().collidepoint(self.m_pos):
                                     self.Cheats.create_dropdown(self.m_pos, OnBoard=False)
-                                    self.Actions.hide_menus()
+                                    if Rules.allowActions:
+                                        self.Actions.hide_menus()
                                 else:
                                     self.Actions.create_dropdown(self.m_pos)
                                     self.Cheats.hide_menus()
+
 
 GameScene = S_Game()

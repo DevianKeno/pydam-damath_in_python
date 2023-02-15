@@ -679,6 +679,16 @@ class Damath:
         else:
             rules = Ruleset()
 
+    def _create_custom_from_rulestr(self, rulestr: str):
+        """
+        Creates a custom match with the specified rulestring.
+        Not passing a rulestring will set the mode to 'Classic'.
+        """
+        if rules != None:
+            Rules.set_rulestr(rulestr)
+        else:
+            rules = Ruleset()
+
     def host_match(self, match: Match=None):
         """
         Hosts a multiplayer match.
@@ -723,6 +733,8 @@ class Damath:
             else:
                 print("No match created.")
                 return
+        
+        self.Match.IsRunning = True
 
         # Initializations
         Gameboard = Board()
@@ -770,9 +782,12 @@ class Damath:
         if Options.enableDebugMode:
             print(f'[Debug]: Playing on {Rules.mode} mode')
 
-        if Rules.IsMultiplayer:
-            HostGameScene.Match = match
-            HostGameScene.load()
+        if Rules.IsMultiplayer:            
+            GameScene.Match = match
+            GameScene.Console = Console
+            GameScene.load()
+            # HostGameScene.Match = match
+            # HostGameScene.load()
         else:            
             GameScene.Match = match
             GameScene.Console = Console

@@ -157,15 +157,20 @@ class Scene():
         Loads a scene on top of this scene.
         """
         scene.IsLoaded = True
+        scene.on_entry()
         self.scenes_on_top.append(scene)
 
     def unload_on_top(self, scene):
         """
         Unloads the scene on top of this scene.
         """
-        self.scenes_on_top.remove(scene)
-        scene.IsLoaded = False
-        scene.unload()
+        try:
+            self.scenes_on_top.remove(scene)
+            scene.IsLoaded = False
+            scene.on_exit()
+            scene.unload()
+        except:
+            pass
 
     def _execute(self, target, delay_in_seconds, *args):
         for i in range(delay_in_seconds):
