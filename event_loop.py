@@ -1,4 +1,4 @@
-from pygame import event
+import pygame
 
 class EventLoop:
 
@@ -11,7 +11,7 @@ class EventLoop:
         and the other function who also needs the event list 
         should just get the event_list attribute
         """
-        self.event_list = event.get()
+        self.event_list = pygame.event.get()
         return self.event_list
         
 event_loop = EventLoop()

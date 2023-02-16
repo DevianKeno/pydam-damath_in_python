@@ -29,13 +29,20 @@ class Match:
         self.ControlsIsEnabled = True
         self.IsRunning = False
         self._console = None
+        
 
     def init(self):
         """
         Initialize match.
         """
-        self.command = None
 
+        # --- FOR GAME RESET ---
+        self.symbols = self.Board.Symbols
+        self.Board = Board(self._surface)
+        self.Board.Symbols = self.symbols
+        self.Board.init()
+        
+        self.command = None
         self.selected_cell = None   # Cell | Raw cell
         self.selected_tile = None   # Tile | Relative to board's coordinates
         self.selected_piece = None

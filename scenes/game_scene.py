@@ -58,6 +58,11 @@ class S_Game(Scene):
         self.IsVictory = False
 
     def on_entry(self):
+
+        resume_btn.set_target(self.pause)
+        restart_btn.set_target(self._restart_game)
+        main_menu_btn.set_target(self.unload)
+
         if Rules.IsVersusAI:
             self.text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
         else:
@@ -71,6 +76,10 @@ class S_Game(Scene):
             self.GlobalTimer.Match = self.Match
 
         VictoryScene.Match = self.Match
+
+    def _restart_game(self):
+        self.Match.reset()
+        self.pause()
 
     def update(self):
         mins, secs = self.GlobalTimer.get_remaining_time()

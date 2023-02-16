@@ -17,7 +17,7 @@ class MainMenu(Screen):
         super().__init__(bg_color, bg_music)
 
         self.title_moved = False       # checks if the TITLE has moved above the screen
-        self._name = None               # stores the name of the main menu
+        self._name = None         # stores the name of the main menu
 
     @property
     def name(self) -> name:
@@ -106,7 +106,7 @@ class MainMenu(Screen):
         Checks some variables, resets, and renders the text option to be displayed
         """
 
-        self.reset()
+        # self.reset()
         self.text_option = self.font.render(str(self.text), True, WHITE)
 
         if anim_title_slide_past_screen.IsFinished:

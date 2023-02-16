@@ -108,6 +108,7 @@ class Screen(ABC):
         executing while_looping()
         """
         for event in event_loop.get_event():
+        # for event in event_loop.event_list:
             if event.type == pygame.QUIT:
                 self.running = False
                 pygame.quit()

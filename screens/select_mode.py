@@ -65,9 +65,6 @@ class SelectMode(MainMenu):
     def before_looping(self):
 
         self.initialize()
-        classic_btn.set_args('Classic')
-        speed_btn.set_args('Speed')
-        custom_btn.set_args(None)
         start_select_btn.set_state(start_select_btn.Disabled)
 
         for btn in modes_btn:
@@ -95,5 +92,9 @@ class SelectMode(MainMenu):
 
     def after_looping(self):
         pass
+
+    def reset(self):
+        self.stop()
+        self.display()
     
 select_mode_screen = SelectMode(OAR_BLUE)

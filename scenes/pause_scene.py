@@ -13,9 +13,11 @@ class S_Pause(Scene):
         # Scene objects
         self.IsPaused = False
         self.Main = None
+        self.IsOnTop = True
 
     def on_entry(self):
-        resume_btn.set_target(self.unload())
+        pass
+        # resume_btn.set_target(self.unload)
         # options_btn.set_target()
         # restart_btn.set_target(None)
         # main_menu_btn.set_target(self.unload)
@@ -41,6 +43,7 @@ class S_Pause(Scene):
         # is already called and the pause window should now close
         # (used to prevent executing the function without the button 
         # behaving in its selected state first once clicked)
+
         # if resume_btn.pos_reset:
         #     turn_timer.resume()
         #     global_timer.resume()

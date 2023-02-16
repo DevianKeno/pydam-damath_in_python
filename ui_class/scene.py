@@ -22,6 +22,7 @@ class Scene():
         self.surface = screen
         self.IsLoaded = False
         self.IsEnabled = True
+        self.IsOnTop = False
         self.Cursor = Cursor
         self.m_pos = ()
         self.events = ()
@@ -117,7 +118,10 @@ class Scene():
         self.update()
     
     def _late_update(self):
-        self.events = pygame.event.get()
+        
+        if not self.IsOnTop:
+            self.events = event_loop.get_event()
+        # self.events = pygame.event.get()
         self.late_update()
 
     def _load_on_top(self, scene):

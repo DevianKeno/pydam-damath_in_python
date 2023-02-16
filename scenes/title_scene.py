@@ -16,6 +16,8 @@ class S_Title(Scene):
         self.Main = None
 
     def on_entry(self):
+
+    
         if Options.showSplash:
             self.load_on_top(SplashScene)
         self.execute(UNLOAD_ON_TOP, 3, SplashScene)
