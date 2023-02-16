@@ -65,10 +65,7 @@ class SelectMode(MainMenu):
     def before_looping(self):
 
         self.initialize()
-        start_select_btn.set_state(start_select_btn.Disabled)
-
-        for btn in modes_btn:
-            btn.set_state(btn.Normal)  
+        modes_btn_group.restart()
 
     def while_looping(self):
         if self.fade_screen.finished:
@@ -76,6 +73,8 @@ class SelectMode(MainMenu):
             self.mode_window.rect_window.wupdate(**self.window_size)
             self.mode_window.draw()
             self._draw_buttons()
+            if modes_btn_group.active_btns == 0:
+                start_select_btn.set_state(start_select_btn.Disabled)
 
         if self.title_moved:
             self.title_slide_above_screen()

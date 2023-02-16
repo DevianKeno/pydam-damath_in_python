@@ -62,6 +62,15 @@ class S_Game(Scene):
         resume_btn.set_target(self.pause)
         restart_btn.set_target(self._restart_game)
         main_menu_btn.set_target(self.unload)
+        pause_buttons_group.restart()
+
+        self.TurnTimer.reset()
+        self.GlobalTimer.reset()
+        self.TurnTimer.stop()
+        self.GlobalTimer.stop()
+
+        if self.IsPaused:
+            self.pause()
 
         if Rules.IsVersusAI:
             self.text_mode = font_cookie_run_reg.render(str(Rules.mode)+f" vs {Rules.ai}", True, OAR_BLUE)
@@ -77,7 +86,14 @@ class S_Game(Scene):
 
         VictoryScene.Match = self.Match
 
+    def on_exit(self):
+        self.Match.reset()
+        select_mode_screen.reset()
+        return super().on_exit()
+
     def _restart_game(self):
+        self.TurnTimer.reset()
+        self.GlobalTimer.reset()
         self.Match.reset()
         self.pause()
 

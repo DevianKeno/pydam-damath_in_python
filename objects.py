@@ -172,7 +172,7 @@ start_select_btn = NButton(screen, ((SIDE_MENU_RECT_CURRENT.width +
                             shadow_selected_color=(16, 30, 37), border_radius=10)
 
 modes_btn = [classic_btn, speed_btn, custom_btn]
-modes_btn_group = ButtonGroup(modes_btn, 1, True, caller_btn=start_select_btn, pass_target=False, pass_args=False)
+modes_btn_group = ButtonGroup(modes_btn, 1, True, caller_btn=start_select_btn)
 
 # --------- Sidebar objects --------- 
 sidebar = Sidebar(screen, (0, 0), SIDE_MENU_RECT_DEFAULT.w, SIDE_MENU_RECT_DEFAULT.h)

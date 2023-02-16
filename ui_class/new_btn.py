@@ -283,7 +283,8 @@ class NButton(Tooltip):
             self.set_state(self.Hovered)
         else:
             if not self.toggled and not self.clicked:
-                self.set_state(self.Normal)
+                if not self.get_state() == self.Disabled:
+                    self.set_state(self.Normal)
 
         # changes position if a new position is passed
         if pos is None:
@@ -389,6 +390,10 @@ class ButtonGroup:
             if pass_args or pass_target:
                 raise AttributeError("No caller button passed. Cannot assign values to pass_args or pass_target.")
 
+    def restart(self):
+        for btn in self.btn_list:
+            btn.set_state(btn.Normal)
+
     @property
     def btns_selected(self):
         return len(self.active_btns)
@@ -479,11 +484,11 @@ class ButtonGroup:
 
         if self.caller_btn != None:
             if len(self.active_btns) == 0:
+                self.caller_btn.set_state(self.caller_btn.Disabled)
                 if self.pass_target:
                     self.caller_btn.set_target(None)
                 if self.pass_args:
                     self.caller_btn.set_args(None)
-                self.caller_btn.set_state(self.caller_btn.Disabled)
             else:
                 if self.pass_target:
                     if self.caller_btn.get_target() != None:
@@ -497,3 +502,6 @@ class ButtonGroup:
                             self.caller_btn.set_state(self.caller_btn.Normal)
                     else:
                         self.caller_btn.set_state(self.caller_btn.Disabled)
+                else:
+                    if self.caller_btn.get_state() != self.caller_btn.Selected:
+                        self.caller_btn.set_state(self.caller_btn.Normal)
