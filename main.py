@@ -785,6 +785,10 @@ class Damath:
         if Options.enableDebugMode:
             print(f'[Debug]: Playing on {Rules.mode} mode')
 
+        if Console.IsClient:
+            Console._command_flip()
+            Console._command_lock()
+
         if Rules.IsMultiplayer:            
             GameScene.Match = match
             GameScene.Console = Console
