@@ -59,7 +59,7 @@ class S_Game(Scene):
         self.IsFinished = False
 
     def on_entry(self):
-
+        
         resume_btn.set_target(self.pause)
         restart_btn.set_target(self._restart_game)
         main_menu_btn.set_target(self.unload)
@@ -97,6 +97,8 @@ class S_Game(Scene):
             self.pause()
         elif self.IsVictory:
             self.victory_test()
+            self.IsFinished = False
+            self.IsVictory = False
         
         self.Match.reset()
         self.TurnTimer.reset()
