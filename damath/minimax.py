@@ -55,7 +55,7 @@ def add_score(game, piece: Piece, skip: list, move: tuple):
 
     OPERATOR_MAP = {'+' : operator.add,
                     '-' : operator.sub,
-                    'x' : operator.mul,
+                    '×' : operator.mul,
                     '÷' : operator.truediv}
 
     # print(f"PIECE TO MOVE: {piece.color} {piece.number} to {move}")    
