@@ -420,8 +420,8 @@ class DeveloperConsole:
 
         Rules.toggle_multiplayer()
         self._command_match_start()
-        self._command_flip()
-        self._command_lock()
+        # self._command_flip()
+        # self._command_lock()
 
 
     """
