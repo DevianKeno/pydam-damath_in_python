@@ -56,6 +56,7 @@ class S_Game(Scene):
         self.text_mode = None
         self.IsPaused = False
         self.IsVictory = False
+        self.IsFinished = False
 
     def on_entry(self):
 
@@ -92,10 +93,14 @@ class S_Game(Scene):
         return super().on_exit()
 
     def _restart_game(self):
+        if self.IsPaused:
+            self.pause()
+        elif self.IsVictory:
+            self.victory_test()
+        
+        self.Match.reset()
         self.TurnTimer.reset()
         self.GlobalTimer.reset()
-        self.Match.reset()
-        self.pause()
 
     def update(self):
         mins, secs = self.GlobalTimer.get_remaining_time()
@@ -107,8 +112,11 @@ class S_Game(Scene):
         
         if self.Match.check_for_winner() != None:
             print(self.Match.check_for_winner()) 
-            GameIsRunning = False
-            thread_running = False
+            if not self.IsFinished:
+                self.victory_test()
+                self.IsFinished = True
+            # GameIsRunning = False
+            # thread_running = False
             # game_ends()
 
     def display(self):
@@ -181,8 +189,12 @@ class S_Game(Scene):
         if not self.IsVictory:
             self.IsVictory = True
             self.load_on_top(VictoryScene)
+            self.GlobalTimer.pause()
+            self.TurnTimer.pause()
         else:
             self.IsVictory = False
+            self.GlobalTimer.resume()
+            self.TurnTimer.resume()
             self.unload_on_top(VictoryScene)
 
     def late_update(self):

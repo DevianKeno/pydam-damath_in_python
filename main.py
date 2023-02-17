@@ -394,8 +394,11 @@ def display_screen(screen):
         speed_btn.set_target(Main.create_match)
         speed_btn.set_args("speed")
         start_select_btn.set_target(Main.start_match)
-    screen.display()
-
+    
+    try:
+        screen.display()
+    except Exception as e:
+        print(e)
 # --------- Screen Objects ---------
 multi_mode_screen = MultiMenu(OAR_BLUE)
 

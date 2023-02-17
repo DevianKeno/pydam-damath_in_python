@@ -29,6 +29,8 @@ class Text:
         
         if self.align == 'center':
             self.rect = self.text_surface.get_rect(center=self.pos)
+        else:
+            self.rect = self.text_surface.get_rect(topleft=self.pos)
 
         self.surface.blit(self.text_surface, self.rect)
 

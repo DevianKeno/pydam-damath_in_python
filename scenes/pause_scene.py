@@ -16,7 +16,10 @@ class S_Pause(Scene):
         self.IsOnTop = True
 
     def on_entry(self):
-        pass
+        restart_btn.set_color(rect_color=TEAL, shadow_rect_color=DARKER_TEAL, 
+            hover_color=resume_btn.hover_color, shadow_hover_color=resume_btn.shadow_hovered_color)
+        main_menu_btn.set_color(rect_color=TEAL, shadow_rect_color=DARKER_TEAL, 
+            hover_color=resume_btn.hover_color, shadow_hover_color=resume_btn.shadow_hovered_color)
         # resume_btn.set_target(self.unload)
         # options_btn.set_target()
         # restart_btn.set_target(None)

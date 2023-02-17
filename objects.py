@@ -252,8 +252,13 @@ __pause_btn_kwargs = {
 # --------- Victory Window Objects  --------- 
 
 victory_window = create_window(screen, (0, 0), 
-                SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.55,
+                SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.6,
                 DARK_BLUE, border_radius=10,
+                cast_shadow=False)
+
+victory_inner_pane = create_window(screen, (0, 0), 
+                SCREEN_WIDTH*0.4, SCREEN_HEIGHT*0.325,
+                OAR_BLUE, border_radius=10,
                 cast_shadow=False)
 
 

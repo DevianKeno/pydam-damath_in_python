@@ -224,6 +224,16 @@ class NButton(Tooltip):
         """
         self.transition_duration = duration
 
+    def set_color(self, *, rect_color=None, shadow_rect_color=None, hover_color=None,
+                    shadow_hover_color=None):
+
+        self.states[self.Normal][0] = rect_color
+        self.states[self.Normal][2] = shadow_rect_color
+        self.states[self.Hovered][0] = hover_color
+        self.states[self.Hovered][2] = shadow_hover_color
+        self.states[self.Selected][0] = rect_color
+        self.states[self.Selected][2] = shadow_rect_color
+
     def set_text(self, text: str):
         """
         Changes the button's current text
