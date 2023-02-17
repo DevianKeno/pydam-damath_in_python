@@ -84,9 +84,9 @@ class Screen(ABC):
         Stops any music that is currently playing if there's any,
         and play the passed bg_music on loop
         """
-        pygame.mixer_music.stop()
 
         if self.bg_music != None:
+            pygame.mixer_music.stop()
             pygame.mixer_music.load(self.bg_music)
             pygame.mixer_music.play(-1)
 

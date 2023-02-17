@@ -7,6 +7,7 @@ from objects import screen, screen_copy, sidebar, title_surface, side_menu_surfa
             title, TITLE, LOGO
 from ui_class.fade_anim import Fade
 from ui_class.colors import OAR_BLUE, WHITE
+from scenes.title_scene import TitleScene
 
 class MainMenu(Screen):
 
@@ -18,6 +19,7 @@ class MainMenu(Screen):
 
         self.title_moved = False       # checks if the TITLE has moved above the screen
         self._name = None         # stores the name of the main menu
+
 
     @property
     def name(self) -> name:
@@ -114,3 +116,7 @@ class MainMenu(Screen):
         else:
             anim_title_slide_down.IsFinished = True
             anim_title_slide_up.play()
+
+        if not pygame.mixer_music.get_busy():
+            pygame.mixer_music.load("audio\DamPy.wav")
+            pygame.mixer_music.play(-1)

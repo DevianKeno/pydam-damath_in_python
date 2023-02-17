@@ -14,9 +14,13 @@ class S_Title(Scene):
         self.description = """Main title screen at the start of the game."""
         # Scene objects
         self.Main = None
+        self.music_playing = False
 
     def on_entry(self):
-
+        
+        pygame.mixer_music.load("audio\DamPy.wav")
+        pygame.mixer_music.play(-1)
+        self.music_playing = True
     
         if Options.showSplash:
             self.load_on_top(SplashScene)
