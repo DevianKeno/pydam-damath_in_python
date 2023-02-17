@@ -12,7 +12,7 @@ class Ruleset:
         """
         
         self.players_count = 2
-        self.IsVersusAI = False
+        self.IsVersusAI = True
         self.IsCustom = False
         self.IsMultiplayer = False
         self.set_classic()
@@ -117,7 +117,7 @@ class Ruleset:
         self.allowActions = True
         self.allowCheats = False
         
-        self.ai = None
+        self.ai = "Xena"
 
     def set_speed(self):
         """

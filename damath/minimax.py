@@ -61,7 +61,8 @@ def add_score(game, piece: Piece, skip: list, move: tuple):
     # print(f"PIECE TO MOVE: {piece.color} {piece.number} to {move}")    
 
     for skipped_piece in skip:
-        op = game.Board.piece_landed(*move)
+        # op = game.Board.piece_landed(*move)
+        op = game.Board.Symbols.get_symbol(move)
         operations.append(op)
         # print(f"{piece.color} {piece.number} {op} {skipped_piece.color} {skipped_piece.number}")
 
