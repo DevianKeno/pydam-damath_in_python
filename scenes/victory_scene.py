@@ -54,8 +54,8 @@ class S_Win(Scene):
         self.p2_lead = round(round(self.scores[1], 2) - round(self.scores[0], 2), 2)
     
         if self.p1_lead > self.p2_lead:
-            self.p2_score_lead.change_color((128, 0, 0))
-            self.p1_score_lead.change_color((0, 128, 0))
+            self.p2_score_lead.change_color((255, 0, 0))
+            self.p1_score_lead.change_color((0, 255, 0))
             victory_window.color = DARK_BLUE
             victory_inner_pane.color = OAR_BLUE
             self.win_condition.color = OAR_BLUE
@@ -65,8 +65,8 @@ class S_Win(Scene):
                         hover_color=resume_btn.hover_color, shadow_hover_color=resume_btn.shadow_hovered_color)
         
         elif self.p2_lead > self.p1_lead:
-            self.p1_score_lead.change_color((128, 0, 0))
-            self.p2_score_lead.change_color((0, 128, 0))
+            self.p1_score_lead.change_color((255, 0, 0))
+            self.p2_score_lead.change_color((0, 255, 0))
             victory_window.color = PERSIMMON_ORANGE
             victory_inner_pane.color = "#CE492D"
             self.win_condition.color = DARK_ORANGE
