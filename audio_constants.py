@@ -16,3 +16,9 @@ TRANSITION_OUT_SOUND = pygame.mixer.Sound('audio\\transition_out.wav')
 SWIPE_SOUND = pygame.mixer.Sound('audio\\swipe.wav')
 THEME_SELECTED_SOUND = pygame.mixer.Sound('audio\\theme_selected.wav')
 #VICTORY_SOUND = pygame.mixer.Sound('audio\\ROUTE_209.wav')
+
+SOUNDS = [POP_SOUND, MOVE_SOUND, 
+          SWEEP_SOUND, SELECT_SOUND, 
+          CAPTURE_SOUND, INVALID_SOUND,
+          TRANSITION_IN_SOUND, 
+          TRANSITION_OUT_SOUND]

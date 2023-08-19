@@ -11,13 +11,17 @@ class Move:
     """
     Move animation.
     """
-    def __init__(self, object, pos=(), time_in_seconds=0, ease_type=linear, loop=none):
+    def __init__(self, object, pos=(), time_in_seconds=0, ease_type=linear, loop=none, init_pos=()):
         self.object = object
-        self.pos_x = object.x
-        self.pos_y = object.y
+
+        if len(init_pos) == 0:
+            self.pos_x = object.x
+            self.pos_y = object.y
+        else:
+            self.pos_x, self.pos_y = init_pos # added to store/update the initial position of the object
         self.new_pos = pos
-        self.distance_x = pos[0] - object.x
-        self.distance_y = pos[1] - object.y 
+        self.distance_x = pos[0] - self.pos_x
+        self.distance_y = pos[1] - self.pos_y 
         self.time_in_seconds = time_in_seconds
         self.ease_type = ease_type
         self.loop = loop
@@ -29,9 +33,9 @@ class Move:
         self.step = 0
         self.values = []
 
-        if pos[0] != object.x:
+        if pos[0] != self.pos_x:
             self.anim_x = True
-        if pos[1] != object.y:
+        if pos[1] != self.pos_y:
             self.anim_y = True
 
         if time_in_seconds != 0:
@@ -222,7 +226,7 @@ class Rotate:
         self.ease_type = ease_type
         self.loop = loop
         self.IsPlaying = False
-        self.InFinished = False
+        self.IsFinished = False
         self.IsReversed = False
         self.step = 0
         self.values = []
@@ -390,12 +394,18 @@ class Scale_Rect:
     """
     Scale animation for Rects.
     """
-    def __init__(self, rect, size=(), time_in_seconds=0, along_center=True, ease_type=linear, loop=none):
+    def __init__(self, rect, size=(), time_in_seconds=0, along_center=True, ease_type=linear, loop=none, multiplier=True):
         self.rect = rect
         self.size_w = rect.w
         self.size_h = rect.h
-        self.distance_w =  (rect.w * size[0]) - rect.w
-        self.distance_h = (rect.h * size[1]) - rect.h
+
+        if multiplier:
+            self.distance_w =  (rect.w * size[0]) - rect.w
+            self.distance_h = (rect.h * size[1]) - rect.h
+        else:
+            self.distance_w =  size[0] - rect.w
+            self.distance_h = size[1] - rect.h
+
         self.time_in_seconds = time_in_seconds
         self.along_center = along_center
         self.pos_x = rect.x
@@ -405,8 +415,9 @@ class Scale_Rect:
         self.anim_w = False
         self.anim_h = False
         self.IsPlaying = False
-        self.InFinished = False
+        self.IsFinished = False
         self.IsReversed = False
+        self.max_steps = 0
         self.step = 0
         self.values = []
         
@@ -418,8 +429,11 @@ class Scale_Rect:
         if time_in_seconds != 0:
             self.max_steps = int(FPS * time_in_seconds)
         else:
+            if not multiplier:
+                self.size_w = size[0]
+                self.size_h = size[1]
             self.max_steps = 1
-
+            
         for i in range(self.max_steps):
             self.values.append(self.ease_type(i/self.max_steps))
             
